@@ -1,0 +1,123 @@
+/**
+ * Shinoda Design System — Token CSS v3
+ * Updated April 2026
+ * 1rem = 16px
+ *
+ * v3 changes:
+ * - Letter spacing eased +0.005em across all styles
+ * - Opacity scale standardised: only 20%, 40%, 60%, 80% (content) + 5% (dividers)
+ */
+
+:root {
+  --font-sans:   "GT America LCG", system-ui, sans-serif;
+  --font-serif:  "GT Super Text", Georgia, serif;
+
+  --fw-normal:      400;
+  --fw-book:        450;
+  --fw-medium:      500;
+
+  /* Letter spacing — eased from original spec (+0.005em) */
+  --tracking-n040: -0.040em;
+  --tracking-n035: -0.035em;
+  --tracking-n030: -0.030em;
+  --tracking-n025: -0.025em;
+  --tracking-n020: -0.020em;
+  --tracking-n015: -0.015em;
+  --tracking-n010: -0.010em;
+  --tracking-n005: -0.005em;
+  --tracking-none:  0em;
+
+  /* Line height */
+  --leading-heading:   1.05;
+  --leading-body-xl:   1.20;
+  --leading-body-md:   1.30;
+  --leading-body-xs:   1.40;
+
+  /* Opacity scale — ONLY these values, ever */
+  --opacity-80: 0.80;
+  --opacity-60: 0.60;
+  --opacity-40: 0.40;
+  --opacity-20: 0.20;
+  --opacity-divider: 0.05;
+
+  --radius-none: 0px;
+  --radius-xs:   4px;
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-full: 9999px;
+
+  --border-sm:   1px;
+  --border-md:   2px;
+
+  --space-0: 0px; --space-1: 4px; --space-2: 8px; --space-3: 12px;
+  --space-4: 16px; --space-5: 20px; --space-6: 24px; --space-8: 32px;
+  --space-10: 40px; --space-12: 48px; --space-16: 64px; --space-20: 80px;
+  --space-24: 96px; --space-32: 128px;
+
+  --container-5xl: 1280px;
+
+  /* Grey palette — light mode */
+  --grey-10: #FAFAFA; --grey-20: #F4F4F5; --grey-30: #E4E4E7;
+  --grey-40: #D0D0D7; --grey-50: #A1A1AA; --grey-60: #7A7A82;
+  --grey-70: #494951; --grey-80: #333338; --grey-90: #212123;
+  --grey-100: #18181B;
+
+  /* Semantic tokens — light mode */
+  --color-fill-base:      #FAFAFA;
+  --color-fill-primary:   #F4F4F5;
+  --color-fill-secondary: #E4E4E7;
+  --color-fill-tertiary:  #D0D0D7;
+  --color-outline:        #D0D0D7;
+  --color-text-primary:   #18181B;
+  --color-text-secondary: #494951;
+  --color-text-tertiary:  #A1A1AA;
+  --color-text-contrast:  #FFFFFF;
+  --color-overlay-weak:   rgba(24, 24, 27, 0.05);
+  --color-overlay-core:   rgba(24, 24, 27, 0.20);
+  --color-overlay-strong: rgba(24, 24, 27, 0.60);
+  --color-status-error:   #CC0019;
+  --color-status-warning: #E66900;
+  --color-status-info:    #005096;
+  --color-status-success: #009650;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-fill-base: #18181B; --color-fill-primary: #212123;
+    --color-fill-secondary: #333338; --color-fill-tertiary: #494951;
+    --color-outline: #494951;
+    --color-text-primary: #FAFAFA; --color-text-secondary: #A1A1AA;
+    --color-text-tertiary: #494951; --color-text-contrast: #FFFFFF;
+    --color-overlay-weak: rgba(250,250,250,0.05);
+    --color-overlay-core: rgba(250,250,250,0.20);
+    --color-overlay-strong: rgba(250,250,250,0.60);
+    --color-status-error: #F51450; --color-status-warning: #FF6905;
+    --color-status-info: #0073EB; --color-status-success: #00B964;
+  }
+}
+
+[data-theme="dark"] {
+  --color-fill-base: #18181B; --color-fill-primary: #212123;
+  --color-fill-secondary: #333338; --color-fill-tertiary: #494951;
+  --color-outline: #494951;
+  --color-text-primary: #FAFAFA; --color-text-secondary: #A1A1AA;
+  --color-text-tertiary: #494951; --color-text-contrast: #FFFFFF;
+  --color-overlay-weak: rgba(250,250,250,0.05);
+  --color-overlay-core: rgba(250,250,250,0.20);
+  --color-overlay-strong: rgba(250,250,250,0.60);
+  --color-status-error: #F51450; --color-status-warning: #FF6905;
+  --color-status-info: #0073EB; --color-status-success: #00B964;
+}
+
+[data-theme="light"] {
+  --color-fill-base: #FAFAFA; --color-fill-primary: #F4F4F5;
+  --color-fill-secondary: #E4E4E7; --color-fill-tertiary: #D0D0D7;
+  --color-outline: #D0D0D7;
+  --color-text-primary: #18181B; --color-text-secondary: #494951;
+  --color-text-tertiary: #A1A1AA; --color-text-contrast: #FFFFFF;
+  --color-overlay-weak: rgba(24,24,27,0.05);
+  --color-overlay-core: rgba(24,24,27,0.20);
+  --color-overlay-strong: rgba(24,24,27,0.60);
+  --color-status-error: #CC0019; --color-status-warning: #E66900;
+  --color-status-info: #005096; --color-status-success: #009650;
+}
