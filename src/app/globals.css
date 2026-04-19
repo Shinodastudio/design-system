@@ -1,0 +1,41 @@
+@import '../styles/fonts.css';
+@import '../styles/shinoda-tokens.css';
+@import '../styles/shinoda-base.css';
+@import 'tailwindcss';
+
+@theme inline {
+  --font-sans:  "GT America LCG", system-ui, sans-serif;
+  --font-serif: "GT Super Text", Georgia, serif;
+
+  --color-fill-base:       var(--color-fill-base);
+  --color-fill-primary:    var(--color-fill-primary);
+  --color-fill-secondary:  var(--color-fill-secondary);
+  --color-fill-tertiary:   var(--color-fill-tertiary);
+  --color-text-primary:    var(--color-text-primary);
+  --color-text-secondary:  var(--color-text-secondary);
+  --color-text-tertiary:   var(--color-text-tertiary);
+  --color-text-contrast:   var(--color-text-contrast);
+  --color-outline:         var(--color-outline);
+  --color-overlay-weak:    var(--color-overlay-weak);
+  --color-overlay-core:    var(--color-overlay-core);
+  --color-overlay-strong:  var(--color-overlay-strong);
+  --color-status-error:    var(--color-status-error);
+  --color-status-warning:  var(--color-status-warning);
+  --color-status-info:     var(--color-status-info);
+  --color-status-success:  var(--color-status-success);
+
+  --spacing-0:  var(--space-0);
+  --spacing-1:  var(--space-1);
+  --spacing-2:  var(--space-2);
+  --spacing-3:  var(--space-3);
+  --spacing-4:  var(--space-4);
+  --spacing-5:  var(--space-5);
+  --spacing-6:  var(--space-6);
+  --spacing-8:  var(--space-8);
+  --spacing-10: var(--space-10);
+  --spacing-12: var(--space-12);
+  --spacing-16: var(--space-16);
+  --spacing-20: var(--space-20);
+  --spacing-24: var(--space-24);
+  --spacing-32: var(--space-32);
+}

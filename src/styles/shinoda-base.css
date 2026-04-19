@@ -1,0 +1,239 @@
+/**
+ * Shinoda Design System — Base Stylesheet v3
+ * Import AFTER shinoda-tokens.css
+ *
+ * v3 changes:
+ * - Cursor positioning fixed (left/top instead of calc transform)
+ * - Letter spacing eased +0.005em across all styles
+ * - Opacity only: 20%, 40%, 60%, 80% (content) + 5% (dividers)
+ * - Button: radius-sm, spring zoom ::before, cursor hides on hover
+ * - Link: left-to-right underline build, background fade, cursor hides on hover
+ * - Nav: fixed, progressive blur, constrained inner width
+ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  cursor: none;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-normal);
+  font-size: 1.5rem;
+  line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-n030);
+  color: var(--color-text-primary);
+  background-color: var(--color-fill-base);
+  min-height: 100dvh;
+}
+
+img, video, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; background: none; border: none; cursor: none; }
+
+::selection {
+  background-color: var(--color-text-primary);
+  color: var(--color-fill-base);
+}
+
+/* ─── TYPOGRAPHY — eased tracking ────────────────────────────────────── */
+
+.heading-xl  { font-size: 2.5rem;   font-weight: var(--fw-normal); line-height: var(--leading-heading); letter-spacing: var(--tracking-n040); }
+.heading-lg  { font-size: 2rem;     font-weight: var(--fw-normal); line-height: var(--leading-heading); letter-spacing: var(--tracking-n035); }
+.heading-md  { font-size: 1.5rem;   font-weight: var(--fw-normal); line-height: var(--leading-heading); letter-spacing: var(--tracking-n030); }
+.heading-sm  { font-size: 1.25rem;  font-weight: var(--fw-normal); line-height: var(--leading-heading); letter-spacing: var(--tracking-n025); }
+.heading-xs  { font-size: 1rem;     font-weight: var(--fw-normal); line-height: var(--leading-heading); letter-spacing: var(--tracking-n020); }
+.heading-2xs { font-size: 0.875rem; font-weight: var(--fw-book);   line-height: var(--leading-heading); letter-spacing: var(--tracking-n015); }
+
+.subheading-lg { font-family: var(--font-serif); font-weight: var(--fw-book); font-size: 3rem;   line-height: var(--leading-heading); letter-spacing: var(--tracking-n040); }
+.subheading-md { font-family: var(--font-serif); font-weight: var(--fw-book); font-size: 2rem;   line-height: var(--leading-heading); letter-spacing: var(--tracking-n040); }
+.subheading-sm { font-family: var(--font-serif); font-weight: var(--fw-book); font-size: 1.5rem; line-height: var(--leading-heading); letter-spacing: var(--tracking-n040); }
+
+.body-xl  { font-size: 1.25rem;  font-weight: var(--fw-normal); line-height: var(--leading-body-xl); letter-spacing: var(--tracking-n025); }
+.body-lg  { font-size: 1.125rem; font-weight: var(--fw-normal); line-height: var(--leading-body-xl); letter-spacing: var(--tracking-n020); }
+.body-md  { font-size: 1rem;     font-weight: var(--fw-normal); line-height: var(--leading-body-md); letter-spacing: var(--tracking-n015); }
+.body-sm  { font-size: 0.875rem; font-weight: var(--fw-normal); line-height: var(--leading-body-md); letter-spacing: var(--tracking-n010); }
+.body-xs  { font-size: 0.75rem;  font-weight: var(--fw-normal); line-height: var(--leading-body-xs); letter-spacing: var(--tracking-n005); }
+.body-2xs { font-size: 0.625rem; font-weight: var(--fw-normal); line-height: var(--leading-body-xs); letter-spacing: var(--tracking-none); }
+
+/* ─── OPACITY — only these values, ever ──────────────────────────────── */
+.op-80 { opacity: var(--opacity-80); }
+.op-60 { opacity: var(--opacity-60); }
+.op-40 { opacity: var(--opacity-40); }
+.op-20 { opacity: var(--opacity-20); }
+
+/* ─── LAYOUT ─────────────────────────────────────────────────────────── */
+.page-wrapper {
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--nav-height, 73px); /* clear fixed nav */
+}
+.main-wrapper { flex: 1; width: 100%; max-width: var(--container-5xl); margin-inline: auto; padding-inline: var(--space-6); }
+.padding-global { padding-inline: var(--space-6); }
+
+.grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.col-sticky { position: sticky; top: var(--space-6); align-self: start; height: fit-content; }
+@media (max-width: 768px) {
+  .grid-2col { grid-template-columns: 1fr; }
+  .col-sticky { position: static; }
+}
+
+/* Dividers — horizontal only, 5% opacity */
+.divider { width: 100%; height: var(--border-sm); background-color: var(--color-text-primary); opacity: var(--opacity-divider); border: none; }
+
+/* ─── NAV — fixed, constrained inner, no divider ─────────────────────── */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 999;
+  overflow: visible;
+}
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: var(--container-5xl);
+  margin-inline: auto;
+  padding: var(--space-5) var(--space-6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  background-color: color-mix(in srgb, var(--color-fill-base) 70%, transparent);
+  position: relative;
+  z-index: 1;
+}
+.nav-logo {
+  font-size: 1rem;
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--tracking-n020);
+  opacity: var(--opacity-80);
+}
+.nav-links { display: flex; gap: var(--space-2); list-style: none; align-items: center; }
+
+/* Nav links use .btn styles — opacity at rest, full on hover */
+.nav-link {
+  opacity: var(--opacity-40);
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n020);
+}
+.nav-link:hover { opacity: 1; }
+.nav-link.is-active { opacity: 1; }
+
+/* ─── BUTTONS — 0.1em em padding, radius-sm, spring zoom ::before ──── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.1em;
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--tracking-n030);
+  line-height: var(--leading-heading);
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: none;
+  position: relative;
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1), opacity 150ms ease;
+}
+/* Spring zoom background — scales from 80% to 100% on hover */
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--color-overlay-core);
+  border-radius: var(--radius-sm);
+  transform: scale(0.8);
+  opacity: 0;
+  transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 150ms ease;
+  pointer-events: none;
+}
+.btn:hover::before  { transform: scale(1);   opacity: 1; }
+.btn:active::before { transform: scale(0.95); opacity: 1; }
+.btn:active         { opacity: var(--opacity-80); }
+
+/* Icon buttons — square, no gap */
+.btn-icon {
+  padding: 0.1em;
+  gap: 0;
+  line-height: 1;
+}
+
+/* ─── LINKS — left-to-right underline, background fade, cursor hides ─── */
+.link {
+  color: var(--color-text-primary);
+  cursor: none;
+  display: inline;
+  padding: 0.1em 0.15em;
+  border-radius: var(--radius-sm);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  /* Underline via gradient — builds left-to-right on hover */
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: 0% 1px;
+  background-color: transparent;
+  text-decoration: none;
+  /* Gravity */
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+  transition: background-size 250ms cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 200ms ease,
+              transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.link:hover {
+  background-size: 100% 1px;
+  background-color: var(--color-overlay-core);
+}
+
+/* ─── CURSOR — single inverted dot, fixed positioning ────────────────── */
+.cursor {
+  position: fixed; left: 0; top: 0;
+  pointer-events: none; z-index: 9999;
+  border-radius: var(--radius-full);
+  transform: translate(-50%, -50%);
+  background: var(--color-text-primary);
+  mix-blend-mode: difference;
+  width: 1.25em; height: 1.25em;
+  transition: width 180ms cubic-bezier(0.34, 1.4, 0.64, 1),
+              height 180ms cubic-bezier(0.34, 1.4, 0.64, 1),
+              border-radius 180ms cubic-bezier(0.34, 1.4, 0.64, 1),
+              opacity 200ms ease;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.cursor-label {
+  font-family: var(--font-sans); font-size: 0.5rem;
+  font-weight: var(--fw-medium); letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--color-fill-base); white-space: nowrap;
+  opacity: 0; transition: opacity 100ms ease;
+  mix-blend-mode: difference; pointer-events: none;
+}
+html.cursor--text .cursor { width: 2px; height: 1.5em; border-radius: 1px; }
+html.cursor--chip .cursor { min-width: 3.5em; width: auto; height: 1.75em; border-radius: var(--radius-full); padding: 0 0.5em; }
+html.cursor--chip .cursor-label { opacity: 1; }
+html.cursor--active .cursor { transform: translate(-50%,-50%) scale(0.8); }
+.cursor.is-hidden { opacity: 0; }
+
+/* ─── CONTAINERS ─────────────────────────────────────────────────────── */
+.container-sm  { max-width: var(--container-sm);  margin-inline: auto; }
+.container-md  { max-width: var(--container-md);  margin-inline: auto; }
+.container-lg  { max-width: var(--container-lg);  margin-inline: auto; }
+.container-xl  { max-width: var(--container-xl);  margin-inline: auto; }
+.container-5xl { max-width: var(--container-5xl); margin-inline: auto; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+.flex { display: flex; } .flex-col { flex-direction: column; }
+.items-center { align-items: center; } .justify-between { justify-content: space-between; }
+.gap-4 { gap: var(--space-4); } .gap-6 { gap: var(--space-6); }
+.w-full { width: 100%; } .min-h-screen { min-height: 100dvh; }
