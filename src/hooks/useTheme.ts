@@ -24,9 +24,11 @@ export function useTheme(): readonly [Theme, () => void] {
       current === 'dark'  ? 'light' :
       current === 'light' ? 'dark'  :
       osDark              ? 'light' : 'dark';
+    document.documentElement.classList.add('theme-transitioning');
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('shinoda-theme', next);
     setTheme(next);
+    setTimeout(() => document.documentElement.classList.remove('theme-transitioning'), 500);
   }, []);
 
   return [theme, toggleTheme] as const;

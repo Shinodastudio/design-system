@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { ClientShell } from '@/providers/ClientShell';
-import { Nav } from '@/components/nav/Nav';
+import { Footer } from '@/components/footer/Footer';
 import { PageWrapper } from '@/components/layout/PageWrapper';
 
 export const metadata: Metadata = {
@@ -32,9 +32,9 @@ export default function RootLayout({
       </head>
       <body>
         <ClientShell>
-          <Nav />
           <PageWrapper>
             {children}
+            <Footer />
           </PageWrapper>
         </ClientShell>
       </body>
