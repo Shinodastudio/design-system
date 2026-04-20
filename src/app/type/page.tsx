@@ -3,6 +3,7 @@ import { Grid } from '@/components/layout/Grid';
 import { StickyCol } from '@/components/layout/StickyCol';
 import { Divider } from '@/components/primitives/Divider';
 import { Text } from '@/components/primitives/Text';
+import { CopyValue } from '@/components/catalogue/CopyValue';
 import { HEADING_VARIANTS, SUBHEADING_VARIANTS, BODY_VARIANTS, OPACITY_LEVELS } from '@/lib/tokens';
 import type { TypeVariant, OpacityLevel } from '@/lib/tokens';
 
@@ -12,16 +13,16 @@ const TYPE_META: Record<string, { size: string; tracking: string }> = {
   'heading-md':    { size: '1.5rem',   tracking: '-0.030em' },
   'heading-sm':    { size: '1.25rem',  tracking: '-0.025em' },
   'heading-xs':    { size: '1rem',     tracking: '-0.020em' },
-  'heading-2xs':   { size: '0.875rem', tracking: '-0.015em' },
+  'heading-2xs':   { size: '0.75rem',  tracking: '-0.015em' },
   'subheading-lg': { size: '3rem',     tracking: '-0.040em' },
   'subheading-md': { size: '2rem',     tracking: '-0.040em' },
   'subheading-sm': { size: '1.5rem',   tracking: '-0.040em' },
-  'body-xl':       { size: '1.25rem',  tracking: '-0.025em' },
-  'body-lg':       { size: '1.125rem', tracking: '-0.020em' },
-  'body-md':       { size: '1rem',     tracking: '-0.015em' },
-  'body-sm':       { size: '0.875rem', tracking: '-0.010em' },
-  'body-xs':       { size: '0.75rem',  tracking: '-0.005em' },
-  'body-2xs':      { size: '0.625rem', tracking: '0em' },
+  'body-xl':       { size: '1.5rem',   tracking: '-0.025em' },
+  'body-lg':       { size: '1.375rem', tracking: '-0.020em' },
+  'body-md':       { size: '1.25rem',  tracking: '-0.015em' },
+  'body-sm':       { size: '1.125rem', tracking: '-0.010em' },
+  'body-xs':       { size: '1rem',     tracking: '-0.005em' },
+  'body-2xs':      { size: '0.875rem', tracking: '0em' },
 };
 
 function TypeRow({ variant }: { readonly variant: TypeVariant }): React.ReactElement {
@@ -32,7 +33,9 @@ function TypeRow({ variant }: { readonly variant: TypeVariant }): React.ReactEle
       <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 'var(--space-6)', alignItems: 'baseline', paddingBlock: 'var(--space-6)' }}>
         <Text variant={variant} as="p">The quick brown fox</Text>
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <Text variant="body-xs" opacity={40} as="p">{variant}</Text>
+          <CopyValue value={`.${variant}`}>
+            <Text variant="body-xs" opacity={40} as="p">{variant}</Text>
+          </CopyValue>
           <Text variant="body-xs" opacity={40} as="p">{meta.size} / {meta.tracking}</Text>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { Grid } from '@/components/layout/Grid';
 import { StickyCol } from '@/components/layout/StickyCol';
 import { Divider } from '@/components/primitives/Divider';
 import { Text } from '@/components/primitives/Text';
+import { CopyValue } from '@/components/catalogue/CopyValue';
 
 const SEMANTIC_TOKENS = [
   { name: '--color-fill-base',      label: 'Fill Base',      description: 'Page background' },
@@ -28,13 +29,15 @@ const STATUS_TOKENS = [
 
 function Swatch({ token }: { readonly token: string }): React.ReactElement {
   return (
-    <div
+    <span
       style={{
+        display: 'block',
         width: '40px',
         height: '40px',
         backgroundColor: `var(${token})`,
         border: '1px solid var(--color-outline)',
         flexShrink: 0,
+        borderRadius: 'var(--radius-xs)',
       }}
     />
   );
@@ -45,10 +48,14 @@ function ColourRow({ name, label, description }: { readonly name: string; readon
     <div>
       <Divider />
       <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 1fr', gap: 'var(--space-6)', alignItems: 'center', paddingBlock: 'var(--space-5)' }}>
-        <Swatch token={name} />
+        <CopyValue value={`var(${name})`}>
+          <Swatch token={name} />
+        </CopyValue>
         <div>
           <Text variant="body-md" as="p">{label}</Text>
-          <Text variant="body-sm" opacity={40} as="p">{name}</Text>
+          <CopyValue value={name}>
+            <Text variant="body-sm" opacity={40} as="p">{name}</Text>
+          </CopyValue>
         </div>
         <Text variant="body-md" opacity={60} as="p">{description}</Text>
       </div>
