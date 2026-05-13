@@ -6,13 +6,18 @@ import { Text } from '@/components/primitives/Text';
 import NextLink from 'next/link';
 
 const COMPONENTS = [
-  { label: 'Button',   href: '/components/button',   description: 'Transparent at rest, 20% overlay on hover. Gravity-pulled.' },
-  { label: 'Link',     href: '/components/link',     description: '20% underline at rest, 100% on hover. Gravity-pulled.' },
-  { label: 'Divider',  href: '/components/divider',  description: 'Horizontal only. 5% opacity. No vertical dividers ever.' },
-  { label: 'Text',     href: '/components/text',     description: 'All 15 type variants via a single polymorphic component.' },
-  { label: 'Cursor',   href: '/components/cursor',   description: '1.25em inverted dot. Morphs on context. Lerp 0.22.' },
-  { label: 'Nav',      href: '/components/nav',      description: 'Navigation bar with links at 40% opacity, theme toggle.' },
-  { label: 'Grid',     href: '/components/grid',     description: '50/50 two-column layout with optional sticky left column.' },
+  { label: 'Button',    href: '/components/button',    description: 'Transparent at rest, 20% overlay on hover. Gravity-pulled.' },
+  { label: 'Link',      href: '/components/link',      description: '20% underline at rest, 100% on hover. Gravity-pulled.' },
+  { label: 'Divider',   href: '/components/divider',   description: 'Horizontal only. 5% opacity. No vertical dividers ever.' },
+  { label: 'Text',      href: '/components/text',      description: 'All 15 type variants via a single polymorphic component.' },
+  { label: 'Rich Text', href: '/components/rich-text', description: 'Long-form text flow — headings, lists, code, hr.' },
+  { label: 'Input',     href: '/components/input',     description: 'Text and textarea with label, help, error states.' },
+  { label: 'Select',    href: '/components/select',    description: 'Native select, checkbox, radio.' },
+  { label: 'Tabs',      href: '/components/tabs',      description: 'Horizontal tab control with 2px active indicator.' },
+  { label: 'Icon',      href: '/components/icon',      description: 'Searchable catalogue. currentColor strokes, 6 size variants.' },
+  { label: 'Cursor',    href: '/components/cursor',    description: '1.25em inverted dot. Morphs on context. Lerp 0.22.' },
+  { label: 'Nav',       href: '/components/nav',       description: 'Navigation bar with links at 40% opacity, theme toggle.' },
+  { label: 'Grid',      href: '/components/grid',      description: '50/50 two-column layout with optional sticky left column.' },
 ] as const;
 
 export default function ComponentsPage(): React.ReactElement {

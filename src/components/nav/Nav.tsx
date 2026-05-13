@@ -4,10 +4,15 @@ import { ThemeToggle } from './ThemeToggle';
 import { NavProgressiveBlur } from './NavProgressiveBlur';
 
 const NAV_ITEMS = [
-  { label: 'Colour',     href: '/colour' },
-  { label: 'Type',       href: '/type' },
+  { label: 'Colour',     href: '/colour'     },
+  { label: 'Type',       href: '/type'       },
   { label: 'Components', href: '/components' },
-  { label: 'Structure',  href: '/structure' },
+  { label: 'Structure',  href: '/structure'  },
+  { label: 'Widths',     href: '/widths'     },
+  { label: 'Paddings',   href: '/paddings'   },
+  { label: 'Margins',    href: '/margins'    },
+  { label: 'Grids',      href: '/grids'      },
+  { label: 'Utility',    href: '/utility'    },
 ] as const;
 
 export function Nav(): React.ReactElement {

@@ -16,7 +16,7 @@ export function TokenTable({ rows }: TokenTableProps): React.ReactElement {
           <tr
             key={row.name}
             style={{
-              borderBottom: '1px solid var(--color-overlay-weak)',
+              borderBottom: '1px solid var(--color-transparent-weak)',
             }}
           >
             <td

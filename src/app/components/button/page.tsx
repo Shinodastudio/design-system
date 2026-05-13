@@ -35,7 +35,7 @@ export default function ButtonPage(): React.ReactElement {
             description="20% overlay fill reveals on cursor proximity before direct hover."
             code={`<Button>Label</Button>`}
           >
-            <Button style={{ backgroundColor: 'var(--color-overlay-core)' }}>Label</Button>
+            <Button style={{ backgroundColor: 'var(--color-transparent-core)' }}>Label</Button>
           </ComponentFrame>
 
           <ComponentFrame
