@@ -16,9 +16,9 @@
   --color-text-tertiary:   var(--color-text-tertiary);
   --color-text-contrast:   var(--color-text-contrast);
   --color-outline:         var(--color-outline);
-  --color-overlay-weak:    var(--color-overlay-weak);
-  --color-overlay-core:    var(--color-overlay-core);
-  --color-overlay-strong:  var(--color-overlay-strong);
+  --color-transparent-weak:    var(--color-transparent-weak);
+  --color-transparent-core:    var(--color-transparent-core);
+  --color-transparent-strong:  var(--color-transparent-strong);
   --color-status-error:    var(--color-status-error);
   --color-status-warning:  var(--color-status-warning);
   --color-status-info:     var(--color-status-info);

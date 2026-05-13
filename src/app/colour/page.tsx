@@ -5,19 +5,29 @@ import { Divider } from '@/components/primitives/Divider';
 import { Text } from '@/components/primitives/Text';
 import { CopyValue } from '@/components/catalogue/CopyValue';
 
+const CORE_TOKENS = [
+  { name: '--color-core-base',        label: 'Core Base',        description: 'Pure white (light) / pure black (dark) — system anchor' },
+  { name: '--color-core-contrast',    label: 'Core Contrast',    description: 'Always white — text/icons on coloured fills' },
+  { name: '--color-core-invert',      label: 'Core Invert',      description: 'Mirror of base — black (light) / white (dark)' },
+  { name: '--color-core-transparent', label: 'Core Transparent', description: 'Zero-alpha base — use for fade transitions' },
+] as const;
+
 const SEMANTIC_TOKENS = [
-  { name: '--color-fill-base',      label: 'Fill Base',      description: 'Page background' },
-  { name: '--color-fill-primary',   label: 'Fill Primary',   description: 'Card / elevated surface' },
-  { name: '--color-fill-secondary', label: 'Fill Secondary', description: 'Input backgrounds' },
-  { name: '--color-fill-tertiary',  label: 'Fill Tertiary',  description: 'Borders, dividers fill' },
-  { name: '--color-text-primary',   label: 'Text Primary',   description: 'Body copy, headings' },
-  { name: '--color-text-secondary', label: 'Text Secondary', description: 'Supporting text' },
-  { name: '--color-text-tertiary',  label: 'Text Tertiary',  description: 'Metadata, captions' },
-  { name: '--color-text-contrast',  label: 'Text Contrast',  description: 'Always white — use on coloured surfaces' },
-  { name: '--color-outline',        label: 'Outline',        description: 'Border / rule colour' },
-  { name: '--color-overlay-weak',   label: 'Overlay Weak',   description: '5% — very light tint' },
-  { name: '--color-overlay-core',   label: 'Overlay Core',   description: '20% — button hover fill' },
-  { name: '--color-overlay-strong', label: 'Overlay Strong', description: '60% — scrim, backdrop' },
+  { name: '--color-fill-base',          label: 'Fill Base',          description: 'Page background' },
+  { name: '--color-fill-primary',       label: 'Fill Primary',       description: 'Card / elevated surface' },
+  { name: '--color-fill-secondary',     label: 'Fill Secondary',     description: 'Input backgrounds' },
+  { name: '--color-fill-tertiary',      label: 'Fill Tertiary',      description: 'Borders, dividers fill' },
+  { name: '--color-text-primary',       label: 'Text Primary',       description: 'Body copy, headings' },
+  { name: '--color-text-secondary',     label: 'Text Secondary',     description: 'Supporting text' },
+  { name: '--color-text-tertiary',      label: 'Text Tertiary',      description: 'Metadata, captions' },
+  { name: '--color-text-contrast',      label: 'Text Contrast',      description: 'Always white — use on coloured surfaces' },
+  { name: '--color-outline',            label: 'Outline',            description: 'Border / rule colour' },
+  { name: '--color-grey-strong',        label: 'Grey Strong',        description: 'Heaviest grey block — stamps, inverted chips' },
+  { name: '--color-grey-core',          label: 'Grey Core',          description: 'Solid grey emphasis — not for text' },
+  { name: '--color-grey-weak',          label: 'Grey Weak',          description: 'Light grey panel / subtle elevated surface' },
+  { name: '--color-transparent-weak',   label: 'Transparent Weak',   description: '5% — very light tint, dividers' },
+  { name: '--color-transparent-core',   label: 'Transparent Core',   description: '20% — button hover fill' },
+  { name: '--color-transparent-strong', label: 'Transparent Strong', description: '60% — scrim, backdrop' },
 ] as const;
 
 const STATUS_TOKENS = [
@@ -76,12 +86,18 @@ export default function ColourPage(): React.ReactElement {
           </Text>
         </StickyCol>
         <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
-          <Text variant="heading-xs" as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Surface &amp; text</Text>
-          {SEMANTIC_TOKENS.map((token) => (
+          <Text variant="heading-xs" as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Core</Text>
+          {CORE_TOKENS.map((token) => (
             <ColourRow key={token.name} {...token} />
           ))}
           <div style={{ marginTop: 'var(--space-12)' }}>
-            <Text variant="heading-xs" as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Status</Text>
+            <Text variant="heading-xs" as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Surface &amp; text</Text>
+            {SEMANTIC_TOKENS.map((token) => (
+              <ColourRow key={token.name} {...token} />
+            ))}
+          </div>
+          <div style={{ marginTop: 'var(--space-12)' }}>
+            <Text variant="heading-xs" as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Status (derived)</Text>
             {STATUS_TOKENS.map((token) => (
               <ColourRow key={token.name} {...token} />
             ))}

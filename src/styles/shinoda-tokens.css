@@ -1,22 +1,45 @@
 /**
  * Shinoda Design System — Token CSS v3
- * Updated April 2026
+ * Updated April 2026 · Token sync May 2026
  * 1rem = 16px
  *
  * v3 changes:
  * - Letter spacing eased +0.005em across all styles
  * - Opacity scale standardised: only 20%, 40%, 60%, 80% (content) + 5% (dividers)
+ *
+ * v3.1 changes (Figma token sync — Colour, Primitive, Unit modes):
+ * - Added accent palette (red/orange/yellow/green/blue) as distinct from status
+ * - Added full alpha overlay scale (5–90) per theme
+ * - Added full radius (none → 4xl, full), border (none → xl), blur (none → 4xl)
+ * - Added breakpoint scale (2xs → 3xl) and container scale (3xs → 5xl)
+ * - Added font weight scale (thin → black) and tracking primitive scale
+ * - --container-5xl intentionally diverges from Figma (1280) → 1312 page override
+ *
+ * v3.2 changes (Figma is source of truth for colour):
+ * - Added core.* tokens: --color-core-base / -contrast / -invert / -transparent
+ * - Added grey semantic tokens: --color-grey-strong / -core / -weak
+ * - Renamed --color-overlay-* → --color-transparent-* to match Figma vocabulary
+ * - Status tokens remain as derived conveniences (not defined in Figma)
  */
 
 :root {
+  /* ─── FONT FAMILIES ────────────────────────────────────────────────── */
   --font-sans:   "GT America LCG", system-ui, sans-serif;
   --font-serif:  "GT Super Text", Georgia, serif;
 
+  /* ─── FONT WEIGHTS (full primitive scale) ──────────────────────────── */
+  --fw-thin:        100;
+  --fw-extralight:  200;
+  --fw-light:       300;
   --fw-normal:      400;
   --fw-book:        450;
   --fw-medium:      500;
+  --fw-semibold:    600;
+  --fw-bold:        700;
+  --fw-extrabold:   800;
+  --fw-black:       900;
 
-  /* Letter spacing — eased from original spec (+0.005em) */
+  /* ─── LETTER SPACING — semantic (eased +0.005em) ───────────────────── */
   --tracking-n040: -0.040em;
   --tracking-n035: -0.035em;
   --tracking-n030: -0.030em;
@@ -27,36 +50,104 @@
   --tracking-n005: -0.005em;
   --tracking-none:  0em;
 
-  /* Line height */
+  /* ─── LETTER SPACING — Figma primitive scale ───────────────────────── */
+  --tracking-tighter: -0.05em;
+  --tracking-tight:   -0.025em;
+  --tracking-normal:   0em;
+  --tracking-wide:     0.025em;
+  --tracking-wider:    0.05em;
+  --tracking-widest:   0.1em;
+
+  /* ─── LINE HEIGHT — semantic ───────────────────────────────────────── */
   --leading-heading:   1.05;
   --leading-body-xl:   1.20;
   --leading-body-md:   1.30;
   --leading-body-xs:   1.40;
 
-  /* Opacity scale — ONLY these values, ever */
+  /* ─── LINE HEIGHT — Figma primitive scale ──────────────────────────── */
+  --leading-title:     1.05;
+  --leading-subtitle:  1.05;
+  --leading-body:      1.30;
+  --leading-paragraph: 1.50;
+  --leading-caption:   1.00;
+
+  /* ─── OPACITY — content (ONLY these values, ever) ──────────────────── */
   --opacity-80: 0.80;
   --opacity-60: 0.60;
   --opacity-40: 0.40;
   --opacity-20: 0.20;
   --opacity-divider: 0.05;
 
+  /* ─── RADIUS (full Figma scale) ────────────────────────────────────── */
   --radius-none: 0px;
   --radius-xs:   4px;
   --radius-sm:   8px;
   --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-2xl:  32px;
+  --radius-3xl:  64px;
+  --radius-4xl:  128px;
   --radius-full: 9999px;
 
+  /* ─── BORDER (full Figma scale) ────────────────────────────────────── */
+  --border-none: 0px;
   --border-sm:   1px;
   --border-md:   2px;
+  --border-lg:   4px;
+  --border-xl:   8px;
 
-  --space-0: 0px; --space-1: 4px; --space-2: 8px; --space-3: 12px;
-  --space-4: 16px; --space-5: 20px; --space-6: 24px; --space-8: 32px;
-  --space-10: 40px; --space-12: 48px; --space-16: 64px; --space-20: 80px;
-  --space-24: 96px; --space-32: 128px;
+  /* ─── BLUR (full Figma scale) ──────────────────────────────────────── */
+  --blur-none: 0px;
+  --blur-xs:   8px;
+  --blur-sm:   16px;
+  --blur-md:   32px;
+  --blur-lg:   64px;
+  --blur-xl:   128px;
+  --blur-2xl:  256px;
+  --blur-3xl:  512px;
+  --blur-4xl:  1024px;
 
-  --container-5xl: 1312px;
+  /* ─── SPACING (4px base scale) ─────────────────────────────────────── */
+  --space-0: 0px; --space-px: 1px;
+  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;  --space-4: 16px;
+  --space-5: 20px;  --space-6: 24px;  --space-7: 28px;  --space-8: 32px;
+  --space-9: 36px;  --space-10: 40px; --space-12: 48px; --space-14: 56px;
+  --space-16: 64px; --space-18: 72px; --space-20: 80px; --space-24: 96px;
+  --space-28: 112px; --space-32: 128px;
 
-  /* Semantic spacing (Webflow base mode, 1em = 16px) */
+  /* ─── BREAKPOINTS (Figma) ──────────────────────────────────────────── */
+  --breakpoint-2xs: 400px;
+  --breakpoint-xs:  428px;
+  --breakpoint-sm:  640px;
+  --breakpoint-md:  768px;
+  --breakpoint-lg:  1024px;
+  --breakpoint-xl:  1280px;
+  --breakpoint-2xl: 1440px;
+  --breakpoint-3xl: 1920px;
+
+  /* ─── CONTAINERS (Figma) ───────────────────────────────────────────── */
+  --container-3xs: 128px;
+  --container-2xs: 192px;
+  --container-xs:  256px;
+  --container-sm:  320px;
+  --container-md:  384px;
+  --container-lg:  512px;
+  --container-xl:  640px;
+  --container-2xl: 768px;
+  --container-3xl: 896px;
+  --container-4xl: 1024px;
+  --container-5xl: 1312px;  /* Page override — Figma value is 1280 */
+
+  /* ─── ICON SIZES (bound by height) ─────────────────────────────────── */
+  --icon-2xs: 12px;
+  --icon-xs:  14px;
+  --icon-sm:  16px;
+  --icon-md:  20px;
+  --icon-lg:  24px;
+  --icon-xl:  32px;
+
+  /* ─── SEMANTIC SPACING (Webflow base mode, 1em = 16px) ─────────────── */
   --padding-page:       4em;
   --padding-columns:    4em;
   --padding-section-sm: 4em;
@@ -66,70 +157,189 @@
   --padding-nav:        8em;
   --padding-card:       2em;
 
-  /* Grey palette — light mode */
+  /* ─── GREY PALETTE — light mode ────────────────────────────────────── */
   --grey-10: #FAFAFA; --grey-20: #F4F4F5; --grey-30: #E4E4E7;
   --grey-40: #D0D0D7; --grey-50: #A1A1AA; --grey-60: #7A7A82;
   --grey-70: #494951; --grey-80: #333338; --grey-90: #212123;
   --grey-100: #18181B;
 
-  /* Semantic tokens — light mode */
-  --color-fill-base:      #FAFAFA;
-  --color-fill-primary:   #F4F4F5;
-  --color-fill-secondary: #E4E4E7;
-  --color-fill-tertiary:  #D0D0D7;
-  --color-outline:        #D0D0D7;
-  --color-text-primary:   #18181B;
-  --color-text-secondary: #494951;
-  --color-text-tertiary:  #A1A1AA;
-  --color-text-contrast:  #FFFFFF;
-  --color-overlay-weak:   rgba(24, 24, 27, 0.05);
-  --color-overlay-core:   rgba(24, 24, 27, 0.20);
-  --color-overlay-strong: rgba(24, 24, 27, 0.60);
-  --color-status-error:   #CC0019;
-  --color-status-warning: #E66900;
-  --color-status-info:    #005096;
-  --color-status-success: #009650;
+  /* ─── ACCENT PALETTE — light mode ──────────────────────────────────── */
+  --accent-red:    #CC0019;
+  --accent-orange: #E66900;
+  --accent-yellow: #E6C800;
+  --accent-green:  #009650;
+  --accent-blue:   #005096;
+
+  /* ─── ALPHA OVERLAY SCALE — light mode (over grey.100) ─────────────── */
+  --alpha-5:  rgba(24, 24, 27, 0.05);
+  --alpha-10: rgba(24, 24, 27, 0.10);
+  --alpha-20: rgba(24, 24, 27, 0.20);
+  --alpha-30: rgba(24, 24, 27, 0.30);
+  --alpha-40: rgba(24, 24, 27, 0.40);
+  --alpha-50: rgba(24, 24, 27, 0.50);
+  --alpha-60: rgba(24, 24, 27, 0.60);
+  --alpha-70: rgba(24, 24, 27, 0.70);
+  --alpha-80: rgba(24, 24, 27, 0.80);
+  --alpha-90: rgba(24, 24, 27, 0.90);
+
+  /* ─── CORE TOKENS — light mode (Figma: core.*) ─────────────────────── */
+  --color-core-base:        #FFFFFF;
+  --color-core-contrast:    #FFFFFF;
+  --color-core-invert:      #000000;
+  --color-core-transparent: rgba(255, 255, 255, 0);
+
+  /* ─── SEMANTIC TOKENS — light mode (Figma: semantic.*) ─────────────── */
+  --color-fill-base:         #FAFAFA;
+  --color-fill-primary:      #F4F4F5;
+  --color-fill-secondary:    #E4E4E7;
+  --color-fill-tertiary:     #D0D0D7;
+  --color-outline:           #D0D0D7;
+  --color-text-primary:      #18181B;
+  --color-text-secondary:    #494951;
+  --color-text-tertiary:     #A1A1AA;
+  --color-text-contrast:     var(--color-core-contrast);
+  --color-grey-strong:       #212123;
+  --color-grey-core:         #212123;
+  --color-grey-weak:         #E4E4E7;
+  --color-transparent-weak:   var(--alpha-5);
+  --color-transparent-core:   var(--alpha-20);
+  --color-transparent-strong: var(--alpha-60);
+
+  /* ─── STATUS — derived from accents (not in Figma) ─────────────────── */
+  --color-status-error:   var(--accent-red);
+  --color-status-warning: var(--accent-orange);
+  --color-status-info:    var(--accent-blue);
+  --color-status-success: var(--accent-green);
 }
+
+/* ─── DARK MODE ──────────────────────────────────────────────────────── */
 
 @media (prefers-color-scheme: dark) {
   :root {
+    /* Grey palette inverts in dark mode */
+    --grey-10: #18181B; --grey-20: #212123; --grey-30: #333338;
+    --grey-40: #494951; --grey-50: #7A7A82; --grey-60: #A1A1AA;
+    --grey-70: #D0D0D7; --grey-80: #E4E4E7; --grey-90: #F4F4F5;
+    --grey-100: #FAFAFA;
+
+    /* Accent shifts to brighter, more saturated values for dark backgrounds */
+    --accent-red:    #F51450;
+    --accent-orange: #FF6905;
+    --accent-yellow: #FFD700;
+    --accent-green:  #00B964;
+    --accent-blue:   #0073EB;
+
+    /* Alpha overlays use light source colour */
+    --alpha-5:  rgba(250, 250, 250, 0.05);
+    --alpha-10: rgba(250, 250, 250, 0.10);
+    --alpha-20: rgba(250, 250, 250, 0.20);
+    --alpha-30: rgba(250, 250, 250, 0.30);
+    --alpha-40: rgba(250, 250, 250, 0.40);
+    --alpha-50: rgba(250, 250, 250, 0.50);
+    --alpha-60: rgba(250, 250, 250, 0.60);
+    --alpha-70: rgba(250, 250, 250, 0.70);
+    --alpha-80: rgba(250, 250, 250, 0.80);
+    --alpha-90: rgba(250, 250, 250, 0.90);
+
+    --color-core-base: #000000; --color-core-contrast: #FFFFFF;
+    --color-core-invert: #FFFFFF; --color-core-transparent: rgba(0, 0, 0, 0);
+
     --color-fill-base: #18181B; --color-fill-primary: #212123;
     --color-fill-secondary: #333338; --color-fill-tertiary: #494951;
     --color-outline: #494951;
     --color-text-primary: #FAFAFA; --color-text-secondary: #A1A1AA;
-    --color-text-tertiary: #494951; --color-text-contrast: #FFFFFF;
-    --color-overlay-weak: rgba(250,250,250,0.05);
-    --color-overlay-core: rgba(250,250,250,0.20);
-    --color-overlay-strong: rgba(250,250,250,0.60);
-    --color-status-error: #F51450; --color-status-warning: #FF6905;
-    --color-status-info: #0073EB; --color-status-success: #00B964;
+    --color-text-tertiary: #494951; --color-text-contrast: var(--color-core-contrast);
+    --color-grey-strong: #F4F4F5; --color-grey-core: #F4F4F5; --color-grey-weak: #212123;
+    --color-transparent-weak:   var(--alpha-5);
+    --color-transparent-core:   var(--alpha-20);
+    --color-transparent-strong: var(--alpha-60);
+    --color-status-error:   var(--accent-red);
+    --color-status-warning: var(--accent-orange);
+    --color-status-info:    var(--accent-blue);
+    --color-status-success: var(--accent-green);
   }
 }
 
 [data-theme="dark"] {
+  --grey-10: #18181B; --grey-20: #212123; --grey-30: #333338;
+  --grey-40: #494951; --grey-50: #7A7A82; --grey-60: #A1A1AA;
+  --grey-70: #D0D0D7; --grey-80: #E4E4E7; --grey-90: #F4F4F5;
+  --grey-100: #FAFAFA;
+
+  --accent-red:    #F51450;
+  --accent-orange: #FF6905;
+  --accent-yellow: #FFD700;
+  --accent-green:  #00B964;
+  --accent-blue:   #0073EB;
+
+  --alpha-5:  rgba(250, 250, 250, 0.05);
+  --alpha-10: rgba(250, 250, 250, 0.10);
+  --alpha-20: rgba(250, 250, 250, 0.20);
+  --alpha-30: rgba(250, 250, 250, 0.30);
+  --alpha-40: rgba(250, 250, 250, 0.40);
+  --alpha-50: rgba(250, 250, 250, 0.50);
+  --alpha-60: rgba(250, 250, 250, 0.60);
+  --alpha-70: rgba(250, 250, 250, 0.70);
+  --alpha-80: rgba(250, 250, 250, 0.80);
+  --alpha-90: rgba(250, 250, 250, 0.90);
+
+  --color-core-base: #000000; --color-core-contrast: #FFFFFF;
+  --color-core-invert: #FFFFFF; --color-core-transparent: rgba(0, 0, 0, 0);
+
   --color-fill-base: #18181B; --color-fill-primary: #212123;
   --color-fill-secondary: #333338; --color-fill-tertiary: #494951;
   --color-outline: #494951;
   --color-text-primary: #FAFAFA; --color-text-secondary: #A1A1AA;
-  --color-text-tertiary: #494951; --color-text-contrast: #FFFFFF;
-  --color-overlay-weak: rgba(250,250,250,0.05);
-  --color-overlay-core: rgba(250,250,250,0.20);
-  --color-overlay-strong: rgba(250,250,250,0.60);
-  --color-status-error: #F51450; --color-status-warning: #FF6905;
-  --color-status-info: #0073EB; --color-status-success: #00B964;
+  --color-text-tertiary: #494951; --color-text-contrast: var(--color-core-contrast);
+  --color-grey-strong: #F4F4F5; --color-grey-core: #F4F4F5; --color-grey-weak: #212123;
+  --color-transparent-weak:   var(--alpha-5);
+  --color-transparent-core:   var(--alpha-20);
+  --color-transparent-strong: var(--alpha-60);
+  --color-status-error:   var(--accent-red);
+  --color-status-warning: var(--accent-orange);
+  --color-status-info:    var(--accent-blue);
+  --color-status-success: var(--accent-green);
 }
 
 [data-theme="light"] {
+  --grey-10: #FAFAFA; --grey-20: #F4F4F5; --grey-30: #E4E4E7;
+  --grey-40: #D0D0D7; --grey-50: #A1A1AA; --grey-60: #7A7A82;
+  --grey-70: #494951; --grey-80: #333338; --grey-90: #212123;
+  --grey-100: #18181B;
+
+  --accent-red:    #CC0019;
+  --accent-orange: #E66900;
+  --accent-yellow: #E6C800;
+  --accent-green:  #009650;
+  --accent-blue:   #005096;
+
+  --alpha-5:  rgba(24, 24, 27, 0.05);
+  --alpha-10: rgba(24, 24, 27, 0.10);
+  --alpha-20: rgba(24, 24, 27, 0.20);
+  --alpha-30: rgba(24, 24, 27, 0.30);
+  --alpha-40: rgba(24, 24, 27, 0.40);
+  --alpha-50: rgba(24, 24, 27, 0.50);
+  --alpha-60: rgba(24, 24, 27, 0.60);
+  --alpha-70: rgba(24, 24, 27, 0.70);
+  --alpha-80: rgba(24, 24, 27, 0.80);
+  --alpha-90: rgba(24, 24, 27, 0.90);
+
+  --color-core-base: #FFFFFF; --color-core-contrast: #FFFFFF;
+  --color-core-invert: #000000; --color-core-transparent: rgba(255, 255, 255, 0);
+
   --color-fill-base: #FAFAFA; --color-fill-primary: #F4F4F5;
   --color-fill-secondary: #E4E4E7; --color-fill-tertiary: #D0D0D7;
   --color-outline: #D0D0D7;
   --color-text-primary: #18181B; --color-text-secondary: #494951;
-  --color-text-tertiary: #A1A1AA; --color-text-contrast: #FFFFFF;
-  --color-overlay-weak: rgba(24,24,27,0.05);
-  --color-overlay-core: rgba(24,24,27,0.20);
-  --color-overlay-strong: rgba(24,24,27,0.60);
-  --color-status-error: #CC0019; --color-status-warning: #E66900;
-  --color-status-info: #005096; --color-status-success: #009650;
+  --color-text-tertiary: #A1A1AA; --color-text-contrast: var(--color-core-contrast);
+  --color-grey-strong: #212123; --color-grey-core: #212123; --color-grey-weak: #E4E4E7;
+  --color-transparent-weak:   var(--alpha-5);
+  --color-transparent-core:   var(--alpha-20);
+  --color-transparent-strong: var(--alpha-60);
+  --color-status-error:   var(--accent-red);
+  --color-status-warning: var(--accent-orange);
+  --color-status-info:    var(--accent-blue);
+  --color-status-success: var(--accent-green);
 }
 
 /* ── Smooth theme transition ─────────────────────────────────────────── */

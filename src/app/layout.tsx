@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { ClientShell } from '@/providers/ClientShell';
-import { Footer } from '@/components/footer/Footer';
 import { PageWrapper } from '@/components/layout/PageWrapper';
+import { Nav } from '@/components/nav/Nav';
 
 export const metadata: Metadata = {
   title: 'Shinoda Design System',
@@ -32,9 +32,9 @@ export default function RootLayout({
       </head>
       <body>
         <ClientShell>
+          <Nav />
           <PageWrapper>
             {children}
-            <Footer />
           </PageWrapper>
         </ClientShell>
       </body>
