@@ -30,7 +30,7 @@ export default function ButtonPage(): React.ReactElement {
             description="Transparent at rest. 20% overlay on hover. Gravity-pulled on proximity. Never cursor: pointer."
           />
         </StickyCol>
-        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
+        <div>
 
           <ComponentSection
             name="Text Button"

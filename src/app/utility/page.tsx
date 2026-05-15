@@ -1,6 +1,4 @@
 import { MainWrapper } from '@/components/layout/MainWrapper';
-import { Grid } from '@/components/layout/Grid';
-import { StickyCol } from '@/components/layout/StickyCol';
 import { Divider } from '@/components/primitives/Divider';
 import { Text } from '@/components/primitives/Text';
 import { CopyValue } from '@/components/catalogue/CopyValue';
@@ -152,37 +150,33 @@ const UTILITY_GROUPS: readonly UtilityGroup[] = [
 export default function UtilityPage(): React.ReactElement {
   return (
     <MainWrapper>
-      <Grid>
-        <StickyCol>
-          <CatalogueIntro
-            title="Utility"
-            description="Single-purpose classes — each shown with a live example."
-          />
-        </StickyCol>
-        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
-          {UTILITY_GROUPS.map((group) => (
-            <div key={group.title} style={{ marginBottom: 'var(--space-12)' }}>
-              <Text variant="subheading-md" as="h2" style={{ paddingBottom: 'var(--space-2)' }}>{group.title}</Text>
-              <Text variant="body-sm" opacity={40} as="p" style={{ paddingBottom: 'var(--space-4)' }}>{group.note}</Text>
-              {group.items.map(({ name, value, demo }) => (
-                <div key={name}>
-                  <Divider />
-                  <div className="utility-row">
-                    <div className="utility-row-meta">
-                      <CopyValue value={name}>
-                        <Text variant="body-sm" as="span">{name}</Text>
-                      </CopyValue>
-                      <Text variant="body-xs" opacity={40} as="span">{value}</Text>
-                    </div>
-                    <div className="utility-row-demo">{demo}</div>
-                  </div>
-                </div>
-              ))}
+      <div className="page-wide-intro">
+        <CatalogueIntro
+          title="Utility"
+          description="Single-purpose classes — each shown with a live example."
+        />
+      </div>
+      {UTILITY_GROUPS.map((group, idx) => (
+        <section key={group.title} className="page-wide-section" style={idx === 0 ? { paddingBlockStart: 0 } : undefined}>
+          <Text variant="heading-md" as="h2" style={{ paddingBottom: 'var(--space-2)' }}>{group.title}</Text>
+          <Text variant="body-sm" opacity={40} as="p" style={{ paddingBottom: 'var(--space-6)' }}>{group.note}</Text>
+          {group.items.map(({ name, value, demo }) => (
+            <div key={name}>
               <Divider />
+              <div className="utility-row">
+                <div className="utility-row-meta">
+                  <CopyValue value={name}>
+                    <Text variant="body-sm" as="span">{name}</Text>
+                  </CopyValue>
+                  <Text variant="body-xs" opacity={40} as="span">{value}</Text>
+                </div>
+                <div className="utility-row-demo">{demo}</div>
+              </div>
             </div>
           ))}
-        </div>
-      </Grid>
+          <Divider />
+        </section>
+      ))}
     </MainWrapper>
   );
 }

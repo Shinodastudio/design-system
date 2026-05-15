@@ -71,7 +71,7 @@ export default function IconPage(): React.ReactElement {
             </div>
           </div>
         </StickyCol>
-        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
+        <div>
           <Text variant="body-sm" opacity={40} as="p" style={{ marginBottom: 'var(--space-4)' }}>
             {filtered.length.toLocaleString()} of {ICONS.length.toLocaleString()}
           </Text>

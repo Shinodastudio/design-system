@@ -17,7 +17,7 @@ export default function TabsPage(): React.ReactElement {
             description="Horizontal control. Triggers at 40% rest, 100% active. Sliding 2px indicator."
           />
         </StickyCol>
-        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
+        <div>
           <ComponentFrame
             title="Three panels"
             description="Click a trigger to switch panel. The indicator measures the active trigger and slides."

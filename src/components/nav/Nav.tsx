@@ -1,4 +1,3 @@
-import NextLink from 'next/link';
 import { NavLinks } from './NavLinks';
 import { ThemeToggle } from './ThemeToggle';
 import { NavProgressiveBlur } from './NavProgressiveBlur';
@@ -17,9 +16,6 @@ export function Nav(): React.ReactElement {
   return (
     <header className="nav">
       <div className="nav-inner">
-        <NextLink href="/" className="nav-logo">
-          Shinoda DS
-        </NextLink>
         <NavLinks items={NAV_ITEMS} />
         <ThemeToggle />
       </div>

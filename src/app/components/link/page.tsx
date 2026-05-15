@@ -24,7 +24,7 @@ export default function LinkPage(): React.ReactElement {
             description="Underline always present — 20% opacity at rest, 100% on hover. Never cursor: pointer."
           />
         </StickyCol>
-        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
+        <div>
 
           <ComponentSection
             name="Text Link"

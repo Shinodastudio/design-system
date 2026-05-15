@@ -17,7 +17,7 @@ export default function CursorPage(): React.ReactElement {
             description="Single inverted dot. 1.25em. mix-blend-mode: difference. Lerp 0.22. Morphs to I-beam / button footprint / expand chip."
           />
         </StickyCol>
-        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
+        <div>
           <Divider />
           <div style={{ paddingBlock: 'var(--space-8)' }}>
             <Text variant="body-md" opacity={40} as="h2">States</Text>

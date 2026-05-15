@@ -1,14 +1,25 @@
+'use client';
+
+import { usePathname } from 'next/navigation';
 import NextLink from 'next/link';
+import { Button } from '@/components/primitives/Button';
 import { Text } from '@/components/primitives/Text';
+import { Icon } from '@/components/icons';
 
 /**
  * Left-column intro block used across catalogue pages (May 2026 spec).
  *
- *   ◀ Title       ← heading-md, back-link to /
- *   Single-line description (body-sm 40%)
+ * Layout (Figma 3907-10330):
  *
- * Drop inside <StickyCol> on a two-column page. The back arrow links to the
- * homepage so the user can always retreat one level without using the global nav.
+ *   [◀ icon btn]  Title          ← heading-md, separate from button
+ *                 Description    ← heading-md, 40% opacity
+ *
+ * The back button is icon-ONLY (CaretLeft, 24×24). Title and description live
+ * in a sibling text block, not inside the button. Both sit in a flex row at
+ * items-start so their tops align with the first row of right-column content.
+ *
+ * Back target: computed from pathname — /components/button → /components,
+ * /colour → /. Pass backHref to override.
  */
 interface CatalogueIntroProps {
   readonly title: string;
@@ -16,20 +27,34 @@ interface CatalogueIntroProps {
   readonly backHref?: string;
 }
 
+function useParentPath(override?: string): string {
+  const pathname = usePathname();
+  if (override != null) return override;
+  const segments = pathname.split('/').filter(Boolean);
+  segments.pop();
+  return segments.length === 0 ? '/' : `/${segments.join('/')}`;
+}
+
 export function CatalogueIntro({
   title,
   description,
-  backHref = '/',
+  backHref,
 }: CatalogueIntroProps): React.ReactElement {
+  const parent = useParentPath(backHref);
+
   return (
     <div className="catalogue-intro">
-      <NextLink href={backHref} className="catalogue-intro-back" aria-label={`Back to ${backHref}`}>
-        <Text variant="heading-md" as="span" className="catalogue-intro-arrow" aria-hidden="true">◀</Text>
-        <Text variant="heading-md" as="h1">{title}</Text>
-      </NextLink>
-      <Text variant="body-sm" opacity={40} as="p" className="catalogue-intro-desc">
-        {description}
-      </Text>
+      <div className="catalogue-intro-header">
+        <Button asChild size="lg" className="btn-icon catalogue-intro-back" aria-label="Back">
+          <NextLink href={parent}>
+            <Icon name="CaretLeft" size="em" />
+          </NextLink>
+        </Button>
+        <div className="catalogue-intro-text">
+          <Text variant="heading-md" as="h1">{title}</Text>
+          <Text variant="heading-md" opacity={40} as="p">{description}</Text>
+        </div>
+      </div>
     </div>
   );
 }

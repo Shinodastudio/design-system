@@ -22,7 +22,7 @@ export function NavLinks({ items }: NavLinksProps): React.ReactElement {
         <li key={item.href}>
           <Button
             asChild
-            size="sm"
+            size="xs"
             className={cn(
               'nav-link',
               pathname === item.href ? 'is-active' : undefined,

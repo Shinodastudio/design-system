@@ -123,7 +123,7 @@ export default function TypePage(): React.ReactElement {
             description="Hierarchy through opacity, never through size."
           />
         </StickyCol>
-        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
+        <div>
           <Text variant="subheading-md" as="h2" className="type-section-heading">Headings</Text>
           {HEADING_VARIANTS.map((v) => <TypeRow key={v} variant={v} />)}
 

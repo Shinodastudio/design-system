@@ -25,7 +25,7 @@ export default function StructurePage(): React.ReactElement {
             description="Page architecture, grid rules, and radius scale."
           />
         </StickyCol>
-        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
+        <div>
           <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Spacing scale</Text>
           {SPACING_TOKENS.map(({ name, value }) => (
             <div key={name}>

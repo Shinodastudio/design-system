@@ -5,6 +5,7 @@ import { Divider } from '@/components/primitives/Divider';
 import { Text } from '@/components/primitives/Text';
 import { CopyValue } from '@/components/catalogue/CopyValue';
 import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
+import { SwatchCode } from '@/components/catalogue/SwatchCode';
 
 /**
  * Colour catalogue — May 2026 spec (Figma 3904-2330).
@@ -99,7 +100,7 @@ function Swatch({ token }: { readonly token: ColourToken }): React.ReactElement 
       ) : (
         <span className="colour-swatch-fill" style={{ backgroundColor: `var(${token.name})` }} aria-hidden="true" />
       )}
-      <code className="colour-swatch-name">{token.name}</code>
+      <SwatchCode value={token.name} />
     </div>
   );
 }
@@ -113,7 +114,7 @@ function ColourRow({ token }: { readonly token: ColourToken }): React.ReactEleme
       <Swatch token={token} />
       <div className="colour-row-meta">
         <div className="colour-row-heading">
-          <Text variant="body-md" as="p">{token.label}</Text>
+          <Text variant="heading-md" as="p">{token.label}</Text>
           <CopyValue value={token.hex} className="colour-row-hex">
             <code>{token.hex}</code>
           </CopyValue>
@@ -134,11 +135,11 @@ export default function ColourPage(): React.ReactElement {
             description="Semantic tokens only — values invert at runtime."
           />
         </StickyCol>
-        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
+        <div>
           {GROUPS.map((group, gi) => (
             <section key={group.title}>
               {gi > 0 && <Divider />}
-              <div className="colour-group-header">
+              <div className="colour-group-header" style={gi === 0 ? { paddingBlockStart: 0 } : undefined}>
                 <Text variant="heading-md" as="h2">{group.title}</Text>
                 <Text variant="body-sm" opacity={40} as="p">{group.description}</Text>
               </div>

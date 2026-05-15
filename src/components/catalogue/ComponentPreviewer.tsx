@@ -6,13 +6,13 @@ import { cn } from '@/lib/cn';
 /**
  * ComponentPreviewer — component-page demo frame with two chip dropdowns.
  *
- * Replaces the legacy pattern of one <ComponentFrame> per state. Renders a
- * single live preview that the user toggles through states and sizes via two
- * native <select> elements styled as Shinoda chips.
+ * Renders a single live preview that the user toggles through states and sizes
+ * via two chip selectors. A chip turns orange when its value has been changed
+ * from the default, and shows a × dismiss to reset it.
  *
  * Anatomy (right column of a component page):
  *   ┌───────────────────────────────┐
- *   │ [ State ▾ ]  [ Size ▾ ]       │  ← chips
+ *   │ [ State ▾ ]  [ Size ▾ ]       │  ← chips (orange + × when non-default)
  *   │                               │
  *   │     ┌─────────────────┐       │
  *   │     │  live preview   │       │  ← frame
@@ -21,14 +21,10 @@ import { cn } from '@/lib/cn';
  *
  * State forcing:
  *   - `default`  → no special handling
- *   - `hover`    → `data-state="hover"` on wrapper. CSS in shinoda-base.css
- *                  mirrors the real :hover treatment for .btn / .link / .input
+ *   - `hover`    → `data-state="hover"` on wrapper (CSS mirrors real :hover)
  *   - `active`   → `data-state="active"` (same pattern)
  *   - `focus`    → wrapper auto-focuses the first focusable child on mount
  *   - `disabled` → render fn receives state and applies the `disabled` prop
- *
- * Sizes are passed through to the render fn — the consumer decides how to
- * apply them (Button uses `size` prop; Input applies a className; etc.).
  */
 
 export type PreviewState = 'default' | 'hover' | 'active' | 'focus' | 'disabled';
@@ -56,6 +52,58 @@ function titleCase(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
+interface ChipProps<T extends string> {
+  readonly id: string;
+  readonly value: T;
+  readonly defaultValue: T;
+  readonly options: readonly T[];
+  readonly label: (v: T) => string;
+  readonly onChange: (v: T) => void;
+  readonly onReset: () => void;
+}
+
+function Chip<T extends string>({
+  id,
+  value,
+  defaultValue,
+  options,
+  label,
+  onChange,
+  onReset,
+}: ChipProps<T>): React.ReactElement {
+  const isNonDefault = value !== defaultValue;
+
+  return (
+    <div className={cn('preview-chip', isNonDefault && 'preview-chip--active')}>
+      {/* label wraps only the select so the dismiss button sits outside the label click area */}
+      <label htmlFor={id} className="preview-chip-inner">
+        <select
+          id={id}
+          className="preview-chip-select"
+          value={value}
+          onChange={(e): void => onChange(e.target.value as T)}
+        >
+          {options.map((opt) => (
+            <option key={opt} value={opt}>{label(opt)}</option>
+          ))}
+        </select>
+      </label>
+      {isNonDefault ? (
+        <button
+          className="preview-chip-dismiss"
+          onClick={onReset}
+          aria-label="Reset to default"
+          type="button"
+        >
+          ×
+        </button>
+      ) : (
+        <span className="preview-chip-chevron" aria-hidden="true" />
+      )}
+    </div>
+  );
+}
+
 export function ComponentPreviewer<S extends string>({
   states = DEFAULT_STATES,
   sizes,
@@ -66,8 +114,9 @@ export function ComponentPreviewer<S extends string>({
   render,
   className,
 }: ComponentPreviewerProps<S>): React.ReactElement {
+  const resolvedDefaultSize = defaultSize ?? sizes[0];
   const [state, setState] = useState<PreviewState>(defaultState);
-  const [size, setSize] = useState<S>(defaultSize ?? sizes[0]);
+  const [size, setSize] = useState<S>(resolvedDefaultSize);
 
   const frameRef = useRef<HTMLDivElement>(null);
   const stateId = useId();
@@ -90,42 +139,29 @@ export function ComponentPreviewer<S extends string>({
   return (
     <div className={cn('preview', className)}>
       <div className="preview-chips">
-        <label className="preview-chip" htmlFor={stateId}>
-          <span className="preview-chip-label">State</span>
-          <select
-            id={stateId}
-            className="preview-chip-select"
-            value={state}
-            onChange={(e): void => setState(e.target.value as PreviewState)}
-          >
-            {states.map((s) => (
-              <option key={s} value={s}>{renderedStateLabel(s)}</option>
-            ))}
-          </select>
-          <span className="preview-chip-chevron" aria-hidden="true" />
-        </label>
-        <label className="preview-chip" htmlFor={sizeId}>
-          <span className="preview-chip-label">Size</span>
-          <select
-            id={sizeId}
-            className="preview-chip-select"
-            value={size}
-            onChange={(e): void => setSize(e.target.value as S)}
-          >
-            {sizes.map((s) => (
-              <option key={s} value={s}>{renderedSizeLabel(s)}</option>
-            ))}
-          </select>
-          <span className="preview-chip-chevron" aria-hidden="true" />
-        </label>
+        <Chip
+          id={stateId}
+          value={state}
+          defaultValue={defaultState}
+          options={states as readonly PreviewState[]}
+          label={renderedStateLabel}
+          onChange={(v): void => setState(v)}
+          onReset={(): void => setState(defaultState)}
+        />
+        <Chip
+          id={sizeId}
+          value={size}
+          defaultValue={resolvedDefaultSize}
+          options={sizes as readonly S[]}
+          label={renderedSizeLabel}
+          onChange={(v): void => setSize(v)}
+          onReset={(): void => setSize(resolvedDefaultSize)}
+        />
       </div>
       <div
         ref={frameRef}
         className="preview-frame"
         data-state={state === 'default' ? undefined : state}
-        // The key forces a remount when the user picks `focus` — guarantees
-        // the auto-focus effect runs even when state was already `focus` and
-        // the size changed underneath.
         key={`${state}-${size}`}
       >
         {render({ state, size })}

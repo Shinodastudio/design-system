@@ -31,7 +31,7 @@ export default function SelectPage(): React.ReactElement {
             description="Native select, checkbox and radio — chevron drawn from primary text."
           />
         </StickyCol>
-        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
+        <div>
           <ComponentPreviewer
             states={['default', 'hover', 'focus', 'disabled']}
             sizes={SELECT_SIZES}
