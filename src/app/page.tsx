@@ -3,22 +3,36 @@ import { Grid } from '@/components/layout/Grid';
 import { StickyCol } from '@/components/layout/StickyCol';
 import { Divider } from '@/components/primitives/Divider';
 import { Text } from '@/components/primitives/Text';
+import { Button } from '@/components/primitives/Button';
 import NextLink from 'next/link';
 
+/**
+ * Every subpage in the catalogue, presented on the homepage as a large
+ * Button (no arrow, no description in-line). The homepage IS the navigation —
+ * the global Nav is hidden on `/` (see `[data-route="home"] .nav` in base CSS).
+ *
+ * Components/* subpages are intentionally grouped under the Components index
+ * rather than listed individually — keeps the entry page from sprawling.
+ */
 const SECTIONS = [
-  { label: 'Colour',     href: '/colour',    description: 'Semantic colour tokens, light and dark mode values.' },
-  { label: 'Type',       href: '/type',       description: 'Full type scale — headings, subheadings, body.' },
-  { label: 'Components', href: '/components', description: 'Interactive primitives: Button, Link, and more.' },
-  { label: 'Structure',  href: '/structure',  description: 'Layout system, grid, spacing, and containers.' },
+  { label: 'Colour',     href: '/colour'     },
+  { label: 'Type',       href: '/type'       },
+  { label: 'Components', href: '/components' },
+  { label: 'Structure',  href: '/structure'  },
+  { label: 'Widths',     href: '/widths'     },
+  { label: 'Paddings',   href: '/paddings'   },
+  { label: 'Margins',    href: '/margins'    },
+  { label: 'Grids',      href: '/grids'      },
+  { label: 'Utility',    href: '/utility'    },
 ] as const;
 
 export default function HomePage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
-        <StickyCol style={{ paddingTop: 'var(--space-16)' }}>
-          <Text variant="heading-xl" as="h1">Shinoda<br />Design System</Text>
-          <Text variant="body-md" opacity={60} as="p" style={{ marginTop: 'var(--space-4)' }}>
+        <StickyCol>
+          <Text variant="body-md" as="h1">Shinoda<br />Design System</Text>
+          <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-4)' }}>
             v3 — April 2026
           </Text>
           <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
@@ -27,22 +41,18 @@ export default function HomePage(): React.ReactElement {
             Dark and light from day one.
           </Text>
         </StickyCol>
-        <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
+        <div style={{ paddingInline: 'var(--padding-columns)' }}>
+          <Divider />
           {SECTIONS.map((section) => (
             <div key={section.href}>
+              <div style={{ paddingBlock: 'var(--space-4)' }}>
+                <Button asChild size="2xl">
+                  <NextLink href={section.href}>{section.label}</NextLink>
+                </Button>
+              </div>
               <Divider />
-              <NextLink href={section.href} style={{ display: 'block', paddingBlock: 'var(--space-8)', textDecoration: 'none' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <Text variant="heading-md" as="span">{section.label}</Text>
-                  <Text variant="body-md" opacity={40} as="span">→</Text>
-                </div>
-                <Text variant="body-md" opacity={60} as="p" style={{ marginTop: 'var(--space-2)' }}>
-                  {section.description}
-                </Text>
-              </NextLink>
             </div>
           ))}
-          <Divider />
         </div>
       </Grid>
     </MainWrapper>

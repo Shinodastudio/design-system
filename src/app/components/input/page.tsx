@@ -17,8 +17,8 @@ export default function InputPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
-        <StickyCol style={{ paddingTop: 'var(--space-16)' }}>
-          <Text variant="heading-xl" as="h1">Input</Text>
+        <StickyCol>
+          <Text variant="body-md" as="h1">Input</Text>
           <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
             Text fields and textareas.<br />
             Label, help, error follow.<br /><br />
@@ -26,7 +26,7 @@ export default function InputPage(): React.ReactElement {
             Error state borrows status-error only.
           </Text>
         </StickyCol>
-        <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
+        <div style={{ paddingInline: 'var(--padding-columns)' }}>
           <ComponentFrame
             title="Text input"
             description="Single-line. Placeholder at tertiary opacity."

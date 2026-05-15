@@ -66,17 +66,17 @@ export default function UtilityPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
-        <StickyCol style={{ paddingTop: 'var(--space-16)' }}>
-          <Text variant="heading-xl" as="h1">Utility</Text>
+        <StickyCol>
+          <Text variant="body-md" as="h1">Utility</Text>
           <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
             Single-purpose classes for spacing, flow, and visibility.<br /><br />
             Composable. Avoid duplicating their behaviour in component styles.
           </Text>
         </StickyCol>
-        <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
+        <div style={{ paddingInline: 'var(--padding-columns)' }}>
           {UTILITY_GROUPS.map((group) => (
             <div key={group.title} style={{ marginBottom: 'var(--space-12)' }}>
-              <Text variant="heading-xs" as="h2" style={{ paddingBottom: 'var(--space-2)' }}>{group.title}</Text>
+              <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-2)' }}>{group.title}</Text>
               <Text variant="body-xs" opacity={40} as="p" style={{ paddingBottom: 'var(--space-4)' }}>{group.note}</Text>
               {group.items.map(({ name, value }) => (
                 <div key={name}>

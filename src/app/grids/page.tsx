@@ -25,8 +25,8 @@ export default function GridsPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
-        <StickyCol style={{ paddingTop: 'var(--space-16)' }}>
-          <Text variant="heading-xl" as="h1">Grids</Text>
+        <StickyCol>
+          <Text variant="body-md" as="h1">Grids</Text>
           <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
             Grid is always 1fr 1fr.<br />
             Never asymmetric. Never three columns.<br /><br />
@@ -34,10 +34,10 @@ export default function GridsPage(): React.ReactElement {
             Horizontal dividers at 5% opacity.
           </Text>
         </StickyCol>
-        <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
+        <div style={{ paddingInline: 'var(--padding-columns)' }}>
           {GRID_DEMOS.map(({ name, description, cols, cells }) => (
             <div key={name} style={{ marginBottom: 'var(--space-12)' }}>
-              <Text variant="heading-xs" as="h2" style={{ paddingBottom: 'var(--space-2)' }}>
+              <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-2)' }}>
                 <CopyValue value={name}>{name}</CopyValue>
               </Text>
               <Text variant="body-xs" opacity={40} as="p" style={{ paddingBottom: 'var(--space-4)' }}>
@@ -58,7 +58,7 @@ export default function GridsPage(): React.ReactElement {
           ))}
 
           <div style={{ marginTop: 'var(--space-12)' }}>
-            <Text variant="heading-xs" as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Usage</Text>
+            <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Usage</Text>
             <CodeBlock
               code={`<div className="grid-2col">
   <div>Column 1</div>

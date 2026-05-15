@@ -10,8 +10,8 @@ export default function NavPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
-        <StickyCol style={{ paddingTop: 'var(--space-16)' }}>
-          <Text variant="heading-xl" as="h1">Nav</Text>
+        <StickyCol>
+          <Text variant="body-md" as="h1">Nav</Text>
           <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
             Links at 40% opacity at rest.<br />
             100% on hover.<br /><br />
@@ -19,7 +19,7 @@ export default function NavPage(): React.ReactElement {
             Theme toggle on right.
           </Text>
         </StickyCol>
-        <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
+        <div style={{ paddingInline: 'var(--padding-columns)' }}>
           <ComponentFrame
             title="Default"
             code={`<Nav />`}

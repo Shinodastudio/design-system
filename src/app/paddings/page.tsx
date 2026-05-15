@@ -10,15 +10,15 @@ export default function PaddingsPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
-        <StickyCol style={{ paddingTop: 'var(--space-16)' }}>
-          <Text variant="heading-xl" as="h1">Paddings</Text>
+        <StickyCol>
+          <Text variant="body-md" as="h1">Paddings</Text>
           <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
             Semantic padding tokens for page, section, container, and nav regions.<br /><br />
             Raw spacing scale underlies them.
           </Text>
         </StickyCol>
-        <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
-          <Text variant="heading-xs" as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Semantic</Text>
+        <div style={{ paddingInline: 'var(--padding-columns)' }}>
+          <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Semantic</Text>
           {PADDING_TOKENS.map(({ name, value, note }) => (
             <div key={name}>
               <Divider />
@@ -33,7 +33,7 @@ export default function PaddingsPage(): React.ReactElement {
           <Divider />
 
           <div style={{ marginTop: 'var(--space-12)' }}>
-            <Text variant="heading-xs" as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Spacing scale (base unit 4px)</Text>
+            <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Spacing scale (base unit 4px)</Text>
             {SPACING_TOKENS.map(({ name, value }) => (
               <div key={name}>
                 <Divider />

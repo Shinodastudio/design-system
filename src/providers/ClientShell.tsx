@@ -3,6 +3,7 @@
 import { createContext, useContext } from 'react';
 import { Cursor } from '@/components/cursor';
 import { useTheme } from '@/hooks/useTheme';
+import { RouteAttribute } from '@/providers/RouteAttribute';
 
 interface ThemeContextValue {
   readonly theme: 'light' | 'dark';
@@ -22,6 +23,7 @@ export function ClientShell({ children }: { readonly children: React.ReactNode }
   const [theme, toggleTheme] = useTheme();
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      <RouteAttribute />
       <Cursor />
       {children}
     </ThemeContext.Provider>

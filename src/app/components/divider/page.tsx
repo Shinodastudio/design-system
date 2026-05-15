@@ -9,15 +9,15 @@ export default function DividerPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
-        <StickyCol style={{ paddingTop: 'var(--space-16)' }}>
-          <Text variant="heading-xl" as="h1">Divider</Text>
+        <StickyCol>
+          <Text variant="body-md" as="h1">Divider</Text>
           <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
             Horizontal only.<br />
             5% opacity — barely there.<br /><br />
             No vertical dividers. Ever.
           </Text>
         </StickyCol>
-        <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
+        <div style={{ paddingInline: 'var(--padding-columns)' }}>
           <ComponentFrame
             title="Default"
             description="1px rule at 5% opacity. Used to separate sections, not to decorate."

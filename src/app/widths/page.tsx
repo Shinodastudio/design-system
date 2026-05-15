@@ -10,8 +10,8 @@ export default function WidthsPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
-        <StickyCol style={{ paddingTop: 'var(--space-16)' }}>
-          <Text variant="heading-xl" as="h1">Widths</Text>
+        <StickyCol>
+          <Text variant="body-md" as="h1">Widths</Text>
           <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
             Min and max container widths.<br />
             Breakpoint thresholds.<br /><br />
@@ -19,8 +19,8 @@ export default function WidthsPage(): React.ReactElement {
             Inner padding 24px each side.
           </Text>
         </StickyCol>
-        <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
-          <Text variant="heading-xs" as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Containers</Text>
+        <div style={{ paddingInline: 'var(--padding-columns)' }}>
+          <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Containers</Text>
           {CONTAINER_TOKENS.map(({ name, value }) => (
             <div key={name}>
               <Divider />
@@ -46,7 +46,7 @@ export default function WidthsPage(): React.ReactElement {
           <Divider />
 
           <div style={{ marginTop: 'var(--space-12)' }}>
-            <Text variant="heading-xs" as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Breakpoints</Text>
+            <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Breakpoints</Text>
             {BREAKPOINT_TOKENS.map(({ name, value }) => (
               <div key={name}>
                 <Divider />

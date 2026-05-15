@@ -9,8 +9,8 @@ export default function GridPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
-        <StickyCol style={{ paddingTop: 'var(--space-16)' }}>
-          <Text variant="heading-xl" as="h1">Grid</Text>
+        <StickyCol>
+          <Text variant="body-md" as="h1">Grid</Text>
           <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
             Always 1fr 1fr.<br />
             Never asymmetric.<br /><br />
@@ -18,7 +18,7 @@ export default function GridPage(): React.ReactElement {
             Collapses to single column at 768px.
           </Text>
         </StickyCol>
-        <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
+        <div style={{ paddingInline: 'var(--padding-columns)' }}>
           <ComponentFrame
             title="Grid — two equal columns"
             code={`<Grid>\n  <StickyCol>Left (sticky)</StickyCol>\n  <div>Right</div>\n</Grid>`}

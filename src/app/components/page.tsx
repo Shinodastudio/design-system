@@ -24,24 +24,21 @@ export default function ComponentsPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
-        <StickyCol style={{ paddingTop: 'var(--space-16)' }}>
-          <Text variant="heading-xl" as="h1">Components</Text>
+        <StickyCol>
+          <Text variant="body-md" as="h1">Components</Text>
           <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
             Built from the token layer up.<br />
             No third-party component library.<br />
             Each component is the system in use.
           </Text>
         </StickyCol>
-        <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
+        <div style={{ paddingInline: 'var(--padding-columns)' }}>
           {COMPONENTS.map((comp) => (
             <div key={comp.href}>
               <Divider />
               <NextLink href={comp.href} style={{ display: 'block', paddingBlock: 'var(--space-6)', textDecoration: 'none' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <Text variant="heading-md" as="span">{comp.label}</Text>
-                  <Text variant="body-md" opacity={40} as="span">→</Text>
-                </div>
-                <Text variant="body-md" opacity={60} as="p" style={{ marginTop: 'var(--space-2)' }}>
+                <Text variant="body-md" as="span">{comp.label}</Text>
+                <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-2)' }}>
                   {comp.description}
                 </Text>
               </NextLink>

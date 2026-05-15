@@ -3,22 +3,28 @@ import { Grid } from '@/components/layout/Grid';
 import { StickyCol } from '@/components/layout/StickyCol';
 import { Divider } from '@/components/primitives/Divider';
 import { Text } from '@/components/primitives/Text';
-import { RichText } from '@/components/primitives/RichText';
+import { RichText, RICH_TEXT_SIZES } from '@/components/primitives/RichText';
 import { ComponentFrame } from '@/components/catalogue/ComponentFrame';
+
+const SIZE_META: Record<typeof RICH_TEXT_SIZES[number], string> = {
+  sm: '1rem · 16px',
+  md: '1.25rem · 20px · default',
+  lg: '1.5rem · 24px',
+};
 
 export default function RichTextPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
-        <StickyCol style={{ paddingTop: 'var(--space-16)' }}>
-          <Text variant="heading-xl" as="h1">Rich Text</Text>
+        <StickyCol>
+          <Text variant="body-md" as="h1">Rich Text</Text>
           <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
             Long-form text flow.<br />
             All HTML primitives styled to system.<br /><br />
             Headings cascade in size, body holds the baseline.
           </Text>
         </StickyCol>
-        <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
+        <div style={{ paddingInline: 'var(--padding-columns)' }}>
           <ComponentFrame
             title="Headings + paragraph flow"
             description="h1 through h6 with body copy between."
@@ -50,10 +56,6 @@ export default function RichTextPage(): React.ReactElement {
     <li>First item</li>
     <li>Second item</li>
   </ul>
-  <ol>
-    <li>Numbered first</li>
-    <li>Numbered second</li>
-  </ol>
 </RichText>`}
           >
             <RichText>
@@ -125,6 +127,25 @@ export default function RichTextPage(): React.ReactElement {
               <p>The next thought, after a breath.</p>
             </RichText>
           </ComponentFrame>
+
+          {/* Size variants — Webflow parity. Whole flow scales via em. */}
+          <Text variant="body-md" opacity={40} as="h2" style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-2)' }}>Sizes</Text>
+          {RICH_TEXT_SIZES.map((size) => (
+            <ComponentFrame
+              key={size}
+              title={`size="${size}"`}
+              description={SIZE_META[size]}
+              code={`<RichText size="${size}">
+  <h2>Heading</h2>
+  <p>Paragraph copy at this scale.</p>
+</RichText>`}
+            >
+              <RichText size={size}>
+                <h2>Heading at {size}</h2>
+                <p>Paragraph copy at this scale. Lists, emphasis, links all inherit proportionally.</p>
+              </RichText>
+            </ComponentFrame>
+          ))}
           <Divider />
         </div>
       </Grid>

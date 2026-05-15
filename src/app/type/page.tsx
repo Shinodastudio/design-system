@@ -47,8 +47,8 @@ export default function TypePage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
-        <StickyCol style={{ paddingTop: 'var(--space-16)' }}>
-          <Text variant="heading-xl" as="h1">Type</Text>
+        <StickyCol>
+          <Text variant="body-md" as="h1">Type</Text>
           <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
             Hierarchy through opacity,<br />
             not size.<br /><br />
@@ -56,7 +56,7 @@ export default function TypePage(): React.ReactElement {
             GT Super Text — subheadings only.
           </Text>
           <div style={{ marginTop: 'var(--space-12)' }}>
-            <Text variant="heading-xs" as="h2" style={{ marginBottom: 'var(--space-4)' }}>Opacity scale</Text>
+            <Text variant="body-md" opacity={40} as="h2" style={{ marginBottom: 'var(--space-4)' }}>Opacity scale</Text>
             {OPACITY_LEVELS.map((level: OpacityLevel) => (
               <div key={level} style={{ display: 'flex', justifyContent: 'space-between', paddingBlock: 'var(--space-2)' }}>
                 <Text variant="body-md" opacity={level} as="span">Text at {level}%</Text>
@@ -65,17 +65,17 @@ export default function TypePage(): React.ReactElement {
             ))}
           </div>
         </StickyCol>
-        <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
-          <Text variant="heading-xs" as="h2" style={{ paddingBottom: 'var(--space-2)' }}>Headings</Text>
+        <div style={{ paddingInline: 'var(--padding-columns)' }}>
+          <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-2)' }}>Headings</Text>
           {HEADING_VARIANTS.map((v) => <TypeRow key={v} variant={v} />)}
 
           <div style={{ marginTop: 'var(--space-12)' }}>
-            <Text variant="heading-xs" as="h2" style={{ paddingBottom: 'var(--space-2)' }}>Subheadings</Text>
+            <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-2)' }}>Subheadings</Text>
             {SUBHEADING_VARIANTS.map((v) => <TypeRow key={v} variant={v} />)}
           </div>
 
           <div style={{ marginTop: 'var(--space-12)' }}>
-            <Text variant="heading-xs" as="h2" style={{ paddingBottom: 'var(--space-2)' }}>Body</Text>
+            <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-2)' }}>Body</Text>
             {BODY_VARIANTS.map((v) => <TypeRow key={v} variant={v} />)}
           </div>
           <Divider />
