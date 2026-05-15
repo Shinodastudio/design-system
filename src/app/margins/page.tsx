@@ -10,16 +10,16 @@ export default function MarginsPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
-        <StickyCol style={{ paddingTop: 'var(--space-16)' }}>
-          <Text variant="heading-xl" as="h1">Margins</Text>
+        <StickyCol>
+          <Text variant="body-md" as="h1">Margins</Text>
           <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
             Same 4px base scale as paddings.<br /><br />
             Use margin to separate independent blocks.<br />
             Use padding inside containers.
           </Text>
         </StickyCol>
-        <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
-          <Text variant="heading-xs" as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Scale</Text>
+        <div style={{ paddingInline: 'var(--padding-columns)' }}>
+          <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Scale</Text>
           {SPACING_TOKENS.map(({ name, value }) => (
             <div key={name}>
               <Divider />

@@ -10,8 +10,8 @@ export default function CursorPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
-        <StickyCol style={{ paddingTop: 'var(--space-16)' }}>
-          <Text variant="heading-xl" as="h1">Cursor</Text>
+        <StickyCol>
+          <Text variant="body-md" as="h1">Cursor</Text>
           <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
             Single inverted dot.<br />
             mix-blend-mode: difference.<br />
@@ -22,10 +22,10 @@ export default function CursorPage(): React.ReactElement {
             image → expand chip
           </Text>
         </StickyCol>
-        <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
+        <div style={{ paddingInline: 'var(--padding-columns)' }}>
           <Divider />
           <div style={{ paddingBlock: 'var(--space-8)' }}>
-            <Text variant="heading-xs" as="h2">States</Text>
+            <Text variant="body-md" opacity={40} as="h2">States</Text>
             <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-2)', marginBottom: 'var(--space-8)' }}>
               Move your cursor over each element to see the state change.
             </Text>
@@ -51,7 +51,7 @@ export default function CursorPage(): React.ReactElement {
           </div>
           <Divider />
           <div style={{ paddingBlock: 'var(--space-8)' }}>
-            <Text variant="heading-xs" as="h2">Implementation</Text>
+            <Text variant="body-md" opacity={40} as="h2">Implementation</Text>
             <Text variant="body-md" opacity={60} as="p" style={{ marginTop: 'var(--space-4)' }}>
               Rendered once in <code>ClientShell</code> at the root layout. Managed imperatively via <code>useCursor</code> — no React state updates in the rAF loop.
             </Text>

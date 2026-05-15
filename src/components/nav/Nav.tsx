@@ -22,7 +22,14 @@ export function Nav(): React.ReactElement {
         <NextLink href="/" className="nav-logo">
           Shinoda DS
         </NextLink>
-        <NavLinks items={NAV_ITEMS} />
+        {/* Disclosure wrapper — desktop renders inline, ≤767 collapses behind a trigger.
+            <details> is purely native: works without JS, server-renderable, accessible. */}
+        <details className="nav-menu">
+          <summary className="nav-menu-trigger" aria-label="Toggle navigation">
+            <span>Menu</span>
+          </summary>
+          <NavLinks items={NAV_ITEMS} />
+        </details>
         <ThemeToggle />
       </div>
       <NavProgressiveBlur />

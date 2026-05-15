@@ -12,15 +12,15 @@ export default function SelectPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
-        <StickyCol style={{ paddingTop: 'var(--space-16)' }}>
-          <Text variant="heading-xl" as="h1">Select</Text>
+        <StickyCol>
+          <Text variant="body-md" as="h1">Select</Text>
           <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
             Native select for one-of-many.<br />
             Checkbox + radio for inline choices.<br /><br />
             Custom chevron drawn from primary text.
           </Text>
         </StickyCol>
-        <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
+        <div style={{ paddingInline: 'var(--padding-columns)' }}>
           <ComponentFrame
             title="Native select"
             description="Browser-rendered dropdown. Wrapper draws the chevron."

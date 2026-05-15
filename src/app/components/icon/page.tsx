@@ -30,8 +30,8 @@ export default function IconPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
-        <StickyCol style={{ paddingTop: 'var(--space-16)' }}>
-          <Text variant="heading-xl" as="h1">Icon</Text>
+        <StickyCol>
+          <Text variant="body-md" as="h1">Icon</Text>
           <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
             {ICONS.length} icons. Filled weight, 32px viewBox, currentColor.<br /><br />
             Sized via <code>--icon-2xs</code> (12px) to <code>--icon-xl</code> (32px).<br />
@@ -72,7 +72,7 @@ export default function IconPage(): React.ReactElement {
             </div>
           </div>
         </StickyCol>
-        <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
+        <div style={{ paddingInline: 'var(--padding-columns)' }}>
           <Text variant="body-sm" opacity={40} as="p" style={{ marginBottom: 'var(--space-4)' }}>
             {filtered.length.toLocaleString()} of {ICONS.length.toLocaleString()}
           </Text>

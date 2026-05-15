@@ -9,8 +9,8 @@ export default function StructurePage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
-        <StickyCol style={{ paddingTop: 'var(--space-16)' }}>
-          <Text variant="heading-xl" as="h1">Structure</Text>
+        <StickyCol>
+          <Text variant="body-md" as="h1">Structure</Text>
           <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
             Grid always 1fr 1fr.<br />
             Max width 1280px.<br />
@@ -19,8 +19,8 @@ export default function StructurePage(): React.ReactElement {
             Horizontal only at 5% opacity.
           </Text>
         </StickyCol>
-        <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
-          <Text variant="heading-xs" as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Spacing scale</Text>
+        <div style={{ paddingInline: 'var(--padding-columns)' }}>
+          <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Spacing scale</Text>
           {SPACING_TOKENS.map(({ name, value }) => (
             <div key={name}>
               <Divider />
@@ -44,7 +44,7 @@ export default function StructurePage(): React.ReactElement {
           <Divider />
 
           <div style={{ marginTop: 'var(--space-12)' }}>
-            <Text variant="heading-xs" as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Grid</Text>
+            <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Grid</Text>
             <Divider />
             <div style={{ paddingBlock: 'var(--space-8)' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', backgroundColor: 'var(--color-outline)' }}>
@@ -63,7 +63,7 @@ export default function StructurePage(): React.ReactElement {
           </div>
 
           <div style={{ marginTop: 'var(--space-12)' }}>
-            <Text variant="heading-xs" as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Radius</Text>
+            <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Radius</Text>
             {([
               { token: '--radius-none', value: '0px',    label: 'None' },
               { token: '--radius-xs',   value: '4px',    label: 'XS' },

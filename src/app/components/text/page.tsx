@@ -22,8 +22,8 @@ export default function TextPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
-        <StickyCol style={{ paddingTop: 'var(--space-16)' }}>
-          <Text variant="heading-xl" as="h1">Text</Text>
+        <StickyCol>
+          <Text variant="body-md" as="h1">Text</Text>
           <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
             15 variants via one component.<br />
             Polymorphic — renders the<br />
@@ -32,14 +32,14 @@ export default function TextPage(): React.ReactElement {
             Opacity via <code>opacity</code> prop.
           </Text>
         </StickyCol>
-        <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
-          <Text variant="heading-xs" as="h2" style={{ paddingBottom: 'var(--space-2)' }}>Headings</Text>
+        <div style={{ paddingInline: 'var(--padding-columns)' }}>
+          <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-2)' }}>Headings</Text>
           {HEADING_VARIANTS.map((v) => <VariantFrame key={v} variant={v} />)}
 
-          <Text variant="heading-xs" as="h2" style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-2)' }}>Subheadings</Text>
+          <Text variant="body-md" opacity={40} as="h2" style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-2)' }}>Subheadings</Text>
           {SUBHEADING_VARIANTS.map((v) => <VariantFrame key={v} variant={v} />)}
 
-          <Text variant="heading-xs" as="h2" style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-2)' }}>Body</Text>
+          <Text variant="body-md" opacity={40} as="h2" style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-2)' }}>Body</Text>
           {BODY_VARIANTS.map((v) => <VariantFrame key={v} variant={v} />)}
           <Divider />
         </div>

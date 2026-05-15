@@ -10,8 +10,8 @@ export default function LinkPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
-        <StickyCol style={{ paddingTop: 'var(--space-16)' }}>
-          <Text variant="heading-xl" as="h1">Link</Text>
+        <StickyCol>
+          <Text variant="body-md" as="h1">Link</Text>
           <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
             Underline always present.<br />
             20% opacity at rest.<br />
@@ -20,7 +20,7 @@ export default function LinkPage(): React.ReactElement {
             Never <code>cursor: pointer</code>.
           </Text>
         </StickyCol>
-        <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
+        <div style={{ paddingInline: 'var(--padding-columns)' }}>
           <ComponentFrame
             title="Internal link"
             description="Routes via Next.js Link. Underline at 20% opacity at rest."

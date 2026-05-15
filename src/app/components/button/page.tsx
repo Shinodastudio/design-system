@@ -4,14 +4,24 @@ import { StickyCol } from '@/components/layout/StickyCol';
 import { Divider } from '@/components/primitives/Divider';
 import { Text } from '@/components/primitives/Text';
 import { Button } from '@/components/primitives/Button';
+import { BUTTON_SIZES } from '@/components/primitives/Button.constants';
 import { ComponentFrame } from '@/components/catalogue/ComponentFrame';
+
+const SIZE_META: Record<typeof BUTTON_SIZES[number], string> = {
+  'xs':  '0.875rem · 14px',
+  'sm':  '1rem · 16px',
+  'md':  '1.25rem · 20px',
+  'lg':  '1.5rem · 24px · default',
+  'xl':  '2rem · 32px',
+  '2xl': '2.5rem · 40px',
+};
 
 export default function ButtonPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
-        <StickyCol style={{ paddingTop: 'var(--space-16)' }}>
-          <Text variant="heading-xl" as="h1">Button</Text>
+        <StickyCol>
+          <Text variant="body-md" as="h1">Button</Text>
           <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
             Transparent at rest.<br />
             20% overlay on hover.<br />
@@ -21,7 +31,7 @@ export default function ButtonPage(): React.ReactElement {
             Never <code>cursor: pointer</code>.
           </Text>
         </StickyCol>
-        <div style={{ paddingTop: 'var(--space-16)', paddingInline: 'var(--space-6)' }}>
+        <div style={{ paddingInline: 'var(--padding-columns)' }}>
           <ComponentFrame
             title="Default"
             description="At rest — indistinguishable from surrounding text."
@@ -55,6 +65,19 @@ export default function ButtonPage(): React.ReactElement {
               <a href="#">Navigate</a>
             </Button>
           </ComponentFrame>
+
+          {/* Size variants — Webflow parity. Six tiers tracking the heading scale. */}
+          <Text variant="body-md" opacity={40} as="h2" style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-2)' }}>Sizes</Text>
+          {BUTTON_SIZES.map((size) => (
+            <ComponentFrame
+              key={size}
+              title={`size="${size}"`}
+              description={SIZE_META[size]}
+              code={`<Button size="${size}">Label</Button>`}
+            >
+              <Button size={size}>Label</Button>
+            </ComponentFrame>
+          ))}
           <Divider />
         </div>
       </Grid>
