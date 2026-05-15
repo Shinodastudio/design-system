@@ -1,7 +1,7 @@
 import { cn } from '@/lib/cn';
 import { ICONS_BY_ID, type IconRecord } from './data/icons.generated';
 
-export type IconSize = '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+export type IconSize = '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'em';
 
 export interface IconProps extends Omit<React.SVGAttributes<SVGSVGElement>, 'dangerouslySetInnerHTML'> {
   readonly name: string;
@@ -17,6 +17,7 @@ const SIZE_CLASS: Record<IconSize, string> = {
   md:    'icon-md',
   lg:    'icon-lg',
   xl:    'icon-xl',
+  em:    'icon-em',
 };
 
 /**

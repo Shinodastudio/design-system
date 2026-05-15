@@ -53,18 +53,16 @@ button { font: inherit; background: none; border: none; cursor: none; }
 .subheading-md { font-family: var(--font-serif); font-weight: var(--fw-book); font-size: 2rem;   line-height: var(--leading-heading); letter-spacing: var(--tracking-n040); }
 .subheading-sm { font-family: var(--font-serif); font-weight: var(--fw-book); font-size: 1.5rem; line-height: var(--leading-heading); letter-spacing: var(--tracking-n040); }
 
-/* Responsive type — Webflow parity. heading-xl + subheading-lg step down on mobile,
-   subheading-md steps down on tablet. Everything else holds across breakpoints. */
+/* Responsive type — May 2026 spec.
+   Cutoffs: md (≥1440) · sm (≤1024) · xs (≤768) · 2xs (≤428).
+   Step-down boundary for size-change variants sits at the sm cutoff (≤1024). */
+@media (max-width: 1023px) {
+  .heading-xl    { font-size: 2.25rem; }   /* 36px (was 40) */
+  .subheading-lg { font-size: 2rem; }      /* 32px (was 48) */
+}
 @media (max-width: 991px) {
   .subheading-md { font-size: 1.5rem; }
-  .subheading-sm { font-size: 1.375rem; }
-}
-@media (max-width: 767px) {
-  .heading-xl    { font-size: 2.25rem; }
-  .subheading-lg { font-size: 2rem; }
-}
-@media (max-width: 479px) {
-  .subheading-sm { font-size: 1.5rem; }
+  .subheading-sm { font-size: 1.375rem; }  /* 22px */
 }
 
 .body-xl  { font-size: 1.5rem;   font-weight: var(--fw-normal); line-height: var(--leading-body-xl); letter-spacing: var(--tracking-n025); }
@@ -80,24 +78,29 @@ button { font: inherit; background: none; border: none; cursor: none; }
 .op-40 { opacity: var(--opacity-40); }
 .op-20 { opacity: var(--opacity-20); }
 
-/* ─── TEXT STYLE UTILITIES ───────────────────────────────────────────── */
-.text-italic        { font-style: italic; }
-.text-strikethrough { text-decoration: line-through; }
-.text-allcaps       { text-transform: uppercase; letter-spacing: var(--tracking-wide); }
-.text-nowrap        { white-space: nowrap; }
-.text-muted         { opacity: var(--opacity-40); }
+/* ─── TEXT STYLE UTILITIES ──────────────────────────────────────────────
+   Both the short Shinoda form (.text-italic) and the Webflow canonical form
+   (.text-style-italic) are defined as aliases so the catalogue can label
+   classes using the Webflow vocabulary that designers see in Designer. */
+.text-italic,        .text-style-italic        { font-style: italic; }
+.text-strikethrough, .text-style-strikethrough { text-decoration: line-through; }
+.text-allcaps,       .text-style-allcaps       { text-transform: uppercase; letter-spacing: var(--tracking-wide); }
+.text-nowrap,        .text-style-nowrap        { white-space: nowrap; }
+.text-muted,         .text-style-muted         { opacity: var(--opacity-40); }
+.text-style-link     { text-decoration: underline; text-underline-offset: 0.25em; }
 
 .text-align-left   { text-align: left; }
 .text-align-center { text-align: center; }
 .text-align-right  { text-align: right; }
 
-.text-2lines, .text-3lines {
+.text-2lines, .text-3lines,
+.text-style-2lines, .text-style-3lines {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.text-2lines { -webkit-line-clamp: 2; line-clamp: 2; }
-.text-3lines { -webkit-line-clamp: 3; line-clamp: 3; }
+.text-2lines, .text-style-2lines { -webkit-line-clamp: 2; line-clamp: 2; }
+.text-3lines, .text-style-3lines { -webkit-line-clamp: 3; line-clamp: 3; }
 
 /* ─── ICON SIZES ─────────────────────────────────────────────────────── */
 .icon { display: inline-block; flex-shrink: 0; }
@@ -107,6 +110,9 @@ button { font: inherit; background: none; border: none; cursor: none; }
 .icon-md  { width: var(--icon-md);  height: var(--icon-md);  }
 .icon-lg  { width: var(--icon-lg);  height: var(--icon-lg);  }
 .icon-xl  { width: var(--icon-xl);  height: var(--icon-xl);  }
+/* `icon-em` scales with the parent text — use inside Button/Link so the
+   glyph height matches the label cap height across every size variant. */
+.icon-em  { width: 1em; height: 1em; vertical-align: -0.125em; }
 
 /* ─── LAYOUT ─────────────────────────────────────────────────────────── */
 .page-wrapper {
@@ -128,7 +134,10 @@ button { font: inherit; background: none; border: none; cursor: none; }
 .padding-global { padding-inline: var(--padding-page); }
 
 .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
-.col-sticky { position: sticky; top: var(--space-6); align-self: start; height: fit-content; }
+/* Sticky left column — `top` must clear the nav bar + progressive blur stack
+   (see --sticky-offset in tokens). Previously used --space-6 (24px) which sat
+   inside the blur tail and ate the title under the blur. */
+.col-sticky { position: sticky; top: var(--sticky-offset); align-self: start; height: fit-content; }
 /* Collapse to single column at Webflow's mobile-landscape cutoff (767) to
    match the design canvas — keeps two columns at tablet (1024 canvas, ≤991). */
 @media (max-width: 767px) {
@@ -203,51 +212,34 @@ button { font: inherit; background: none; border: none; cursor: none; }
   .nav-links > li { flex-shrink: 0; }
 }
 
-/* Mobile-landscape and below (≤767): collapse into a disclosure menu.
-   Uses <details>/<summary> so it works without JS and remains SSR-safe. */
-.nav-menu { display: contents; }
-.nav-menu-trigger {
-  display: none;
-  font: inherit;
-  font-size: 1rem;
-  letter-spacing: var(--tracking-n020);
-  color: var(--color-text-primary);
-  background: transparent;
-  border: none;
-  cursor: none;
-  padding: 0.1em var(--space-2);
-  border-radius: var(--radius-sm);
-  list-style: none;
-}
-.nav-menu-trigger::-webkit-details-marker { display: none; }
-.nav-menu-trigger::marker { content: ''; }
-
+/* Mobile-landscape and below (≤767): hide the nav entirely.
+   Items are rendered by <Footer> instead — see Footer.tsx. */
 @media (max-width: 767px) {
-  .nav-menu { display: block; position: relative; }
-  .nav-menu-trigger { display: inline-flex; align-items: center; gap: var(--space-2); }
-  .nav-menu[open] .nav-menu-trigger { opacity: var(--opacity-80); }
-  .nav-menu .nav-links {
-    position: absolute;
-    top: calc(100% + var(--space-3));
-    right: 0;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: var(--space-1);
-    padding: var(--space-3) var(--space-4);
-    background-color: color-mix(in srgb, var(--color-fill-base) 92%, transparent);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: var(--border-sm) solid var(--color-transparent-weak);
-    border-radius: var(--radius-sm);
-    overflow: visible;
-    min-width: 12rem;
-  }
+  .nav { display: none; }
 }
 
-/* Home page (`<body data-route="home">`) — nav is hidden because the
-   homepage IS the navigation (subpage shortcuts as buttons). */
-[data-route="home"] .nav { display: none; }
-[data-route="home"] .main-wrapper { padding-top: var(--padding-section-sm); }
+/* ─── FOOTER — only visible ≤767, mirrors nav items as vertical list ── */
+.footer { display: none; }
+@media (max-width: 767px) {
+  .footer {
+    display: block;
+    width: 100%;
+    max-width: var(--container-5xl);
+    margin-inline: auto;
+    padding-block: var(--padding-section-md) var(--padding-section-sm);
+    padding-inline: var(--padding-page);
+  }
+  .footer-nav {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: 0;
+    margin: 0;
+  }
+  .footer-nav-link { display: inline-block; }
+  .footer-nav-link:hover { opacity: 1; }
+}
 
 /* ─── BUTTONS — 0.1em em padding, radius-sm, spring zoom ::before ──── */
 .btn {
@@ -305,7 +297,11 @@ button { font: inherit; background: none; border: none; cursor: none; }
 .btn-size-xl { font-size: 2rem;     letter-spacing: var(--tracking-n035); }
 .btn-size-2xl { font-size: 2.5rem;  letter-spacing: var(--tracking-n040); }
 
-/* ─── LINKS — left-to-right underline, background fade, cursor hides ─── */
+/* ─── LINKS — May 2026 spec section 8 ────────────────────────────────────
+   Underline is ALWAYS present (this is the semantic distinction between a
+   link and a button). At rest the underline sits at 20% opacity; on hover
+   it transitions to full opacity alongside a subtle background fill.
+   Gravity-pulled on proximity, cursor hides on hover. */
 .link {
   color: var(--color-text-primary);
   cursor: none;
@@ -314,22 +310,20 @@ button { font: inherit; background: none; border: none; cursor: none; }
   border-radius: var(--radius-sm);
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
-  /* Underline via gradient — builds left-to-right on hover */
-  background-image: linear-gradient(currentColor, currentColor);
-  background-repeat: no-repeat;
-  background-position: left bottom;
-  background-size: 0% 1px;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, currentColor 20%, transparent);
+  text-underline-offset: 0.2em;
   background-color: transparent;
-  text-decoration: none;
   /* Gravity */
   --gravity-x: 0px; --gravity-y: 0px;
   transform: translate(var(--gravity-x), var(--gravity-y));
-  transition: background-size 250ms cubic-bezier(0.4, 0, 0.2, 1),
+  transition: text-decoration-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
               background-color 200ms ease,
               transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .link:hover {
-  background-size: 100% 1px;
+  text-decoration-color: currentColor;
   background-color: var(--color-transparent-core);
 }
 
@@ -418,13 +412,528 @@ html.cursor--active .cursor { transform: translate(-50%,-50%) scale(0.8); }
 /* ─── BUTTON ROW ─────────────────────────────────────────────────────── */
 .button-row { display: inline-flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
 
+/* ─── SECTION TILE — homepage card ───────────────────────────────────────
+   Card chrome: hairline border at 5% opacity, radius-sm, padding-card.
+   Hover overlay uses --color-transparent-core (20% alpha) as :hover fallback
+   for the Figma proximity reveal — flagged in SectionTile.tsx per spec. */
+.section-tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-card);
+  padding: var(--padding-card);
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  color: inherit;
+  text-decoration: none;
+  cursor: none;
+  position: relative;
+  overflow: hidden;
+}
+/* Hover-only affordance — 20% transparent-core overlay. No border at rest
+   (the 5% opacity tier is reserved for horizontal dividers per system rule). */
+.section-tile::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--color-transparent-core);
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+.section-tile:hover::before { opacity: 1; }
+.section-tile > * { position: relative; z-index: 1; }
+
+.section-tile-image {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  background-color: var(--color-fill-secondary);
+  border-radius: var(--radius-xs);
+}
+[data-theme="dark"] .section-tile-image { background-color: var(--color-transparent-weak); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .section-tile-image {
+    background-color: var(--color-transparent-weak);
+  }
+}
+
+.section-tile-body { display: flex; flex-direction: column; gap: var(--space-2); }
+.section-tile-title { margin: 0; }
+.section-tile-desc  { margin: 0; }
+
+/* ─── ICON CATALOG — hover-swap glyph for name ───────────────────────── */
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 1px;
+  background-color: var(--color-transparent-weak);
+  margin-top: var(--space-4);
+}
+.icon-grid-cell {
+  background-color: var(--color-fill-base);
+  padding: var(--space-5) var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 84px;
+  position: relative;
+  text-align: center;
+}
+.icon-grid-glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 150ms ease;
+}
+.icon-grid-name {
+  position: absolute;
+  inset: var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 150ms ease;
+  hyphens: auto;
+  word-break: break-word;
+  line-height: 1.15;
+  pointer-events: none;
+}
+.icon-grid-cell:hover .icon-grid-glyph { opacity: 0; }
+.icon-grid-cell:hover .icon-grid-name  { opacity: var(--opacity-40); }
+
+/* ─── COMPONENT PREVIEWER — chip dropdowns + forced-state frame ────────
+   Each component page uses ONE previewer in the right column. Two chips
+   (state + size) toggle a single live preview. The `data-state` attribute
+   on `.preview-frame` triggers state-specific overrides that mirror the
+   real :hover / :active treatments so screenshots match runtime. */
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding-block: var(--space-4);
+}
+.preview-chips {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.preview-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  padding-right: calc(var(--space-4) + var(--space-3));
+  border: var(--border-sm) solid var(--color-transparent-weak);
+  border-radius: var(--radius-full);
+  background: transparent;
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n010);
+  cursor: none;
+  transition: border-color 200ms ease, background-color 200ms ease;
+}
+.preview-chip:hover { border-color: var(--color-transparent-core); }
+.preview-chip:focus-within {
+  border-color: var(--color-text-primary);
+}
+.preview-chip-label {
+  opacity: var(--opacity-40);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  font-size: 0.6875rem;
+}
+.preview-chip-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  font: inherit;
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n010);
+  color: var(--color-text-primary);
+  cursor: none;
+  outline: none;
+  padding-right: var(--space-4);
+}
+.preview-chip-chevron {
+  position: absolute;
+  right: var(--space-3);
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-right: var(--border-sm) solid var(--color-text-primary);
+  border-bottom: var(--border-sm) solid var(--color-text-primary);
+  transform: translateY(-75%) rotate(45deg);
+  pointer-events: none;
+  opacity: var(--opacity-60);
+}
+.preview-frame {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 8em;
+  padding: var(--padding-card);
+  border: var(--border-sm) solid var(--color-transparent-weak);
+  border-radius: var(--radius-sm);
+}
+
+/* ── Forced-state visual overrides ────────────────────────────────────
+   These match the real :hover / :active rules so the live preview reads
+   identically to a runtime interaction. Shared between .preview-frame
+   (ComponentPreviewer) and .component-card-preview (ComponentSection).
+   Keep in sync with .btn, .link, .input. */
+.preview-frame[data-state="hover"] .btn::before,
+.component-card-preview[data-state="hover"] .btn::before {
+  transform: scale(1);
+  opacity: 1;
+}
+.preview-frame[data-state="active"] .btn::before,
+.component-card-preview[data-state="active"] .btn::before {
+  transform: scale(0.95);
+  opacity: 1;
+}
+.preview-frame[data-state="active"] .btn,
+.component-card-preview[data-state="active"] .btn {
+  opacity: var(--opacity-80);
+}
+.preview-frame[data-state="hover"] .link,
+.component-card-preview[data-state="hover"] .link {
+  text-decoration-color: currentColor;
+  background-color: var(--color-transparent-core);
+}
+.preview-frame[data-state="hover"] .input,
+.preview-frame[data-state="hover"] .textarea,
+.preview-frame[data-state="hover"] .select-native,
+.component-card-preview[data-state="hover"] .input,
+.component-card-preview[data-state="hover"] .textarea,
+.component-card-preview[data-state="hover"] .select-native {
+  border-bottom-color: var(--color-text-tertiary);
+}
+.preview-frame[data-state="focus"] .input,
+.preview-frame[data-state="focus"] .textarea,
+.preview-frame[data-state="focus"] .select-native,
+.component-card-preview[data-state="focus"] .input,
+.component-card-preview[data-state="focus"] .textarea,
+.component-card-preview[data-state="focus"] .select-native {
+  border-bottom-color: var(--color-text-primary);
+}
+
+/* ─── COMPONENT SECTION — Figma 3907-10352 ───────────────────────────────
+   One named variant row: title + chips → description → preview card.
+   Multiple sections stack vertically in the right column of a component page. */
+.component-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-card);
+  padding-bottom: var(--padding-section-sm);
+}
+.component-section-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.component-section-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.component-section-chips {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* ── Section chip — size selector (always) and state selector / badge ── */
+.section-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-1) var(--space-1) var(--space-1) 6px;
+  border-radius: var(--radius-xs);
+  background-color: color-mix(in srgb, var(--color-text-tertiary) 10%, transparent);
+  color: var(--color-text-tertiary);
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n005);
+  cursor: none;
+  border: none;
+  font-family: inherit;
+}
+/* Orange accent — non-default state chip */
+.section-chip--active {
+  background-color: color-mix(in srgb, var(--accent-orange) 10%, transparent);
+  color: var(--accent-orange);
+}
+.section-chip-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  font: inherit;
+  color: inherit;
+  cursor: none;
+  outline: none;
+  padding: 0;
+  max-width: 12em;
+}
+.section-chip-chevron {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-right: var(--border-sm) solid currentColor;
+  border-bottom: var(--border-sm) solid currentColor;
+  transform: translateY(-25%) rotate(45deg);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+/* × close mark — CSS-only, no SVG import needed */
+.section-chip-close {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  position: relative;
+  flex-shrink: 0;
+}
+.section-chip-close::before,
+.section-chip-close::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+}
+.section-chip-close::before { transform: translateY(-50%) rotate(45deg); }
+.section-chip-close::after  { transform: translateY(-50%) rotate(-45deg); }
+
+/* ── Component preview card ─────────────────────────────────────────── */
+.component-card {
+  background-color: var(--color-fill-primary);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.component-card-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 8em;
+  padding: var(--padding-card);
+}
+/* Code snippet — monospace, 40% opacity, sits below the preview inside the card */
+.component-card-code {
+  display: block;
+  padding: var(--space-2);
+  opacity: var(--opacity-40);
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-none);
+  white-space: pre;
+  overflow-x: auto;
+  line-height: 1.4;
+}
+
+/* ─── LINK PAGE — 50/50 variant grid ─────────────────────────────────── */
+.link-variant-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+}
+@media (max-width: 767px) {
+  .link-variant-grid { grid-template-columns: 1fr; }
+}
+/* Force the hover preview demo to render in its hovered visual state. */
+.is-hover-preview {
+  text-decoration-color: currentColor !important;
+  background-color: var(--color-transparent-core) !important;
+}
+
+/* ─── UTILITY PAGE — class + live demo row ───────────────────────────── */
+.utility-row {
+  display: grid;
+  grid-template-columns: minmax(0, 280px) 1fr;
+  gap: var(--space-6);
+  align-items: center;
+  padding-block: var(--space-4);
+}
+.utility-row-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+.utility-row-demo {
+  display: flex;
+  align-items: center;
+  min-height: 2em;
+  overflow: hidden;
+}
+@media (max-width: 479px) {
+  .utility-row { grid-template-columns: 1fr; }
+}
+
+/* ─── COMPONENTS INDEX — link row ────────────────────────────────────── */
+.components-index-row {
+  display: block;
+  padding-block: var(--space-6);
+  text-decoration: none;
+  color: inherit;
+  cursor: none;
+  transition: opacity 200ms ease;
+}
+.components-index-row:hover { opacity: var(--opacity-80); }
+
+/* ─── TYPE PAGE — specimen rows ──────────────────────────────────────── */
+.type-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-6);
+  align-items: baseline;
+  padding-block: var(--space-6);
+}
+.type-row-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  text-align: right;
+}
+.type-section-heading {
+  padding-block: var(--space-12) var(--space-4);
+}
+.type-section-heading:first-child { padding-top: 0; }
+
+/* ─── COLOUR PAGE — swatch card + metadata row ───────────────────────── */
+.colour-group-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-block: var(--space-8) var(--space-6);
+}
+.colour-group-list { display: flex; flex-direction: column; gap: var(--space-6); padding-bottom: var(--space-8); }
+
+.colour-row {
+  display: grid;
+  grid-template-columns: minmax(0, 200px) 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+@media (max-width: 479px) {
+  .colour-row { grid-template-columns: 1fr; }
+}
+
+.colour-swatch {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-sm);
+  border: var(--border-sm) solid var(--color-transparent-weak);
+  overflow: hidden;
+  background-color: var(--color-fill-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.colour-swatch-fill { position: absolute; inset: 0; }
+.colour-swatch-aa {
+  font-family: var(--font-sans);
+  font-size: 3rem;
+  letter-spacing: var(--tracking-n040);
+  line-height: 1;
+}
+.colour-swatch-name {
+  position: absolute;
+  left: var(--space-2);
+  bottom: var(--space-2);
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: var(--tracking-none);
+  opacity: var(--opacity-40);
+  color: var(--color-text-primary);
+  mix-blend-mode: difference;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.colour-row-meta { display: flex; flex-direction: column; gap: var(--space-2); }
+.colour-row-heading {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.colour-row-hex {
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: var(--tracking-none);
+  padding: 0.15em 0.5em;
+  background: var(--color-transparent-weak);
+  border-radius: var(--radius-xs);
+}
+
+/* ─── CATALOGUE INTRO — left-column header block ─────────────────────── */
+.catalogue-intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.catalogue-intro-back {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  color: inherit;
+  text-decoration: none;
+  cursor: none;
+  transition: opacity 200ms ease;
+}
+.catalogue-intro-back:hover { opacity: var(--opacity-80); }
+.catalogue-intro-arrow {
+  font-size: 0.875em;
+  opacity: var(--opacity-40);
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1), opacity 200ms ease;
+}
+.catalogue-intro-back:hover .catalogue-intro-arrow {
+  transform: translateX(-2px);
+  opacity: 1;
+}
+.catalogue-intro-desc { margin: 0; max-width: 28em; }
+
+/* ─── HOMEPAGE — header + tile grid ──────────────────────────────────── */
+.home-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-bottom: var(--padding-section-md);
+}
+/* `ds-heading` — primary system label per Webflow class inventory.
+   Renders heading-xl size at full opacity, fw-normal. */
+.ds-heading { font-weight: var(--fw-normal); }
+
+.home-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--padding-columns);
+  padding-bottom: var(--padding-section-lg);
+}
+@media (max-width: 767px) {
+  .home-tiles { grid-template-columns: 1fr; }
+}
+
 /* ─── RESPONSIVE VISIBILITY ──────────────────────────────────────────── */
 .hide { display: none !important; }
 @media (max-width: 991px) { .hide-tablet           { display: none !important; } }
 @media (max-width: 767px) { .hide-mobile-landscape { display: none !important; } }
 @media (max-width: 479px) { .hide-mobile-portrait  { display: none !important; } }
 
-/* ─── FORM CONTROLS ──────────────────────────────────────────────────── */
+/* ─── FORM CONTROLS — May 2026 spec sections 12, 13, 14 ─────────────────
+   Input: underline-only style. No outer box. Single 1px rule along the
+   bottom edge sitting at --color-outline. On focus the underline lifts
+   to full primary text colour (100% currentColor) — mirrors the Link
+   hover pattern (20% rest → 100% on engagement). No orange accent.
+   Caret tracks the same primary text colour. */
 .input, .textarea, .select-native {
   display: block;
   width: 100%;
@@ -432,21 +941,24 @@ html.cursor--active .cursor { transform: translate(-50%,-50%) scale(0.8); }
   font-size: 1rem;
   letter-spacing: var(--tracking-n015);
   color: var(--color-text-primary);
-  background: var(--color-fill-primary);
-  border: var(--border-sm) solid var(--color-outline);
-  border-radius: var(--radius-sm);
-  padding: var(--space-3) var(--space-4);
+  background: transparent;
+  border: none;
+  border-bottom: var(--border-sm) solid var(--color-outline);
+  border-radius: 0;
+  padding: var(--space-3) 0;
   outline: none;
   cursor: none;
-  transition: border-color 150ms ease, background-color 150ms ease;
+  caret-color: var(--color-text-primary);
+  transition: border-color 200ms ease;
 }
 .input::placeholder, .textarea::placeholder { color: var(--color-text-tertiary); }
 .input:hover, .textarea:hover, .select-native:hover {
-  border-color: var(--color-text-tertiary);
+  border-bottom-color: var(--color-text-tertiary);
 }
-.input:focus-visible, .textarea:focus-visible, .select-native:focus-visible {
-  border-color: var(--color-text-primary);
-  background: var(--color-fill-base);
+.input:focus, .input:focus-visible,
+.textarea:focus, .textarea:focus-visible,
+.select-native:focus, .select-native:focus-visible {
+  border-bottom-color: var(--color-text-primary);
 }
 .textarea { min-height: 6em; resize: vertical; line-height: var(--leading-body-md); }
 
@@ -470,10 +982,10 @@ html.cursor--active .cursor { transform: translate(-50%,-50%) scale(0.8); }
   margin-top: var(--space-2);
 }
 .input.is-error, .textarea.is-error, .select-native.is-error {
-  border-color: var(--color-status-error);
+  border-bottom-color: var(--color-status-error);
 }
 
-/* Select wrapper — adds chevron */
+/* Select wrapper — adds chevron. Underline-only field, chevron flush right. */
 .select {
   position: relative;
   display: block;
@@ -481,12 +993,12 @@ html.cursor--active .cursor { transform: translate(-50%,-50%) scale(0.8); }
 .select-native {
   appearance: none;
   -webkit-appearance: none;
-  padding-right: var(--space-10);
+  padding-right: var(--space-8);
 }
 .select::after {
   content: '';
   position: absolute;
-  right: var(--space-4);
+  right: var(--space-2);
   top: 50%;
   width: 8px;
   height: 8px;
@@ -497,14 +1009,18 @@ html.cursor--active .cursor { transform: translate(-50%,-50%) scale(0.8); }
   opacity: var(--opacity-60);
 }
 
-/* Checkbox + radio */
+/* Checkbox + radio — May 2026 spec section 13.
+   Webflow MCP source-of-truth styling could not be programmatically pulled
+   via REST data tools (Designer-only). Current treatment is a best-effort
+   match to the Shinoda system: 1rem control, 1px outline at rest, filled
+   on check. Reconcile against Webflow Designer when access becomes available. */
 .checkbox, .radio {
   appearance: none;
   -webkit-appearance: none;
-  width: 1.125rem;
-  height: 1.125rem;
+  width: 1rem;
+  height: 1rem;
   border: var(--border-sm) solid var(--color-outline);
-  background: var(--color-fill-primary);
+  background: transparent;
   cursor: none;
   display: inline-flex;
   align-items: center;
@@ -560,6 +1076,7 @@ html.cursor--active .cursor { transform: translate(-50%,-50%) scale(0.8); }
   gap: 0;
   border-bottom: var(--border-sm) solid var(--color-transparent-weak);
   width: 100%;
+  position: relative;
 }
 .tabs-trigger {
   padding: var(--space-3) var(--space-4);
@@ -572,21 +1089,38 @@ html.cursor--active .cursor { transform: translate(-50%,-50%) scale(0.8); }
   cursor: none;
   position: relative;
   opacity: var(--opacity-40);
-  transition: opacity 150ms ease;
+  transition: opacity 200ms ease;
 }
 .tabs-trigger:hover { opacity: var(--opacity-80); }
 .tabs-trigger[data-active="true"] { opacity: 1; }
-.tabs-trigger[data-active="true"]::after {
-  content: '';
+
+/* Shared indicator — JS measures the active trigger and translates the bar
+   to match. Width and translateX come from inline styles set in TabsList. */
+.tabs-indicator {
   position: absolute;
-  left: var(--space-4);
-  right: var(--space-4);
+  left: 0;
   bottom: -1px;
   height: var(--border-md);
   background: var(--color-text-primary);
+  pointer-events: none;
+  transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1),
+              width 280ms cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 200ms ease;
 }
+/* Avoid a flash at origin (0,0) on first paint — fade in only once measured. */
+.tabs-indicator[data-ready="false"] { opacity: 0; }
+
 .tabs-panel {
   padding-block: var(--space-4);
+  animation: tabs-panel-enter 220ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+@keyframes tabs-panel-enter {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tabs-indicator { transition: none; }
+  .tabs-panel { animation: none; }
 }
 
 /* ─── RICH TEXT BLOCK ────────────────────────────────────────────────── */
@@ -656,3 +1190,22 @@ html.cursor--active .cursor { transform: translate(-50%,-50%) scale(0.8); }
 }
 .rich-text pre code { background: transparent; padding: 0; }
 .rich-text hr { border: none; height: 1px; background: var(--color-text-primary); opacity: var(--opacity-divider); margin-block: var(--space-8); }
+/* Images embedded in a rich-text flow — 16px corner radius per May 2026 spec.
+   Use <figure><img/><figcaption/></figure> for captioned images. */
+.rich-text figure { margin-block: var(--space-6); }
+.rich-text img    { width: 100%; height: auto; border-radius: var(--radius-lg); display: block; }
+.rich-text figcaption {
+  margin-top: var(--space-3);
+  font-size: 1.125rem;
+  letter-spacing: var(--tracking-n010);
+  line-height: var(--leading-body-md);
+  opacity: var(--opacity-40);
+}
+/* Placeholder block used when no real image is provided — keeps documentation
+   functional without committing a binary asset to the repo. */
+.rich-text-image-placeholder {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-lg);
+  background: var(--color-fill-secondary);
+}

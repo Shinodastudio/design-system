@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
 
 interface TabsContextValue {
@@ -54,10 +54,71 @@ interface TabsListProps {
   readonly ariaLabel?: string;
 }
 
+/**
+ * TabsList — renders the trigger row plus a single shared indicator bar
+ * that slides horizontally to the active trigger's bounds (May 2026 spec
+ * section 15). Position is measured via a layout effect so the indicator
+ * animates rather than jumping.
+ */
 export function TabsList({ children, className, ariaLabel }: TabsListProps): React.ReactElement {
+  const listRef = useRef<HTMLDivElement>(null);
+  const [indicator, setIndicator] = useState<{ left: number; width: number; ready: boolean }>(
+    { left: 0, width: 0, ready: false },
+  );
+  const { active } = useTabsContext();
+
+  // Measure the active trigger's bounds within the list. Re-run on active change.
+  // useLayoutEffect avoids a frame of mis-positioned indicator on initial paint.
+  useLayoutEffect(() => {
+    const list = listRef.current;
+    if (list == null) return;
+    const node = list.querySelector<HTMLButtonElement>(`[data-tab-value="${CSS.escape(active)}"]`);
+    if (node == null) return;
+    const listRect = list.getBoundingClientRect();
+    const nodeRect = node.getBoundingClientRect();
+    setIndicator({
+      left: nodeRect.left - listRect.left,
+      width: nodeRect.width,
+      ready: true,
+    });
+  }, [active]);
+
+  // Re-measure on resize — keeps the indicator pinned if the layout reflows.
+  useEffect(() => {
+    const list = listRef.current;
+    if (list == null) return;
+    const observer = new ResizeObserver(() => {
+      const node = list.querySelector<HTMLButtonElement>(`[data-tab-value="${CSS.escape(active)}"]`);
+      if (node == null) return;
+      const listRect = list.getBoundingClientRect();
+      const nodeRect = node.getBoundingClientRect();
+      setIndicator({
+        left: nodeRect.left - listRect.left,
+        width: nodeRect.width,
+        ready: true,
+      });
+    });
+    observer.observe(list);
+    return () => observer.disconnect();
+  }, [active]);
+
   return (
-    <div className={cn('tabs-list', className)} role="tablist" aria-label={ariaLabel}>
+    <div
+      ref={listRef}
+      className={cn('tabs-list', className)}
+      role="tablist"
+      aria-label={ariaLabel}
+    >
       {children}
+      <span
+        className="tabs-indicator"
+        aria-hidden="true"
+        data-ready={indicator.ready}
+        style={{
+          transform: `translateX(${indicator.left}px)`,
+          width: `${indicator.width}px`,
+        }}
+      />
     </div>
   );
 }
@@ -71,12 +132,14 @@ interface TabsTriggerProps {
 export function TabsTrigger({ value, children, className }: TabsTriggerProps): React.ReactElement {
   const { active, setActive } = useTabsContext();
   const isActive = active === value;
+
   return (
     <button
       type="button"
       role="tab"
       aria-selected={isActive}
       data-active={isActive}
+      data-tab-value={value}
       className={cn('tabs-trigger', className)}
       onClick={() => setActive(value)}
     >
@@ -94,8 +157,10 @@ interface TabsPanelProps {
 export function TabsPanel({ value, children, className }: TabsPanelProps): React.ReactElement | null {
   const { active } = useTabsContext();
   if (active !== value) return null;
+  // `key` on the wrapper forces React to remount on each switch so the CSS
+  // enter animation in shinoda-base.css `.tabs-panel` plays fresh each time.
   return (
-    <div role="tabpanel" className={cn('tabs-panel', className)}>
+    <div key={value} role="tabpanel" className={cn('tabs-panel', className)}>
       {children}
     </div>
   );

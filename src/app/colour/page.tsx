@@ -4,96 +4,122 @@ import { StickyCol } from '@/components/layout/StickyCol';
 import { Divider } from '@/components/primitives/Divider';
 import { Text } from '@/components/primitives/Text';
 import { CopyValue } from '@/components/catalogue/CopyValue';
+import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 
 /**
- * Colour catalogue.
+ * Colour catalogue — May 2026 spec (Figma 3904-2330).
  *
- * Type hierarchy follows the v3.3 Webflow-parity rule: every label is body-md;
- * emphasis comes from opacity, never size. Title is 100%, the subtitle and
- * section headings drop to 40%, descriptive copy sits at 60%.
+ * Each token is presented as a two-part row:
+ *   1. Swatch card filled with the colour, CSS var name in mono at bottom-left.
+ *      Text-colour tokens render a large "Aa" specimen in that colour over a
+ *      neutral fill rather than a flat colour swatch.
+ *   2. Metadata column: name in heading-sm, hex badge inline, body-sm 40% desc.
  *
- * Status section is intentionally removed from this catalogue — status tokens
- * remain in the CSS for input-error styling but they aren't a colour the system
- * exposes for general use. (Token audit pending: see Meridian note "Colour token audit".)
+ * Group headings sit in subheading-md (serif) with a single-line body-sm 40%
+ * description below. Groups are separated by a horizontal divider.
  *
- * Each row supports an optional `usage` slot — a small live demo of how the
- * colour is intended to be used in context (button, divider, text). Leon will
- * supply usage examples; the scaffolding stays empty until then.
+ * Hex values are the LIGHT MODE values per spec — the system inverts at runtime
+ * via prefers-color-scheme and [data-theme], the page just documents the source.
  */
+
+type ColourKind = 'fill' | 'text';
 
 interface ColourToken {
   readonly name: string;
   readonly label: string;
+  readonly hex: string;
   readonly description: string;
-  readonly usage?: React.ReactNode;
+  readonly kind?: ColourKind;
 }
 
-const CORE_TOKENS: readonly ColourToken[] = [
-  { name: '--color-core-base',        label: 'Core Base',        description: 'Pure white (light) / pure black (dark) — system anchor' },
-  { name: '--color-core-contrast',    label: 'Core Contrast',    description: 'Always white — text/icons on coloured fills' },
-  { name: '--color-core-invert',      label: 'Core Invert',      description: 'Mirror of base — black (light) / white (dark)' },
-  { name: '--color-core-transparent', label: 'Core Transparent', description: 'Zero-alpha base — use for fade transitions' },
+interface ColourGroup {
+  readonly title: string;
+  readonly description: string;
+  readonly tokens: readonly ColourToken[];
+}
+
+const GROUPS: readonly ColourGroup[] = [
+  {
+    title: 'Core',
+    description: 'System anchors — pure values, not for general fills.',
+    tokens: [
+      { name: '--color-core-base',        label: 'Core Base',        hex: '#FFFFFF',     description: 'White (light) / black (dark) anchor' },
+      { name: '--color-core-contrast',    label: 'Core Contrast',    hex: '#FFFFFF',     description: 'Always white — text on coloured fills' },
+      { name: '--color-core-invert',      label: 'Core Invert',      hex: '#000000',     description: 'Mirror of base' },
+      { name: '--color-core-transparent', label: 'Core Transparent', hex: 'transparent', description: 'Zero-alpha base — fade transitions' },
+    ],
+  },
+  {
+    title: 'Fill',
+    description: 'Surface backgrounds, from page chrome to elevated cards.',
+    tokens: [
+      { name: '--color-fill-base',      label: 'Fill Base',      hex: '#FAFAFA', description: 'Page background' },
+      { name: '--color-fill-primary',   label: 'Fill Primary',   hex: '#F4F4F5', description: 'Card / elevated surface' },
+      { name: '--color-fill-secondary', label: 'Fill Secondary', hex: '#E4E4E7', description: 'Input backgrounds' },
+      { name: '--color-fill-tertiary',  label: 'Fill Tertiary',  hex: '#D0D0D7', description: 'Borders, dividers fill' },
+    ],
+  },
+  {
+    title: 'Text',
+    description: 'Type colours — demonstrated as "Aa" on the system page fill.',
+    tokens: [
+      { name: '--color-text-primary',   label: 'Text Primary',   hex: '#18181B', description: 'Body copy, headings',     kind: 'text' },
+      { name: '--color-text-secondary', label: 'Text Secondary', hex: '#494951', description: 'Supporting text',         kind: 'text' },
+      { name: '--color-text-tertiary',  label: 'Text Tertiary',  hex: '#A1A1AA', description: 'Metadata, captions',      kind: 'text' },
+      { name: '--color-text-contrast',  label: 'Text Contrast',  hex: '#FFFFFF', description: 'On coloured surfaces',    kind: 'text' },
+    ],
+  },
+  {
+    title: 'Grey',
+    description: 'Solid grey emphasis tokens — never use for body text.',
+    tokens: [
+      { name: '--color-grey-strong', label: 'Grey Strong', hex: '#212123', description: 'Heaviest grey block' },
+      { name: '--color-grey-core',   label: 'Grey Core',   hex: '#212123', description: 'Solid grey emphasis' },
+      { name: '--color-grey-weak',   label: 'Grey Weak',   hex: '#E4E4E7', description: 'Light grey panel' },
+      { name: '--color-outline',     label: 'Outline',     hex: '#D0D0D7', description: 'Border / rule colour' },
+    ],
+  },
+  {
+    title: 'Transparent',
+    description: 'Layered alpha overlays — for hover fills, scrims and dividers.',
+    tokens: [
+      { name: '--color-transparent-weak',   label: 'Transparent Weak',   hex: 'rgba(24,24,27,.05)', description: '5% — dividers, hairlines' },
+      { name: '--color-transparent-core',   label: 'Transparent Core',   hex: 'rgba(24,24,27,.20)', description: '20% — button hover fill' },
+      { name: '--color-transparent-strong', label: 'Transparent Strong', hex: 'rgba(24,24,27,.60)', description: '60% — scrim, backdrop' },
+    ],
+  },
 ];
 
-const SEMANTIC_TOKENS: readonly ColourToken[] = [
-  { name: '--color-fill-base',          label: 'Fill Base',          description: 'Page background' },
-  { name: '--color-fill-primary',       label: 'Fill Primary',       description: 'Card / elevated surface' },
-  { name: '--color-fill-secondary',     label: 'Fill Secondary',     description: 'Input backgrounds' },
-  { name: '--color-fill-tertiary',      label: 'Fill Tertiary',      description: 'Borders, dividers fill' },
-  { name: '--color-text-primary',       label: 'Text Primary',       description: 'Body copy, headings' },
-  { name: '--color-text-secondary',     label: 'Text Secondary',     description: 'Supporting text' },
-  { name: '--color-text-tertiary',      label: 'Text Tertiary',      description: 'Metadata, captions' },
-  { name: '--color-text-contrast',      label: 'Text Contrast',      description: 'Always white — use on coloured surfaces' },
-  { name: '--color-outline',            label: 'Outline',            description: 'Border / rule colour' },
-  { name: '--color-grey-strong',        label: 'Grey Strong',        description: 'Heaviest grey block — stamps, inverted chips' },
-  { name: '--color-grey-core',          label: 'Grey Core',          description: 'Solid grey emphasis — not for text' },
-  { name: '--color-grey-weak',          label: 'Grey Weak',          description: 'Light grey panel / subtle elevated surface' },
-  { name: '--color-transparent-weak',   label: 'Transparent Weak',   description: '5% — very light tint, dividers' },
-  { name: '--color-transparent-core',   label: 'Transparent Core',   description: '20% — button hover fill' },
-  { name: '--color-transparent-strong', label: 'Transparent Strong', description: '60% — scrim, backdrop' },
-];
-
-function Swatch({ token }: { readonly token: string }): React.ReactElement {
+function Swatch({ token }: { readonly token: ColourToken }): React.ReactElement {
+  const isText = token.kind === 'text';
   return (
-    <span
-      style={{
-        display: 'block',
-        width: '40px',
-        height: '40px',
-        backgroundColor: `var(${token})`,
-        border: '1px solid var(--color-outline)',
-        flexShrink: 0,
-        borderRadius: 'var(--radius-xs)',
-      }}
-    />
+    <div className="colour-swatch" data-kind={token.kind ?? 'fill'}>
+      {isText ? (
+        <span className="colour-swatch-aa" style={{ color: `var(${token.name})` }} aria-hidden="true">Aa</span>
+      ) : (
+        <span className="colour-swatch-fill" style={{ backgroundColor: `var(${token.name})` }} aria-hidden="true" />
+      )}
+      <code className="colour-swatch-name">{token.name}</code>
+    </div>
   );
 }
 
-function ColourRow({ name, label, description, usage }: ColourToken): React.ReactElement {
+function ColourRow({ token }: { readonly token: ColourToken }): React.ReactElement {
+  // Label rendered at body-md (not heading-sm) — the swatch is the hero, the
+  // label is supporting metadata. Hex badge and description carry secondary
+  // emphasis via background + opacity rather than larger type.
   return (
-    <div>
-      <Divider />
-      <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 1fr', gap: 'var(--space-6)', alignItems: 'start', paddingBlock: 'var(--space-5)' }}>
-        <CopyValue value={`var(${name})`}>
-          <Swatch token={name} />
-        </CopyValue>
-        <div>
-          <Text variant="body-md" as="p">{label}</Text>
-          <CopyValue value={name}>
-            <Text variant="body-md" opacity={40} as="p">{name}</Text>
+    <div className="colour-row">
+      <Swatch token={token} />
+      <div className="colour-row-meta">
+        <div className="colour-row-heading">
+          <Text variant="body-md" as="p">{token.label}</Text>
+          <CopyValue value={token.hex} className="colour-row-hex">
+            <code>{token.hex}</code>
           </CopyValue>
         </div>
-        <Text variant="body-md" opacity={60} as="p">{description}</Text>
+        <Text variant="body-sm" opacity={40} as="p">{token.description}</Text>
       </div>
-      {/* Usage example slot — rendered below the row, indented under the description column.
-          Empty by default; populates when a token provides a `usage` ReactNode. */}
-      {usage != null && (
-        <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 1fr', gap: 'var(--space-6)', paddingBottom: 'var(--space-5)' }}>
-          <div />
-          <div />
-          <div>{usage}</div>
-        </div>
-      )}
     </div>
   );
 }
@@ -103,26 +129,26 @@ export default function ColourPage(): React.ReactElement {
     <MainWrapper>
       <Grid>
         <StickyCol>
-          <Text variant="body-md" as="h1">Colour</Text>
-          <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
-            Semantic tokens only.<br />
-            Never raw hex in components.<br />
-            All values shift automatically in dark mode.
-          </Text>
+          <CatalogueIntro
+            title="Colour"
+            description="Semantic tokens only — values invert at runtime."
+          />
         </StickyCol>
-        <div style={{ paddingInline: 'var(--padding-columns)' }}>
-          <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Core</Text>
-          {CORE_TOKENS.map((token) => (
-            <ColourRow key={token.name} {...token} />
+        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
+          {GROUPS.map((group, gi) => (
+            <section key={group.title}>
+              {gi > 0 && <Divider />}
+              <div className="colour-group-header">
+                <Text variant="heading-md" as="h2">{group.title}</Text>
+                <Text variant="body-sm" opacity={40} as="p">{group.description}</Text>
+              </div>
+              <div className="colour-group-list">
+                {group.tokens.map((token) => (
+                  <ColourRow key={token.name} token={token} />
+                ))}
+              </div>
+            </section>
           ))}
-          <Divider />
-          <div style={{ marginTop: 'var(--space-12)' }}>
-            <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Surface &amp; text</Text>
-            {SEMANTIC_TOKENS.map((token) => (
-              <ColourRow key={token.name} {...token} />
-            ))}
-            <Divider />
-          </div>
         </div>
       </Grid>
     </MainWrapper>

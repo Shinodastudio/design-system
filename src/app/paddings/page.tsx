@@ -4,20 +4,25 @@ import { StickyCol } from '@/components/layout/StickyCol';
 import { Divider } from '@/components/primitives/Divider';
 import { Text } from '@/components/primitives/Text';
 import { CopyValue } from '@/components/catalogue/CopyValue';
+import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 import { PADDING_TOKENS, SPACING_TOKENS } from '@/lib/tokens';
 
+/**
+ * Paddings — May 2026 spec section 19. Semantic responsive padding tokens
+ * with their base values shown alongside the per-canvas notes. Visual format
+ * may need to reconcile against the Webflow page once Designer access is available.
+ */
 export default function PaddingsPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
         <StickyCol>
-          <Text variant="body-md" as="h1">Paddings</Text>
-          <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
-            Semantic padding tokens for page, section, container, and nav regions.<br /><br />
-            Raw spacing scale underlies them.
-          </Text>
+          <CatalogueIntro
+            title="Paddings"
+            description="Semantic padding tokens — page, section, container, nav, card."
+          />
         </StickyCol>
-        <div style={{ paddingInline: 'var(--padding-columns)' }}>
+        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
           <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Semantic</Text>
           {PADDING_TOKENS.map(({ name, value, note }) => (
             <div key={name}>

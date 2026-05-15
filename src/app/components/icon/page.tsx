@@ -9,6 +9,7 @@ import { Text } from '@/components/primitives/Text';
 import { Input, InputField, InputLabel } from '@/components/primitives/Input';
 import { CopyValue } from '@/components/catalogue/CopyValue';
 import { Icon, ICONS, type IconSize } from '@/components/icons';
+import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 
 const SIZE_OPTIONS: readonly IconSize[] = ['2xs', 'xs', 'sm', 'md', 'lg', 'xl'];
 
@@ -31,12 +32,10 @@ export default function IconPage(): React.ReactElement {
     <MainWrapper>
       <Grid>
         <StickyCol>
-          <Text variant="body-md" as="h1">Icon</Text>
-          <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
-            {ICONS.length} icons. Filled weight, 32px viewBox, currentColor.<br /><br />
-            Sized via <code>--icon-2xs</code> (12px) to <code>--icon-xl</code> (32px).<br />
-            Search by name or tag. Click any tile to copy the JSX.
-          </Text>
+          <CatalogueIntro
+            title="Icon"
+            description={`${ICONS.length} icons — filled weight, 32px viewBox, currentColor. Search by name or tag.`}
+          />
 
           <div style={{ marginTop: 'var(--space-8)' }}>
             <InputField>
@@ -72,41 +71,27 @@ export default function IconPage(): React.ReactElement {
             </div>
           </div>
         </StickyCol>
-        <div style={{ paddingInline: 'var(--padding-columns)' }}>
+        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
           <Text variant="body-sm" opacity={40} as="p" style={{ marginBottom: 'var(--space-4)' }}>
             {filtered.length.toLocaleString()} of {ICONS.length.toLocaleString()}
           </Text>
           <Divider />
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-              gap: '1px',
-              backgroundColor: 'var(--color-transparent-weak)',
-              marginTop: 'var(--space-4)',
-            }}
-          >
+          {/* Icon grid — May 2026 spec section 16.
+              Default state: icon only. Hover: icon swaps to the icon name in
+              body-sm 40% opacity. Names wrap rather than forcing the cell to
+              expand. The grid uses a tighter minmax floor so significantly more
+              icons fit per row at small viewports. */}
+          <div className="icon-grid">
             {filtered.map((icon) => {
               const importStmt = `<Icon name="${icon.id}" />`;
               return (
-                <CopyValue key={icon.id} value={importStmt}>
-                  <div
-                    style={{
-                      backgroundColor: 'var(--color-fill-base)',
-                      padding: 'var(--space-6) var(--space-4)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: 'var(--space-3)',
-                      width: '100%',
-                      minHeight: '110px',
-                    }}
-                  >
+                <CopyValue key={icon.id} value={importStmt} className="icon-grid-cell">
+                  <span className="icon-grid-glyph">
                     <Icon name={icon.id} size={size} title={icon.displayName} />
-                    <Text variant="body-2xs" opacity={40} as="span" className="text-nowrap">
-                      {icon.displayName}
-                    </Text>
-                  </div>
+                  </span>
+                  <span className="icon-grid-name body-sm op-40">
+                    {icon.displayName}
+                  </span>
                 </CopyValue>
               );
             })}

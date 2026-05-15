@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { ClientShell } from '@/providers/ClientShell';
 import { PageWrapper } from '@/components/layout/PageWrapper';
+import { Footer } from '@/components/layout/Footer';
 import { Nav } from '@/components/nav/Nav';
 
 export const metadata: Metadata = {
@@ -26,7 +27,7 @@ export default function RootLayout({
   readonly children: React.ReactNode;
 }): React.ReactElement {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <ThemeScript />
       </head>
@@ -36,6 +37,7 @@ export default function RootLayout({
           <PageWrapper>
             {children}
           </PageWrapper>
+          <Footer />
         </ClientShell>
       </body>
     </html>

@@ -3,23 +3,29 @@ import { Grid } from '@/components/layout/Grid';
 import { StickyCol } from '@/components/layout/StickyCol';
 import { Divider } from '@/components/primitives/Divider';
 import { Text } from '@/components/primitives/Text';
+import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 import { SPACING_TOKENS } from '@/lib/tokens';
 
+/**
+ * Structure page — May 2026 spec section 19.
+ *
+ * Webflow MCP source-of-truth: the canonical layout for Structure / Widths /
+ * Paddings / Margins lives in Webflow Designer and could not be programmatically
+ * pulled via REST data tools. The data shown here is correct (driven by the
+ * token files) but the visual format should be reconciled against the Webflow
+ * pages once Designer access is available.
+ */
 export default function StructurePage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
         <StickyCol>
-          <Text variant="body-md" as="h1">Structure</Text>
-          <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
-            Grid always 1fr 1fr.<br />
-            Max width 1280px.<br />
-            24px global padding.<br /><br />
-            No vertical dividers.<br />
-            Horizontal only at 5% opacity.
-          </Text>
+          <CatalogueIntro
+            title="Structure"
+            description="Page architecture, grid rules, and radius scale."
+          />
         </StickyCol>
-        <div style={{ paddingInline: 'var(--padding-columns)' }}>
+        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
           <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Spacing scale</Text>
           {SPACING_TOKENS.map(({ name, value }) => (
             <div key={name}>
