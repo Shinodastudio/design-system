@@ -5,24 +5,22 @@ import { Divider } from '@/components/primitives/Divider';
 import { Text } from '@/components/primitives/Text';
 import { Tabs, TabsList, TabsTrigger, TabsPanel } from '@/components/primitives/Tabs';
 import { ComponentFrame } from '@/components/catalogue/ComponentFrame';
+import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 
 export default function TabsPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
         <StickyCol>
-          <Text variant="body-md" as="h1">Tabs</Text>
-          <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
-            Horizontal control.<br />
-            Triggers at 40% opacity at rest, 100% when active.<br />
-            2px bar under the active trigger.<br /><br />
-            Headless API — Tabs / TabsList / TabsTrigger / TabsPanel.
-          </Text>
+          <CatalogueIntro
+            title="Tabs"
+            description="Horizontal control. Triggers at 40% rest, 100% active. Sliding 2px indicator."
+          />
         </StickyCol>
-        <div style={{ paddingInline: 'var(--padding-columns)' }}>
+        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
           <ComponentFrame
             title="Three panels"
-            description="Click a trigger to switch panel."
+            description="Click a trigger to switch panel. The indicator measures the active trigger and slides."
             code={`<Tabs defaultValue="overview">
   <TabsList ariaLabel="Sections">
     <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -30,8 +28,6 @@ export default function TabsPage(): React.ReactElement {
     <TabsTrigger value="changelog">Changelog</TabsTrigger>
   </TabsList>
   <TabsPanel value="overview">...</TabsPanel>
-  <TabsPanel value="usage">...</TabsPanel>
-  <TabsPanel value="changelog">...</TabsPanel>
 </Tabs>`}
           >
             <Tabs defaultValue="overview">

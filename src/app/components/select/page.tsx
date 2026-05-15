@@ -1,47 +1,60 @@
+'use client';
+
 import { MainWrapper } from '@/components/layout/MainWrapper';
 import { Grid } from '@/components/layout/Grid';
 import { StickyCol } from '@/components/layout/StickyCol';
 import { Divider } from '@/components/primitives/Divider';
-import { Text } from '@/components/primitives/Text';
 import { Select } from '@/components/primitives/Select';
 import { Checkbox, Radio, Choice, ChoiceLabel } from '@/components/primitives/Choice';
 import { InputField, InputLabel } from '@/components/primitives/Input';
+import { ComponentPreviewer } from '@/components/catalogue/ComponentPreviewer';
 import { ComponentFrame } from '@/components/catalogue/ComponentFrame';
+import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
+
+const SELECT_SIZES = ['body-md', 'body-sm', 'body-xs', 'body-2xs'] as const;
+type SelectSize = typeof SELECT_SIZES[number];
+
+const SIZE_FONT: Record<SelectSize, string> = {
+  'body-md':  '1.25rem',
+  'body-sm':  '1.125rem',
+  'body-xs':  '1rem',
+  'body-2xs': '0.875rem',
+};
 
 export default function SelectPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
         <StickyCol>
-          <Text variant="body-md" as="h1">Select</Text>
-          <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
-            Native select for one-of-many.<br />
-            Checkbox + radio for inline choices.<br /><br />
-            Custom chevron drawn from primary text.
-          </Text>
+          <CatalogueIntro
+            title="Select"
+            description="Native select, checkbox and radio — chevron drawn from primary text."
+          />
         </StickyCol>
-        <div style={{ paddingInline: 'var(--padding-columns)' }}>
-          <ComponentFrame
-            title="Native select"
-            description="Browser-rendered dropdown. Wrapper draws the chevron."
-            code={`<InputField>
-  <InputLabel htmlFor="role">Role</InputLabel>
-  <Select id="role" defaultValue="director">
-    <option value="director">Creative Director</option>
-    <option value="strategist">Strategist</option>
-    <option value="engineer">Engineer</option>
-  </Select>
-</InputField>`}
-          >
-            <InputField className="w-full">
-              <InputLabel htmlFor="ex-role">Role</InputLabel>
-              <Select id="ex-role" defaultValue="director">
-                <option value="director">Creative Director</option>
-                <option value="strategist">Strategist</option>
-                <option value="engineer">Engineer</option>
-              </Select>
-            </InputField>
-          </ComponentFrame>
+        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
+          <ComponentPreviewer
+            states={['default', 'hover', 'focus', 'disabled']}
+            sizes={SELECT_SIZES}
+            defaultSize="body-xs"
+            render={({ state, size }): React.ReactNode => (
+              <InputField className="w-full">
+                <InputLabel htmlFor="preview-select">Role</InputLabel>
+                <Select
+                  id="preview-select"
+                  defaultValue="director"
+                  disabled={state === 'disabled'}
+                  className={state === 'disabled' ? 'op-40' : undefined}
+                  style={{ fontSize: SIZE_FONT[size] }}
+                >
+                  <option value="director">Creative Director</option>
+                  <option value="strategist">Strategist</option>
+                  <option value="engineer">Engineer</option>
+                </Select>
+              </InputField>
+            )}
+          />
+
+          <Divider />
 
           <ComponentFrame
             title="Checkbox"
@@ -66,8 +79,7 @@ export default function SelectPage(): React.ReactElement {
           <ComponentFrame
             title="Radio group"
             description="Full circle. Inner dot on selection."
-            code={`<Choice><Radio name="theme" defaultChecked /> <ChoiceLabel>Light</ChoiceLabel></Choice>
-<Choice><Radio name="theme" /> <ChoiceLabel>Dark</ChoiceLabel></Choice>`}
+            code={`<Choice><Radio name="theme" defaultChecked /> <ChoiceLabel>Light</ChoiceLabel></Choice>`}
           >
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
               <Choice>

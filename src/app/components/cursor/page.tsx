@@ -5,24 +5,19 @@ import { Divider } from '@/components/primitives/Divider';
 import { Text } from '@/components/primitives/Text';
 import { Button } from '@/components/primitives/Button';
 import { ShinodaLink } from '@/components/primitives/ShinodaLink';
+import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 
 export default function CursorPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
         <StickyCol>
-          <Text variant="body-md" as="h1">Cursor</Text>
-          <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
-            Single inverted dot.<br />
-            mix-blend-mode: difference.<br />
-            1.25em. Lerp 0.22.<br /><br />
-            Context-aware morphing —<br />
-            text → I-beam<br />
-            button → button footprint<br />
-            image → expand chip
-          </Text>
+          <CatalogueIntro
+            title="Cursor"
+            description="Single inverted dot. 1.25em. mix-blend-mode: difference. Lerp 0.22. Morphs to I-beam / button footprint / expand chip."
+          />
         </StickyCol>
-        <div style={{ paddingInline: 'var(--padding-columns)' }}>
+        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
           <Divider />
           <div style={{ paddingBlock: 'var(--space-8)' }}>
             <Text variant="body-md" opacity={40} as="h2">States</Text>

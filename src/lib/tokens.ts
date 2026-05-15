@@ -158,15 +158,21 @@ export const ACCENT_TOKENS = [
 ] as const;
 
 export const PADDING_TOKENS = [
-  { name: '--padding-page',       value: '4em',  note: 'Outer page gutter'  },
-  { name: '--padding-columns',    value: '4em',  note: 'Between columns'    },
-  { name: '--padding-section-sm', value: '4em',  note: 'Section vertical, small'  },
-  { name: '--padding-section-md', value: '6em',  note: 'Section vertical, medium' },
-  { name: '--padding-section-lg', value: '8em',  note: 'Section vertical, large'  },
-  { name: '--padding-container',  value: '4em',  note: 'Inner container'    },
-  { name: '--padding-nav',        value: '8em',  note: 'Nav region'         },
-  { name: '--padding-card',       value: '2em',  note: 'Card interior'      },
+  { name: '--padding-page',       value: '4em',  note: 'Outer page gutter — 64/32/24/24 (md/sm/xs/2xs)'  },
+  { name: '--padding-columns',    value: '4em',  note: 'Between columns — mirrors page'    },
+  { name: '--padding-section-sm', value: '4em',  note: 'Section vertical, small — 64/32/24/24'  },
+  { name: '--padding-section-md', value: '6em',  note: 'Section vertical, medium — 96/96/64/64' },
+  { name: '--padding-section-lg', value: '8em',  note: 'Section vertical, large — 128 across all'  },
+  { name: '--padding-container',  value: '4em',  note: 'Inner container — 64/64/24/24'    },
+  { name: '--padding-nav',        value: '8em',  note: 'Nav region — 128/64/24/24'         },
+  { name: '--padding-card',       value: '2em',  note: 'Card interior — 32/32/24/24'      },
 ] as const;
+
+export const CONTAINER_MAXWIDTH_TOKEN = {
+  name: '--container-maxwidth',
+  values: { md: '1312px', sm: '960px', xs: '736px', '2xs': '396px' },
+  note: 'Responsive page max-width — May 2026 spec',
+} as const;
 
 export const LEADING_TOKENS = [
   { name: '--leading-heading',    value: '1.05', note: 'Display + heading'  },

@@ -27,6 +27,15 @@
  * - Breakpoint cutoffs mirror Webflow defaults: 991 / 767 / 479 (max-width)
  * - Semantic padding tokens become responsive at each breakpoint
  * - Heading + subheading sizes step down on mobile to match Webflow
+ *
+ * v3.4 changes (May 2026 token spec reconciliation):
+ * - Added --container-maxwidth (responsive: 1312 / 960 / 736 / 396)
+ * - --padding-section-md bumped to 96px at tablet (was 64px)
+ * - --padding-container becomes responsive (64 → 24 at mobile-h)
+ * - --padding-card now 32px at sm canvas (was 24)
+ * - heading-xl: 40 at sm/md, 36 at xs/2xs
+ * - subheading-lg: 48 at sm/md, 32 at xs/2xs
+ * - subheading-sm: 24 at sm/md, 22 at xs/2xs (was incorrectly bumped back at ≤479)
  */
 
 :root {
@@ -174,6 +183,22 @@
   --padding-container:  4em;   /* inner container gutter                      */
   --padding-nav:        8em;   /* content top-offset under fixed nav          */
   --padding-card:       2em;   /* card interior                               */
+
+  /* ─── CONTAINER MAX-WIDTH — responsive (May 2026 spec) ──────────────
+     Token-driven max page widths per canvas. Components reflow automatically.
+     md (≥1440): 1312 · sm (≤1024): 960 · xs (≤768): 736 · 2xs (≤428): 396  */
+  --container-maxwidth: 1312px;
+
+  /* ─── NAV HEIGHT — measured at runtime, fallback static ──────────────
+     Components consuming this for top offset get a sane default. The Nav
+     component sets the runtime-measured value on :root via CSS var. */
+  --nav-height: 5em;
+
+  /* ─── STICKY OFFSET — top value for sticky left-column nav ────────────
+     Must clear nav bar (~60px) + progressive blur stack (112px) so the
+     sticky column never sits under the blur. Single token; responsive
+     overrides live in the @media blocks below. */
+  --sticky-offset: 11em; /* 176px — desktop */
 
   /* ─── GREY PALETTE — light mode ────────────────────────────────────── */
   --grey-10: #FAFAFA; --grey-20: #F4F4F5; --grey-30: #E4E4E7;
@@ -380,38 +405,54 @@ html.theme-transitioning *::after {
    automatically without per-component media queries.
 */
 
-/* Tablet canvas — 1024 designs, applies at ≤991 */
+/* Tablet canvas — 1024 designs, applies at ≤991
+   Spec (sm column): page 32 · columns 32 · section-sm 32 · section-md 96
+   · container 64 · nav 64 · card 32 · maxwidth 960
+   NOTE: --padding-nav deviates from the spec value of 64 to 112. The nav
+   has a 112px progressive blur stack hanging below the bar; with 64px
+   top padding the page title sits inside the strongest blur layers and
+   becomes unreadable. 112 clears the stack with breathing room. */
 @media (max-width: 991px) {
   :root {
-    --padding-page:       2em;
-    --padding-columns:    2em;
-    --padding-section-sm: 2em;
-    --padding-section-md: 4em;
-    --padding-nav:        4em;
-    --padding-card:       1.5em;
+    --padding-page:       2em;     /* 32px */
+    --padding-columns:    2em;     /* 32px */
+    --padding-section-sm: 2em;     /* 32px */
+    --padding-section-md: 6em;     /* 96px — bumped per May 2026 spec */
+    --padding-container:  4em;     /* 64px */
+    --padding-nav:        7em;     /* 112px — exceeds spec sm=64 to clear blur stack */
+    --padding-card:       2em;     /* 32px — bumped per May 2026 spec */
+    --container-maxwidth: 960px;
+    --sticky-offset:      10em;    /* 160px — slightly tighter at tablet */
   }
 }
 
-/* Mobile-landscape canvas — 768 designs, applies at ≤767 */
+/* Mobile-landscape canvas — 768 designs, applies at ≤767
+   Spec (xs column): page 24 · columns 24 · section-sm 24 · section-md 64
+   · container 24 · nav 24 · card 24 · maxwidth 736 */
 @media (max-width: 767px) {
   :root {
-    --padding-page:       1.5em;
-    --padding-columns:    1.5em;
-    --padding-section-sm: 1.5em;
-    --padding-section-md: 4em;
-    --padding-nav:        1.5em;
-    --padding-card:       1.5em;
+    --padding-page:       1.5em;   /* 24px */
+    --padding-columns:    1.5em;   /* 24px */
+    --padding-section-sm: 1.5em;   /* 24px */
+    --padding-section-md: 4em;     /* 64px */
+    --padding-container:  1.5em;   /* 24px */
+    --padding-nav:        1.5em;   /* 24px */
+    --padding-card:       1.5em;   /* 24px */
+    --container-maxwidth: 736px;
   }
 }
 
-/* Mobile-portrait canvas — 428 designs, applies at ≤479 */
+/* Mobile-portrait canvas — 428 designs, applies at ≤479
+   Spec (2xs column): identical to xs except maxwidth → 396 */
 @media (max-width: 479px) {
   :root {
     --padding-page:       1.5em;
     --padding-columns:    1.5em;
     --padding-section-sm: 1.5em;
     --padding-section-md: 4em;
+    --padding-container:  1.5em;
     --padding-nav:        1.5em;
     --padding-card:       1.5em;
+    --container-maxwidth: 396px;
   }
 }

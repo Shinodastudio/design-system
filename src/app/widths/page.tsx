@@ -4,22 +4,29 @@ import { StickyCol } from '@/components/layout/StickyCol';
 import { Divider } from '@/components/primitives/Divider';
 import { Text } from '@/components/primitives/Text';
 import { CopyValue } from '@/components/catalogue/CopyValue';
-import { CONTAINER_TOKENS, BREAKPOINT_TOKENS } from '@/lib/tokens';
+import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
+import { CONTAINER_TOKENS, BREAKPOINT_TOKENS, CONTAINER_MAXWIDTH_TOKEN } from '@/lib/tokens';
 
+/**
+ * Widths — May 2026 spec section 19.
+ *
+ * Now surfaces the responsive --container-maxwidth alongside the static
+ * container scale and breakpoints. Webflow MCP source-of-truth still pending
+ * Designer access; visual format may need to reconcile against the published
+ * Webflow page once available.
+ */
 export default function WidthsPage(): React.ReactElement {
+  const maxwidthEntries = Object.entries(CONTAINER_MAXWIDTH_TOKEN.values) as ReadonlyArray<[string, string]>;
   return (
     <MainWrapper>
       <Grid>
         <StickyCol>
-          <Text variant="body-md" as="h1">Widths</Text>
-          <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
-            Min and max container widths.<br />
-            Breakpoint thresholds.<br /><br />
-            Page container: 1312px max.<br />
-            Inner padding 24px each side.
-          </Text>
+          <CatalogueIntro
+            title="Widths"
+            description="Container scale, responsive page max-width, and breakpoint thresholds."
+          />
         </StickyCol>
-        <div style={{ paddingInline: 'var(--padding-columns)' }}>
+        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
           <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Containers</Text>
           {CONTAINER_TOKENS.map(({ name, value }) => (
             <div key={name}>
@@ -44,6 +51,22 @@ export default function WidthsPage(): React.ReactElement {
             </div>
           ))}
           <Divider />
+
+          <div style={{ marginTop: 'var(--space-12)' }}>
+            <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Page max-width (responsive)</Text>
+            {maxwidthEntries.map(([canvas, value]) => (
+              <div key={canvas}>
+                <Divider />
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingBlock: 'var(--space-4)', gap: 'var(--space-4)' }}>
+                  <CopyValue value={`${CONTAINER_MAXWIDTH_TOKEN.name} (${canvas})`}>
+                    <Text variant="body-sm" as="span">{CONTAINER_MAXWIDTH_TOKEN.name} · {canvas}</Text>
+                  </CopyValue>
+                  <Text variant="body-sm" opacity={40} as="span">{value}</Text>
+                </div>
+              </div>
+            ))}
+            <Divider />
+          </div>
 
           <div style={{ marginTop: 'var(--space-12)' }}>
             <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Breakpoints</Text>

@@ -1,8 +1,8 @@
+'use client';
+
 import { MainWrapper } from '@/components/layout/MainWrapper';
 import { Grid } from '@/components/layout/Grid';
 import { StickyCol } from '@/components/layout/StickyCol';
-import { Divider } from '@/components/primitives/Divider';
-import { Text } from '@/components/primitives/Text';
 import {
   Input,
   Textarea,
@@ -11,90 +11,113 @@ import {
   InputError,
   InputField,
 } from '@/components/primitives/Input';
-import { ComponentFrame } from '@/components/catalogue/ComponentFrame';
+import { ComponentSection } from '@/components/catalogue/ComponentSection';
+import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
+
+const INPUT_SIZES = ['body-md', 'body-sm', 'body-xs', 'body-2xs'] as const;
+type InputSize = typeof INPUT_SIZES[number];
+
+const INPUT_FONT: Record<InputSize, string> = {
+  'body-md':  '1.25rem',
+  'body-sm':  '1.125rem',
+  'body-xs':  '1rem',
+  'body-2xs': '0.875rem',
+};
 
 export default function InputPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
         <StickyCol>
-          <Text variant="body-md" as="h1">Input</Text>
-          <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
-            Text fields and textareas.<br />
-            Label, help, error follow.<br /><br />
-            Focus inverts background to fill-base.<br />
-            Error state borrows status-error only.
-          </Text>
+          <CatalogueIntro
+            title="Input"
+            description="Underline-only — no outer box. Single 1px rule lifts to full primary on focus."
+          />
         </StickyCol>
-        <div style={{ paddingInline: 'var(--padding-columns)' }}>
-          <ComponentFrame
-            title="Text input"
-            description="Single-line. Placeholder at tertiary opacity."
-            code={`<InputField>
-  <InputLabel htmlFor="name">Name</InputLabel>
-  <Input id="name" placeholder="Walter Benjamin" />
-</InputField>`}
-          >
-            <InputField className="w-full" >
-              <InputLabel htmlFor="ex-name">Name</InputLabel>
-              <Input id="ex-name" placeholder="Walter Benjamin" />
-            </InputField>
-          </ComponentFrame>
+        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
 
-          <ComponentFrame
-            title="With help text"
-            description="Help sits below at 40% opacity."
-            code={`<InputField>
-  <InputLabel htmlFor="email">Email</InputLabel>
-  <Input id="email" type="email" placeholder="you@studio.com" />
-  <InputHelp>Used only for transactional mail.</InputHelp>
-</InputField>`}
-          >
-            <InputField className="w-full">
-              <InputLabel htmlFor="ex-email">Email</InputLabel>
-              <Input id="ex-email" type="email" placeholder="you@studio.com" />
-              <InputHelp>Used only for transactional mail.</InputHelp>
-            </InputField>
-          </ComponentFrame>
+          <ComponentSection
+            name="Text Input"
+            description="Underline sits at outline colour at rest — lifts to primary text colour on focus."
+            code={`<InputField>\n  <InputLabel htmlFor="name">Name</InputLabel>\n  <Input id="name" placeholder="Walter Benjamin" />\n</InputField>`}
+            sizes={INPUT_SIZES}
+            defaultSize="body-xs"
+            states={['default', 'hover', 'focus', 'disabled']}
+            render={({ state, size }): React.ReactNode => (
+              <InputField style={{ width: '100%', maxWidth: '24em' }}>
+                <InputLabel htmlFor="sec-name">Name</InputLabel>
+                <Input
+                  id="sec-name"
+                  placeholder="Walter Benjamin"
+                  disabled={state === 'disabled'}
+                  className={state === 'disabled' ? 'op-40' : undefined}
+                  style={{ fontSize: INPUT_FONT[size as InputSize] }}
+                />
+              </InputField>
+            )}
+          />
 
-          <ComponentFrame
-            title="Error state"
-            description="Border + message in status-error."
-            code={`<InputField>
-  <InputLabel htmlFor="slug">Slug</InputLabel>
-  <Input id="slug" hasError defaultValue="bad slug" />
-  <InputError>Slug may not contain spaces.</InputError>
-</InputField>`}
-          >
-            <InputField className="w-full">
-              <InputLabel htmlFor="ex-slug">Slug</InputLabel>
-              <Input id="ex-slug" hasError defaultValue="bad slug" />
-              <InputError>Slug may not contain spaces.</InputError>
-            </InputField>
-          </ComponentFrame>
+          <ComponentSection
+            name="Input with help text"
+            description="Help text sits below the field at 40% opacity — always visible, not just on error."
+            code={`<InputField>\n  <InputLabel htmlFor="email">Email</InputLabel>\n  <Input id="email" type="email" placeholder="you@studio.com" />\n  <InputHelp>Used only for transactional mail.</InputHelp>\n</InputField>`}
+            sizes={INPUT_SIZES}
+            defaultSize="body-xs"
+            states={['default', 'focus']}
+            render={({ size }): React.ReactNode => (
+              <InputField style={{ width: '100%', maxWidth: '24em' }}>
+                <InputLabel htmlFor="sec-email">Email</InputLabel>
+                <Input
+                  id="sec-email"
+                  type="email"
+                  placeholder="you@studio.com"
+                  style={{ fontSize: INPUT_FONT[size as InputSize] }}
+                />
+                <InputHelp>Used only for transactional mail.</InputHelp>
+              </InputField>
+            )}
+          />
 
-          <ComponentFrame
-            title="Textarea"
-            description="Resizable vertically. Min height 6em."
-            code={`<InputField>
-  <InputLabel htmlFor="note">Note</InputLabel>
-  <Textarea id="note" placeholder="A short paragraph..." />
-</InputField>`}
-          >
-            <InputField className="w-full">
-              <InputLabel htmlFor="ex-note">Note</InputLabel>
-              <Textarea id="ex-note" placeholder="A short paragraph on the work..." />
-            </InputField>
-          </ComponentFrame>
+          <ComponentSection
+            name="Error state"
+            description="Underline and error message both use status-error. Never use red on the field fill."
+            code={`<InputField>\n  <InputLabel htmlFor="slug">Slug</InputLabel>\n  <Input id="slug" hasError defaultValue="bad slug" />\n  <InputError>Slug may not contain spaces.</InputError>\n</InputField>`}
+            sizes={INPUT_SIZES}
+            defaultSize="body-xs"
+            states={['default']}
+            render={({ size }): React.ReactNode => (
+              <InputField style={{ width: '100%', maxWidth: '24em' }}>
+                <InputLabel htmlFor="sec-slug">Slug</InputLabel>
+                <Input
+                  id="sec-slug"
+                  hasError
+                  defaultValue="bad slug"
+                  style={{ fontSize: INPUT_FONT[size as InputSize] }}
+                />
+                <InputError>Slug may not contain spaces.</InputError>
+              </InputField>
+            )}
+          />
 
-          <ComponentFrame
-            title="Disabled"
-            description="40% opacity. No interaction."
-            code={`<Input disabled defaultValue="Locked" />`}
-          >
-            <Input className="op-40 w-full" disabled defaultValue="Locked" />
-          </ComponentFrame>
-          <Divider />
+          <ComponentSection
+            name="Textarea"
+            description="Vertical resize only. Same underline treatment as single-line input."
+            code={`<InputField>\n  <InputLabel htmlFor="note">Note</InputLabel>\n  <Textarea id="note" placeholder="A short paragraph..." />\n</InputField>`}
+            sizes={INPUT_SIZES}
+            defaultSize="body-xs"
+            states={['default', 'focus']}
+            render={({ size }): React.ReactNode => (
+              <InputField style={{ width: '100%', maxWidth: '24em' }}>
+                <InputLabel htmlFor="sec-note">Note</InputLabel>
+                <Textarea
+                  id="sec-note"
+                  placeholder="A short paragraph on the work..."
+                  style={{ fontSize: INPUT_FONT[size as InputSize] }}
+                />
+              </InputField>
+            )}
+          />
+
         </div>
       </Grid>
     </MainWrapper>

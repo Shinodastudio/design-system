@@ -5,6 +5,7 @@ import { Divider } from '@/components/primitives/Divider';
 import { Text } from '@/components/primitives/Text';
 import { CopyValue } from '@/components/catalogue/CopyValue';
 import { CodeBlock } from '@/components/catalogue/CodeBlock';
+import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 
 const GRID_DEMOS = [
   {
@@ -26,15 +27,12 @@ export default function GridsPage(): React.ReactElement {
     <MainWrapper>
       <Grid>
         <StickyCol>
-          <Text variant="body-md" as="h1">Grids</Text>
-          <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
-            Grid is always 1fr 1fr.<br />
-            Never asymmetric. Never three columns.<br /><br />
-            No vertical dividers, ever.<br />
-            Horizontal dividers at 5% opacity.
-          </Text>
+          <CatalogueIntro
+            title="Grids"
+            description="Always 1fr 1fr — never asymmetric, never three columns."
+          />
         </StickyCol>
-        <div style={{ paddingInline: 'var(--padding-columns)' }}>
+        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
           {GRID_DEMOS.map(({ name, description, cols, cells }) => (
             <div key={name} style={{ marginBottom: 'var(--space-12)' }}>
               <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-2)' }}>

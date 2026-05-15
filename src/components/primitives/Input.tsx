@@ -72,11 +72,12 @@ export function InputError({ children, className }: InputErrorProps): React.Reac
 interface InputFieldProps {
   readonly children: React.ReactNode;
   readonly className?: string;
+  readonly style?: React.CSSProperties;
 }
 
-export function InputField({ children, className }: InputFieldProps): React.ReactElement {
+export function InputField({ children, className, style }: InputFieldProps): React.ReactElement {
   return (
-    <div className={cn(className)} style={{ display: 'flex', flexDirection: 'column' }}>
+    <div className={cn(className)} style={{ display: 'flex', flexDirection: 'column', ...style }}>
       {children}
     </div>
   );

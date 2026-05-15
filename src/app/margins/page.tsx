@@ -4,21 +4,25 @@ import { StickyCol } from '@/components/layout/StickyCol';
 import { Divider } from '@/components/primitives/Divider';
 import { Text } from '@/components/primitives/Text';
 import { CopyValue } from '@/components/catalogue/CopyValue';
+import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 import { SPACING_TOKENS } from '@/lib/tokens';
 
+/**
+ * Margins — May 2026 spec section 19. Same 4px base scale as paddings.
+ * Visual format may need to reconcile against the Webflow page once Designer
+ * access is available.
+ */
 export default function MarginsPage(): React.ReactElement {
   return (
     <MainWrapper>
       <Grid>
         <StickyCol>
-          <Text variant="body-md" as="h1">Margins</Text>
-          <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
-            Same 4px base scale as paddings.<br /><br />
-            Use margin to separate independent blocks.<br />
-            Use padding inside containers.
-          </Text>
+          <CatalogueIntro
+            title="Margins"
+            description="Same 4px base scale as paddings — use to separate independent blocks."
+          />
         </StickyCol>
-        <div style={{ paddingInline: 'var(--padding-columns)' }}>
+        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
           <Text variant="body-md" opacity={40} as="h2" style={{ paddingBottom: 'var(--space-4)' }}>Scale</Text>
           {SPACING_TOKENS.map(({ name, value }) => (
             <div key={name}>
