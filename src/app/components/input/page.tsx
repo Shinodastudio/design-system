@@ -34,7 +34,7 @@ export default function InputPage(): React.ReactElement {
             description="Underline-only — no outer box. Single 1px rule lifts to full primary on focus."
           />
         </StickyCol>
-        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
+        <div>
 
           <ComponentSection
             name="Text Input"

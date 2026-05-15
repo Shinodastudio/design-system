@@ -12,7 +12,7 @@ import { Divider } from '@/components/primitives/Divider';
  * Typography: heading-md throughout (not heading-xl — matches Figma spec).
  */
 
-const DESCRIPTION = 'Description of the Shinoda Design System for React';
+const DESCRIPTION = 'A lightweight, Interaction-first design system built around utility, accessibility, and efficiency in designed space.';
 const UPDATED_LABEL = 'Updated May 2026';
 
 const IMAGE_COUNT = 3;

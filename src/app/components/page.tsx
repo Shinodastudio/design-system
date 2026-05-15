@@ -35,7 +35,7 @@ export default function ComponentsPage(): React.ReactElement {
             description="Primitives and composed UI, built from the token layer up."
           />
         </StickyCol>
-        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
+        <div>
           {COMPONENTS.map((comp) => (
             <div key={comp.href}>
               <Divider />

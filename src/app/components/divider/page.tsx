@@ -15,7 +15,7 @@ export default function DividerPage(): React.ReactElement {
             description="Horizontal only — 1px at 5% opacity. No vertical dividers. Ever."
           />
         </StickyCol>
-        <div style={{ paddingLeft: 'var(--padding-columns)' }}>
+        <div>
           <ComponentFrame
             title="Default"
             description="A barely-there separator. Used to chunk sections, not to decorate."

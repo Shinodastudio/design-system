@@ -129,7 +129,7 @@ button { font: inherit; background: none; border: none; cursor: none; }
   max-width: var(--container-5xl);
   margin-inline: auto;
   padding-inline: var(--padding-page);
-  padding-top: var(--padding-nav);
+  padding-top: var(--sticky-offset);
 }
 .padding-global { padding-inline: var(--padding-page); }
 
@@ -162,11 +162,10 @@ button { font: inherit; background: none; border: none; cursor: none; }
 .nav-inner {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--space-8);
   max-width: var(--container-5xl);
   margin-inline: auto;
-  padding-block: var(--space-5);
+  padding-block: var(--space-4);
   padding-inline: var(--padding-page);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -174,28 +173,28 @@ button { font: inherit; background: none; border: none; cursor: none; }
   position: relative;
   z-index: 1;
 }
-.nav-logo {
-  font-size: 1rem;
-  font-weight: var(--fw-normal);
-  letter-spacing: var(--tracking-n020);
-  opacity: var(--opacity-80);
-  flex-shrink: 0;
-}
 .nav-links {
   display: flex;
-  gap: var(--space-2);
+  flex: 1 0 0;
+  gap: var(--space-8);
   list-style: none;
   align-items: center;
   min-width: 0;
 }
 
-/* Nav links — Webflow uses ~1rem text. Override .btn's 1.5rem font-size.
-   Tighter footprint via .btn padding (0.1em), 40% opacity at rest, full on hover. */
+/* Nav links — body-xs (0.875rem) text buttons, 80% opacity at rest.
+   The ::before hover bg uses a fixed negative inset (-4px -8px) instead of
+   the percentage inset used on larger buttons. This gives a proper pill bg
+   that extends beyond the text bounds at small sizes. */
 .nav-link.btn,
 .nav-link {
-  font-size: 1rem;
-  letter-spacing: var(--tracking-n020);
-  opacity: var(--opacity-40);
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n015);
+  opacity: var(--opacity-80);
+}
+.nav-link::before {
+  inset: -4px -8px;
+  border-radius: var(--radius-sm);
 }
 .nav-link:hover { opacity: 1; }
 .nav-link.is-active { opacity: 1; }
@@ -241,12 +240,16 @@ button { font: inherit; background: none; border: none; cursor: none; }
   .footer-nav-link:hover { opacity: 1; }
 }
 
-/* ─── BUTTONS — 0.1em em padding, radius-sm, spring zoom ::before ──── */
+/* ─── BUTTONS — no padding; bg inset 10% from text bounds (Figma spec) ─
+   The outer element is exactly the text's natural bounding box — no extra
+   space. The hover background (::before) is inset 10% / 10.07% so it sits
+   just inside the text, not outside it. This matches Figma 3904-2513 where
+   button-bg uses inset-[10%_10.07%] with no padding on the container. */
 .btn {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 0.1em;
+  padding: 0;
   font-family: var(--font-sans);
   font-size: 1.5rem;
   font-weight: var(--fw-normal);
@@ -262,11 +265,12 @@ button { font: inherit; background: none; border: none; cursor: none; }
   transform: translate(var(--gravity-x), var(--gravity-y));
   transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1), opacity 150ms ease;
 }
-/* Spring zoom background — scales from 80% to 100% on hover */
+/* Spring zoom background — inset 10% from the text's natural bounding box,
+   scales from 80% to 100% on hover. */
 .btn::before {
   content: '';
   position: absolute;
-  inset: 0;
+  inset: 10% 10.07%;
   background-color: var(--color-transparent-core);
   border-radius: var(--radius-sm);
   transform: scale(0.8);
@@ -279,9 +283,9 @@ button { font: inherit; background: none; border: none; cursor: none; }
 .btn:active::before { transform: scale(0.95); opacity: 1; }
 .btn:active         { opacity: var(--opacity-80); }
 
-/* Icon buttons — square, no gap */
+/* Icon buttons — square, no gap; restore small padding for visual balance */
 .btn-icon {
-  padding: 0.1em;
+  padding: 0;
   gap: 0;
   line-height: 1;
 }
@@ -518,30 +522,43 @@ html.cursor--active .cursor { transform: translate(-50%,-50%) scale(0.8); }
   gap: var(--space-3);
   flex-wrap: wrap;
 }
+/* ─── Preview chips — Figma 3904-6580 spec ───────────────────────────
+   Padding: pl-6px pr-4px py-4px. Radius: radius-xs (4px), not a pill.
+   Background: 10% opacity tint of --chip-color via ::before pseudo-element.
+   No border. Orange (--accent-orange) when value ≠ default. */
 .preview-chip {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  padding-right: calc(var(--space-4) + var(--space-3));
-  border: var(--border-sm) solid var(--color-transparent-weak);
-  border-radius: var(--radius-full);
+  gap: 2px;
+  padding: var(--space-1) var(--space-1) var(--space-1) 6px;
+  border-radius: var(--radius-xs);
   background: transparent;
   font-size: 0.875rem;
+  font-family: var(--font-sans);
   letter-spacing: var(--tracking-n010);
   cursor: none;
-  transition: border-color 200ms ease, background-color 200ms ease;
+  --chip-color: var(--color-text-tertiary);
 }
-.preview-chip:hover { border-color: var(--color-transparent-core); }
-.preview-chip:focus-within {
-  border-color: var(--color-text-primary);
+/* 10% opacity tinted background — matches Figma's absolute button-bg element */
+.preview-chip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--chip-color);
+  border-radius: var(--radius-xs);
+  opacity: 0.1;
+  pointer-events: none;
 }
-.preview-chip-label {
-  opacity: var(--opacity-40);
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  font-size: 0.6875rem;
+/* Orange state: chip value differs from its default */
+.preview-chip--active {
+  --chip-color: var(--accent-orange);
+}
+/* Inner label + select wrapper */
+.preview-chip-inner {
+  display: inline-flex;
+  align-items: center;
+  cursor: none;
 }
 .preview-chip-select {
   appearance: none;
@@ -551,22 +568,39 @@ html.cursor--active .cursor { transform: translate(-50%,-50%) scale(0.8); }
   font: inherit;
   font-size: 0.875rem;
   letter-spacing: var(--tracking-n010);
-  color: var(--color-text-primary);
+  color: var(--chip-color);
   cursor: none;
   outline: none;
-  padding-right: var(--space-4);
+  position: relative;
+  z-index: 1;
 }
+/* ▾ chevron — shown when value = default */
 .preview-chip-chevron {
-  position: absolute;
-  right: var(--space-3);
-  top: 50%;
+  display: block;
   width: 6px;
   height: 6px;
-  border-right: var(--border-sm) solid var(--color-text-primary);
-  border-bottom: var(--border-sm) solid var(--color-text-primary);
-  transform: translateY(-75%) rotate(45deg);
-  pointer-events: none;
+  border-right: var(--border-sm) solid var(--chip-color);
+  border-bottom: var(--border-sm) solid var(--chip-color);
+  transform: rotate(45deg) translateY(-1px);
+  flex-shrink: 0;
   opacity: var(--opacity-60);
+  position: relative;
+  z-index: 1;
+}
+/* × dismiss — shown when value ≠ default */
+.preview-chip-dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+  line-height: 1;
+  color: var(--chip-color);
+  cursor: none;
+  position: relative;
+  z-index: 1;
 }
 .preview-frame {
   display: flex;
@@ -811,95 +845,189 @@ html.cursor--active .cursor { transform: translate(-50%,-50%) scale(0.8); }
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  padding-block: var(--space-8) var(--space-6);
+  /* Figma 3907-10702: py-section-sm (64px) top; bottom feeds into group-list gap */
+  padding-block: var(--padding-section-sm) var(--space-8);
 }
-.colour-group-list { display: flex; flex-direction: column; gap: var(--space-6); padding-bottom: var(--space-8); }
+.colour-group-list { display: flex; flex-direction: column; gap: var(--space-4); padding-bottom: var(--padding-section-sm); }
 
+/* Row: equal-width swatch + meta side by side, vertically centred */
 .colour-row {
-  display: grid;
-  grid-template-columns: minmax(0, 200px) 1fr;
-  gap: var(--space-6);
-  align-items: start;
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
 }
 @media (max-width: 479px) {
-  .colour-row { grid-template-columns: 1fr; }
+  .colour-row { flex-direction: column; }
 }
 
+/* Swatch chip — fixed 128px height, flex-1 to match meta width */
 .colour-swatch {
   position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 3;
+  flex: 1 0 0;
+  height: 8rem;
   border-radius: var(--radius-sm);
-  border: var(--border-sm) solid var(--color-transparent-weak);
+  border: var(--border-sm) solid var(--color-outline);
   overflow: hidden;
   background-color: var(--color-fill-primary);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: var(--space-1);
 }
+/* Text token swatches show the specimen only — no fill background */
+.colour-swatch[data-kind="text"] { background-color: transparent; }
+
 .colour-swatch-fill { position: absolute; inset: 0; }
+
+/* "Aa" specimen — top-left, heading-xl size, fills available height */
 .colour-swatch-aa {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  padding: var(--space-2);
   font-family: var(--font-sans);
-  font-size: 3rem;
+  font-size: 2.5rem;
   letter-spacing: var(--tracking-n040);
   line-height: 1;
 }
-.colour-swatch-name {
+
+/* Copyable CSS-var label — bottom of chip, interactive (Figma 3904-6412) */
+.colour-swatch-code {
   position: absolute;
-  left: var(--space-2);
-  bottom: var(--space-2);
+  bottom: var(--space-1);
+  left: var(--space-1);
+  right: var(--space-1);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border-radius: var(--radius-xs);
   font-family: 'Geist Mono', ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
   letter-spacing: var(--tracking-none);
-  opacity: var(--opacity-40);
   color: var(--color-text-primary);
-  mix-blend-mode: difference;
-  pointer-events: none;
+  opacity: var(--opacity-40);
+  background-color: transparent;
+  transition: opacity 150ms ease, background-color 150ms ease;
   z-index: 1;
+  overflow: hidden;
+}
+.colour-swatch-code:hover,
+.colour-swatch-code.is-copied {
+  opacity: 1;
+  background-color: var(--color-fill-secondary);
+}
+.colour-swatch-code-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  mix-blend-mode: difference;
+}
+.colour-swatch-code-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+.colour-swatch-code:hover .colour-swatch-code-icon,
+.colour-swatch-code.is-copied .colour-swatch-code-icon {
+  opacity: 1;
 }
 
-.colour-row-meta { display: flex; flex-direction: column; gap: var(--space-2); }
+/* Meta column — flex-1, bottom-aligned to mirror swatch height */
+.colour-row-meta {
+  flex: 1 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  height: 8rem;
+  justify-content: flex-end;
+}
 .colour-row-heading {
   display: flex;
   align-items: baseline;
-  gap: var(--space-3);
+  gap: var(--space-2);
   flex-wrap: wrap;
 }
+/* Hex badge — tertiary text on a subtle background pill */
 .colour-row-hex {
   font-family: 'Geist Mono', ui-monospace, monospace;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   letter-spacing: var(--tracking-none);
-  padding: 0.15em 0.5em;
+  padding: 0.15em 0.4em;
   background: var(--color-transparent-weak);
   border-radius: var(--radius-xs);
+  color: var(--color-text-tertiary);
 }
 
-/* ─── CATALOGUE INTRO — left-column header block ─────────────────────── */
-.catalogue-intro {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
+/* ─── FULL-WIDTH CATALOGUE PAGES ─────────────────────────────────────────
+   Widths, paddings, margins, grids, utility — content spans both columns.
+   The intro mirrors the 50% left-column width; content flows below full-width. */
+.page-wide-intro {
+  max-width: 50%;
+  padding-block-end: var(--padding-section-sm);
 }
-.catalogue-intro-back {
-  display: inline-flex;
+@media (max-width: 767px) {
+  .page-wide-intro { max-width: 100%; }
+}
+
+/* Section header within full-width pages */
+.page-wide-section {
+  padding-block-start: var(--padding-section-sm);
+}
+.page-wide-section + .page-wide-section {
+  padding-block-start: var(--padding-section-sm);
+}
+
+/* Width/breakpoint bar — a 2D box delineating a pixel value ─────────────
+   Width is set inline (= the actual token value). Label beside it. */
+.width-bar-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding-block: var(--space-4);
+}
+.width-bar {
+  height: 40px;
+  flex-shrink: 1;
+  background-color: var(--color-fill-secondary);
+  border: var(--border-sm) solid var(--color-outline);
+  border-radius: var(--radius-xs);
+}
+.width-bar-label {
+  display: flex;
   align-items: baseline;
   gap: var(--space-3);
-  color: inherit;
-  text-decoration: none;
-  cursor: none;
-  transition: opacity 200ms ease;
+  flex-shrink: 0;
 }
-.catalogue-intro-back:hover { opacity: var(--opacity-80); }
-.catalogue-intro-arrow {
-  font-size: 0.875em;
+
+/* ─── CATALOGUE INTRO — left-column header block (Figma 3907-10330) ─────
+   Flex row: [icon-only back btn] [title + description col].
+   items-start ensures both start at the same y, aligning the title top
+   with the first row of right-column content. */
+.catalogue-intro-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+/* Icon-only back button — square, heading-md size (24px) */
+.catalogue-intro-back {
+  flex-shrink: 0;
   opacity: var(--opacity-40);
-  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1), opacity 200ms ease;
+  transition: opacity 150ms ease;
 }
-.catalogue-intro-back:hover .catalogue-intro-arrow {
-  transform: translateX(-2px);
-  opacity: 1;
+.catalogue-intro-back:hover { opacity: 1; }
+/* Title + description stacked */
+.catalogue-intro-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
 }
-.catalogue-intro-desc { margin: 0; max-width: 28em; }
 
 /* ─── HOMEPAGE — header + tile grid ──────────────────────────────────── */
 .home-header {
