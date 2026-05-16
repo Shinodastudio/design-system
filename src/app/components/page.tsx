@@ -35,6 +35,7 @@ const COMPONENTS = [
   { label: 'Actions',     href: '/components/actions',    description: 'Floating Action Bar for contextual bulk operations.' },
   { label: 'Content',     href: '/components/content',    description: 'ContentCard and DownloadTile for structured content.' },
   { label: 'Map',         href: '/components/map',        description: 'Interactive Leaflet map — requires optional peer dependency.' },
+  { label: 'Upload',      href: '/components/upload',     description: 'File dropzone with drag-and-drop and queued file chips.' },
 ] as const;
 
 interface ComponentTileProps {

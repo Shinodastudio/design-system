@@ -6,12 +6,12 @@ import { Grid } from '@/components/layout/Grid';
 import { StickyCol } from '@/components/layout/StickyCol';
 import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 import { ComponentSection } from '@/components/catalogue/ComponentSection';
-import { Badge } from '@/components/feedback/Badge';
+import { Badge, type BadgeVariant } from '@/components/feedback/Badge';
 import { Alert } from '@/components/feedback/Alert';
 import { Progress } from '@/components/feedback/Progress';
 import { Skeleton } from '@/components/feedback/Skeleton';
 
-const BADGE_VARIANTS = ['default', 'success', 'warning', 'error', 'info'] as const;
+const BADGE_VARIANTS = ['neutral', 'red', 'orange', 'yellow', 'green', 'blue'] as const;
 const SIZES = ['default'] as const;
 
 export default function FeedbackPage(): React.ReactElement {
@@ -30,8 +30,23 @@ export default function FeedbackPage(): React.ReactElement {
 
           <ComponentSection
             name="Badge"
-            description="Inline status label. Five semantic variants — never raw colour values."
-            code={`<Badge variant="success">Published</Badge>`}
+            description="Single canonical size — body-2xs, 10% accent tint. Six colour variants. Hover drops to 40% opacity."
+            code={`<Badge variant="green">Published</Badge>`}
+            sizes={BADGE_VARIANTS}
+            sizeLabel={(v): string => v}
+            states={['default', 'hover']}
+            defaultSize="neutral"
+            render={({ size }): React.ReactNode => (
+              <Badge variant={size as BadgeVariant}>
+                {size.charAt(0).toUpperCase() + size.slice(1)}
+              </Badge>
+            )}
+          />
+
+          <ComponentSection
+            name="All badge colours"
+            description="The six variants side-by-side. Use the colour that matches the semantic — never raw hex."
+            code={`{(['neutral','red','orange','yellow','green','blue'] as const).map(v => (\n  <Badge key={v} variant={v}>{v}</Badge>\n))}`}
             sizes={SIZES}
             states={['default']}
             render={(): React.ReactNode => (
@@ -46,22 +61,8 @@ export default function FeedbackPage(): React.ReactElement {
           />
 
           <ComponentSection
-            name="Badge sizes"
-            description="sm and md — size affects padding and type scale, not semantic meaning."
-            code={`<Badge size="sm">Draft</Badge>\n<Badge size="md">Draft</Badge>`}
-            sizes={SIZES}
-            states={['default']}
-            render={(): React.ReactNode => (
-              <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
-                <Badge size="sm" variant="info">sm</Badge>
-                <Badge size="md" variant="info">md</Badge>
-              </div>
-            )}
-          />
-
-          <ComponentSection
             name="Alert"
-            description="Block-level feedback. Supports title, body copy, and an optional dismiss action."
+            description="Block-level feedback. Supports title, body copy, and an optional dismiss action. Fades in on mount."
             code={`<Alert variant="warning" title="Unsaved changes">\n  Leave this page to discard.\n</Alert>`}
             sizes={SIZES}
             states={['default']}
@@ -82,7 +83,7 @@ export default function FeedbackPage(): React.ReactElement {
 
           <ComponentSection
             name="Alert with dismiss"
-            description="Pass onDismiss to show an × button. Manage visibility in the parent."
+            description="Pass onDismiss to show an × button. Fades out before unmount."
             code={`<Alert\n  variant="success"\n  title="Saved"\n  onDismiss={() => setVisible(false)}\n/>`}
             sizes={SIZES}
             states={['default']}

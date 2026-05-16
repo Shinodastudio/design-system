@@ -1,4 +1,5 @@
 export { Switch } from './Switch';
+export { Slider } from './Slider';
 
 export {
   Accordion,

@@ -37,9 +37,9 @@ Design as stewardship. Clarity is the form. Opacity is the hierarchy.
 
 | Token | Value | Use |
 |---|---|---|
-| `--opacity-divider` | 5% | Horizontal dividers only |
+| `--opacity-divider` | 10% | Horizontal dividers only |
 
-No other opacity values exist. Never use 30%, 50%, 70%, 90%, 10%, or 15%.
+No other opacity values exist. Never use 30%, 50%, 70%, 90%, 15%, or 5%.
 
 Utility classes: `.op-80`, `.op-60`, `.op-40`, `.op-20`
 
@@ -76,7 +76,7 @@ Utility classes: `.op-80`, `.op-60`, `.op-40`, `.op-20`
 - Grid: **always `1fr 1fr`** — equal 50/50
 - Max width: **1280px** (`--container-5xl`)
 - Global padding: `--space-6` (24px)
-- Dividers: **horizontal only**, 5% opacity (`--opacity-divider`)
+- Dividers: **horizontal only**, 10% opacity (`--opacity-divider`)
 - No vertical dividers, ever
 
 ---
@@ -125,7 +125,7 @@ Inverted: `background: --color-text-primary; color: --color-fill-base`
 - [ ] `data-gravity` on interactive elements
 - [ ] Grid is 50/50
 - [ ] No vertical dividers
-- [ ] Horizontal dividers at 5%
+- [ ] Horizontal dividers at 10%
 - [ ] Hierarchy via opacity (20/40/60/80), not size
 - [ ] `heading-md` as default — not `heading-xl`
 - [ ] Links: 20% underline at rest, 100% on hover

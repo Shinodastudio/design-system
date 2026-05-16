@@ -63,13 +63,41 @@ function useGravity(ref) {
     return () => document.removeEventListener("mousemove", onMove);
   }, [ref]);
 }
+
+// src/components/primitives/Button.constants.ts
+var BUTTON_SIZES = [
+  "heading-xl",
+  "heading-lg",
+  "heading-md",
+  "heading-sm",
+  "heading-xs",
+  "heading-2xs",
+  "subheading-lg",
+  "subheading-md",
+  "subheading-sm",
+  "body-xl",
+  "body-lg",
+  "body-md",
+  "body-sm",
+  "body-xs",
+  "body-2xs"
+];
 var SIZE_CLASS = {
-  "xs": "btn-size-xs",
-  "sm": "btn-size-sm",
-  "md": "btn-size-md",
-  "lg": "btn-size-lg",
-  "xl": "btn-size-xl",
-  "2xl": "btn-size-2xl"
+  "heading-xl": "btn-size-heading-xl",
+  "heading-lg": "btn-size-heading-lg",
+  "heading-md": "btn-size-heading-md",
+  "heading-sm": "btn-size-heading-sm",
+  "heading-xs": "btn-size-heading-xs",
+  "heading-2xs": "btn-size-heading-2xs",
+  "subheading-lg": "btn-size-subheading-lg",
+  "subheading-md": "btn-size-subheading-md",
+  "subheading-sm": "btn-size-subheading-sm",
+  "body-xl": "btn-size-body-xl",
+  "body-lg": "btn-size-body-lg",
+  "body-md": "btn-size-body-md",
+  "body-sm": "btn-size-body-sm",
+  "body-xs": "btn-size-body-xs",
+  "body-2xs": "btn-size-body-2xs"
 };
 function Button(_a) {
   var _b = _a, {
@@ -96,23 +124,41 @@ function Button(_a) {
     })
   );
 }
-function ShinodaLink({ href, children, className, external = false }) {
+var LINK_SIZES = BUTTON_SIZES;
+function ShinodaLink({
+  href,
+  children,
+  className,
+  external = false,
+  size,
+  disabled = false
+}) {
   const ref = useRef(null);
   useGravity(ref);
+  const classes = cn(
+    "link",
+    size != null ? `btn-size-${size}` : void 0,
+    disabled && "is-disabled",
+    className
+  );
   if (external) {
     return /* @__PURE__ */ jsx(
       "a",
       {
         ref,
-        href,
-        className: cn("link", className),
+        href: disabled ? void 0 : href,
+        className: classes,
         target: "_blank",
         rel: "noopener noreferrer",
+        "aria-disabled": disabled || void 0,
         children
       }
     );
   }
-  return /* @__PURE__ */ jsx(NextLink, { ref, href, className: cn("link", className), children });
+  if (disabled) {
+    return /* @__PURE__ */ jsx("a", { ref, className: classes, "aria-disabled": "true", children });
+  }
+  return /* @__PURE__ */ jsx(NextLink, { ref, href, className: classes, children });
 }
 var Input = forwardRef(
   function Input2(_a, ref) {
@@ -348,6 +394,182 @@ var SIZE_CLASS2 = {
 };
 function RichText({ children, className, size = "md" }) {
   return /* @__PURE__ */ jsx("div", { className: cn("rich-text", SIZE_CLASS2[size], className), children });
+}
+function formatFileSize(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1048576) return `${Math.round(bytes / 1024)} KB`;
+  if (bytes < 1073741824) return `${(bytes / 1048576).toFixed(1)} MB`;
+  return `${(bytes / 1073741824).toFixed(1)} GB`;
+}
+function FileIcon() {
+  return /* @__PURE__ */ jsxs("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true", children: [
+    /* @__PURE__ */ jsx("rect", { x: "2.5", y: "1.5", width: "11", height: "13", rx: "1.5", stroke: "currentColor", strokeWidth: "1.25" }),
+    /* @__PURE__ */ jsx("path", { d: "M5 6.5h6M5 9.5h4", stroke: "currentColor", strokeWidth: "1.25", strokeLinecap: "round" })
+  ] });
+}
+function UploadIcon() {
+  return /* @__PURE__ */ jsxs("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", "aria-hidden": "true", children: [
+    /* @__PURE__ */ jsx(
+      "path",
+      {
+        d: "M12 15V7M12 7L9 10M12 7l3 3",
+        stroke: "currentColor",
+        strokeWidth: "1.5",
+        strokeLinecap: "round",
+        strokeLinejoin: "round"
+      }
+    ),
+    /* @__PURE__ */ jsx(
+      "path",
+      {
+        d: "M5 17v1.5A1.5 1.5 0 006.5 20h11a1.5 1.5 0 001.5-1.5V17",
+        stroke: "currentColor",
+        strokeWidth: "1.5",
+        strokeLinecap: "round"
+      }
+    )
+  ] });
+}
+function FileChip({ file, onRemove, className }) {
+  const removeRef = useRef(null);
+  useGravity(removeRef);
+  return /* @__PURE__ */ jsxs("div", { className: cn("file-chip", className), children: [
+    /* @__PURE__ */ jsx("span", { className: "file-chip-icon", children: /* @__PURE__ */ jsx(FileIcon, {}) }),
+    /* @__PURE__ */ jsx("span", { className: "file-chip-name", title: file.name, children: file.name }),
+    /* @__PURE__ */ jsx("span", { className: "file-chip-size", children: formatFileSize(file.size) }),
+    /* @__PURE__ */ jsx(
+      "button",
+      {
+        ref: removeRef,
+        type: "button",
+        className: "file-chip-remove",
+        onClick: onRemove,
+        "aria-label": `Remove ${file.name}`,
+        children: /* @__PURE__ */ jsx("svg", { width: "10", height: "10", viewBox: "0 0 10 10", fill: "none", "aria-hidden": "true", children: /* @__PURE__ */ jsx(
+          "path",
+          {
+            d: "M1 1l8 8M9 1L1 9",
+            stroke: "currentColor",
+            strokeWidth: "1.5",
+            strokeLinecap: "round"
+          }
+        ) })
+      }
+    )
+  ] });
+}
+function FileDropzone({
+  accept,
+  multiple = false,
+  maxSize,
+  label = "Drop files here, or browse",
+  hint,
+  error,
+  disabled = false,
+  onFilesAccepted,
+  onFilesRejected,
+  className
+}) {
+  const [isDragOver, setIsDragOver] = useState(false);
+  const inputRef = useRef(null);
+  const processFiles = useCallback(
+    (fileList) => {
+      const all = Array.from(fileList);
+      if (maxSize == null) {
+        onFilesAccepted(all);
+        return;
+      }
+      const accepted = all.filter((f) => f.size <= maxSize);
+      const rejected = all.filter((f) => f.size > maxSize);
+      if (accepted.length > 0) onFilesAccepted(accepted);
+      if (rejected.length > 0) onFilesRejected == null ? void 0 : onFilesRejected(rejected);
+    },
+    [maxSize, onFilesAccepted, onFilesRejected]
+  );
+  const handleDragOver = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (!disabled) setIsDragOver(true);
+    },
+    [disabled]
+  );
+  const handleDragLeave = useCallback((e) => {
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setIsDragOver(false);
+    }
+  }, []);
+  const handleDrop = useCallback(
+    (e) => {
+      e.preventDefault();
+      setIsDragOver(false);
+      if (disabled || e.dataTransfer.files.length === 0) return;
+      processFiles(e.dataTransfer.files);
+    },
+    [disabled, processFiles]
+  );
+  const handleChange = useCallback(
+    (e) => {
+      if (e.target.files == null || e.target.files.length === 0) return;
+      processFiles(e.target.files);
+      e.target.value = "";
+    },
+    [processFiles]
+  );
+  const handleClick = useCallback(() => {
+    var _a;
+    if (!disabled) (_a = inputRef.current) == null ? void 0 : _a.click();
+  }, [disabled]);
+  const handleKeyDown = useCallback(
+    (e) => {
+      var _a;
+      if ((e.key === "Enter" || e.key === " ") && !disabled) {
+        e.preventDefault();
+        (_a = inputRef.current) == null ? void 0 : _a.click();
+      }
+    },
+    [disabled]
+  );
+  return /* @__PURE__ */ jsxs(
+    "div",
+    {
+      role: "button",
+      tabIndex: disabled ? -1 : 0,
+      "aria-disabled": disabled,
+      "aria-label": label,
+      className: cn(
+        "dropzone",
+        isDragOver && "dropzone-active",
+        error != null && "dropzone-error",
+        disabled && "dropzone-disabled",
+        className
+      ),
+      onDragOver: handleDragOver,
+      onDragLeave: handleDragLeave,
+      onDrop: handleDrop,
+      onClick: handleClick,
+      onKeyDown: handleKeyDown,
+      children: [
+        /* @__PURE__ */ jsx(
+          "input",
+          {
+            ref: inputRef,
+            type: "file",
+            accept,
+            multiple,
+            disabled,
+            onChange: handleChange,
+            "aria-hidden": "true",
+            tabIndex: -1,
+            style: { display: "none" }
+          }
+        ),
+        /* @__PURE__ */ jsx("span", { className: "dropzone-icon", children: /* @__PURE__ */ jsx(UploadIcon, {}) }),
+        /* @__PURE__ */ jsx("p", { className: "dropzone-label", children: isDragOver ? "Release to upload" : label }),
+        hint != null && /* @__PURE__ */ jsx("p", { className: "dropzone-hint", children: hint }),
+        error != null && /* @__PURE__ */ jsx("p", { className: "dropzone-error-text", role: "alert", children: error })
+      ]
+    }
+  );
 }
 
 // src/components/icons/data/icons.generated.ts
@@ -1927,7 +2149,7 @@ function NavLinks({ items }) {
     Button,
     {
       asChild: true,
-      size: "xs",
+      size: "heading-2xs",
       className: cn(
         "nav-link",
         pathname === item.href ? "is-active" : void 0
@@ -2227,19 +2449,13 @@ function SectionTile({
   ] });
 }
 function Badge({
-  variant = "default",
-  size = "md",
+  variant = "neutral",
   className,
   children
 }) {
-  return /* @__PURE__ */ jsx(
-    "span",
-    {
-      className: cn("badge", `badge-${variant}`, `badge-${size}`, className),
-      children
-    }
-  );
+  return /* @__PURE__ */ jsx("span", { className: cn("badge", `badge-${variant}`, className), children });
 }
+var DISMISS_ANIMATION_MS = 200;
 function Alert({
   variant = "default",
   title,
@@ -2247,11 +2463,28 @@ function Alert({
   onDismiss,
   className
 }) {
+  const [isMounted, setIsMounted] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setIsMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+  function handleDismiss() {
+    if (onDismiss == null) return;
+    setIsExiting(true);
+    window.setTimeout(() => onDismiss(), DISMISS_ANIMATION_MS);
+  }
   return /* @__PURE__ */ jsxs(
     "div",
     {
       role: "alert",
-      className: cn("alert", `alert-${variant}`, className),
+      className: cn(
+        "alert",
+        `alert-${variant}`,
+        isMounted && !isExiting && "alert-visible",
+        isExiting && "alert-exiting",
+        className
+      ),
       children: [
         /* @__PURE__ */ jsxs("div", { className: "alert-body", children: [
           title != null && /* @__PURE__ */ jsx("p", { className: "alert-title", children: title }),
@@ -2263,7 +2496,7 @@ function Alert({
             type: "button",
             className: "alert-dismiss btn",
             "aria-label": "Dismiss",
-            onClick: onDismiss,
+            onClick: handleDismiss,
             children: /* @__PURE__ */ jsx("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true", children: /* @__PURE__ */ jsx("path", { d: "M3 3L13 13M13 3L3 13", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }) })
           }
         )
@@ -3793,7 +4026,7 @@ function DownloadTile({
         description != null && /* @__PURE__ */ jsx("span", { className: "download-tile-description", children: description })
       ] })
     ] }),
-    /* @__PURE__ */ jsx("div", { className: "download-tile-action", children: isDownloading ? /* @__PURE__ */ jsx(Skeleton, { width: 80, height: 28 }) : /* @__PURE__ */ jsx(Button, { size: "sm", onClick: onDownload, "aria-label": `Download ${filename}`, children: "Download" }) })
+    /* @__PURE__ */ jsx("div", { className: "download-tile-action", children: isDownloading ? /* @__PURE__ */ jsx(Skeleton, { width: 80, height: 28 }) : /* @__PURE__ */ jsx(Button, { size: "heading-xs", onClick: onDownload, "aria-label": `Download ${filename}`, children: "Download" }) })
   ] });
 }
 
@@ -3985,6 +4218,6 @@ var FONT_WEIGHT_TOKENS = [
   { name: "--fw-black", value: "900" }
 ];
 
-export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, Badge, Button, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, ContentCard, Cursor, DateInput, Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EditableTable, FONT_WEIGHT_TOKENS, FloatingActionBar, Footer, Grid, HEADING_VARIANTS, ICONS, ICONS_BY_ID, Icon, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, MainWrapper, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, PADDING_TOKENS, PageWrapper, Popover, PopoverContent, PopoverTrigger, Progress, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, SearchDropdown, SectionTile, Select, Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, StickyCol, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, useCursor, useGravity, useTheme, useThemeContext };
+export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, Badge, Button, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, ContentCard, Cursor, DateInput, Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EditableTable, FONT_WEIGHT_TOKENS, FileChip, FileDropzone, FloatingActionBar, Footer, Grid, HEADING_VARIANTS, ICONS, ICONS_BY_ID, Icon, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, MainWrapper, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, PADDING_TOKENS, PageWrapper, Popover, PopoverContent, PopoverTrigger, Progress, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, SearchDropdown, SectionTile, Select, Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, StickyCol, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

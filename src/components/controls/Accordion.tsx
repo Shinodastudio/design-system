@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react';
 import { cn } from '@/lib/cn';
+import { type ButtonSize } from '@/components/primitives/Button.constants';
 
 type AccordionType = 'single' | 'multiple';
 
@@ -46,6 +47,8 @@ interface AccordionProps {
   readonly value?: string | readonly string[];
   readonly onValueChange?: (value: string | readonly string[]) => void;
   readonly children: React.ReactNode;
+  /** Size variant — mirrors the button/type scale. Default: heading-xs (1rem). */
+  readonly size?: ButtonSize;
   readonly className?: string;
 }
 
@@ -55,6 +58,7 @@ export function Accordion({
   value: controlledValue,
   onValueChange,
   children,
+  size = 'heading-xs',
   className,
 }: AccordionProps): React.ReactElement {
   const defaultSet = new Set(
@@ -90,7 +94,7 @@ export function Accordion({
 
   return (
     <AccordionContext.Provider value={{ type, openValues, toggle }}>
-      <div className={cn('accordion', className)}>{children}</div>
+      <div className={cn('accordion', `accordion-size-${size}`, className)}>{children}</div>
     </AccordionContext.Provider>
   );
 }

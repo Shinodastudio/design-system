@@ -6,6 +6,7 @@ import { StickyCol } from '@/components/layout/StickyCol';
 import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 import { ComponentSection } from '@/components/catalogue/ComponentSection';
 import { Switch } from '@/components/controls/Switch';
+import { Slider } from '@/components/controls/Slider';
 import {
   Accordion,
   AccordionItem,
@@ -111,6 +112,37 @@ export default function ControlsPage(): React.ReactElement {
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
+              </div>
+            )}
+          />
+
+          <ComponentSection
+            name="Slider"
+            description="Stepped range input with snapping. Gravity on the thumb. Tooltip on drag and focus. Optional min/max labels."
+            code={`<Slider defaultValue={40} step={10} showLabels />`}
+            sizes={SIZES}
+            states={['default', 'disabled']}
+            render={({ state }): React.ReactNode => (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-8)', width: '100%' }}>
+                <Slider
+                  defaultValue={40}
+                  step={10}
+                  disabled={state === 'disabled'}
+                />
+                <Slider
+                  defaultValue={60}
+                  step={5}
+                  showLabels
+                  disabled={state === 'disabled'}
+                />
+                <Slider
+                  defaultValue={25}
+                  min={0}
+                  max={200}
+                  step={25}
+                  showLabels
+                  disabled={state === 'disabled'}
+                />
               </div>
             )}
           />

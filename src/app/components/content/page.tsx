@@ -41,7 +41,7 @@ export default function ContentPage(): React.ReactElement {
           <ComponentSection
             name="ContentCard — with actions"
             description="Pass JSX to the actions slot for inline controls alongside metadata."
-            code={`<ContentCard\n  title="Draft component"\n  metadata="Updated just now"\n  actions={<Button size="sm">Publish</Button>}\n/>`}
+            code={`<ContentCard\n  title="Draft component"\n  metadata="Updated just now"\n  actions={<Button size="heading-xs">Publish</Button>}\n/>`}
             sizes={SIZES}
             states={['default']}
             render={(): React.ReactNode => (
@@ -49,7 +49,7 @@ export default function ContentPage(): React.ReactElement {
                 title="Draft component"
                 description="Accordion variant with multiple-open support. Needs review before merge."
                 metadata="Updated just now"
-                actions={<Button size="sm">Publish</Button>}
+                actions={<Button size="heading-xs">Publish</Button>}
               />
             )}
           />

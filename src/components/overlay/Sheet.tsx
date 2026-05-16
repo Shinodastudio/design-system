@@ -11,7 +11,7 @@ import {
 import ReactDOM from 'react-dom';
 import { cn } from '@/lib/cn';
 
-export type SheetSide = 'left' | 'right' | 'bottom';
+export type SheetSide = 'left' | 'right';
 
 interface SheetContextValue {
   readonly open: boolean;
