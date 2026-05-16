@@ -1,5 +1,6 @@
-import { forwardRef } from 'react';
+import { forwardRef, useCallback, useRef } from 'react';
 import { cn } from '@/lib/cn';
+import { useGravity } from '@/hooks/useGravity';
 
 interface InputProps extends React.ComponentPropsWithoutRef<'input'> {
   readonly hasError?: boolean;
@@ -7,9 +8,21 @@ interface InputProps extends React.ComponentPropsWithoutRef<'input'> {
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   function Input({ className, hasError = false, type = 'text', ...props }, ref) {
+    const localRef = useRef<HTMLInputElement>(null);
+    useGravity(localRef);
+
+    const mergedRef = useCallback(
+      (node: HTMLInputElement | null) => {
+        (localRef as React.MutableRefObject<HTMLInputElement | null>).current = node;
+        if (typeof ref === 'function') ref(node);
+        else if (ref != null) (ref as React.MutableRefObject<HTMLInputElement | null>).current = node;
+      },
+      [ref],
+    );
+
     return (
       <input
-        ref={ref}
+        ref={mergedRef}
         type={type}
         className={cn('input', hasError && 'is-error', className)}
         {...props}
@@ -24,9 +37,21 @@ interface TextareaProps extends React.ComponentPropsWithoutRef<'textarea'> {
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   function Textarea({ className, hasError = false, rows = 4, ...props }, ref) {
+    const localRef = useRef<HTMLTextAreaElement>(null);
+    useGravity(localRef as React.RefObject<HTMLElement | null>);
+
+    const mergedRef = useCallback(
+      (node: HTMLTextAreaElement | null) => {
+        (localRef as React.MutableRefObject<HTMLTextAreaElement | null>).current = node;
+        if (typeof ref === 'function') ref(node);
+        else if (ref != null) (ref as React.MutableRefObject<HTMLTextAreaElement | null>).current = node;
+      },
+      [ref],
+    );
+
     return (
       <textarea
-        ref={ref}
+        ref={mergedRef}
         rows={rows}
         className={cn('textarea', hasError && 'is-error', className)}
         {...props}

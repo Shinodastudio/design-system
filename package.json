@@ -1,13 +1,35 @@
 {
-  "name": "brasilia",
+  "name": "@shinoda/ds",
   "version": "0.1.0",
-  "private": true,
+  "description": "Shinoda Design System — components, styles, and tokens",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./styles/*": "./dist/styles/*",
+    "./fonts/*": "./dist/fonts/*"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "icons:generate": "bun run scripts/generate-icons.ts"
+    "icons:generate": "bun run scripts/generate-icons.ts",
+    "build:lib": "tsup && bun run scripts/copy-styles.ts",
+    "prepare": "bun run build:lib"
+  },
+  "peerDependencies": {
+    "next": ">=15",
+    "react": ">=19",
+    "react-dom": ">=19"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",
@@ -25,6 +47,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "tailwindcss": "^4",
+    "tsup": "^8.5.1",
     "typescript": "^5"
   },
   "ignoreScripts": [

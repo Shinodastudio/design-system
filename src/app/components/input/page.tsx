@@ -14,14 +14,25 @@ import {
 import { ComponentSection } from '@/components/catalogue/ComponentSection';
 import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 
-const INPUT_SIZES = ['body-md', 'body-sm', 'body-xs', 'body-2xs'] as const;
+const INPUT_SIZES = [
+  'heading-xl', 'heading-lg', 'heading-md', 'heading-sm', 'heading-xs', 'heading-2xs',
+  'body-xl', 'body-lg', 'body-md', 'body-sm', 'body-xs', 'body-2xs',
+] as const;
 type InputSize = typeof INPUT_SIZES[number];
 
 const INPUT_FONT: Record<InputSize, string> = {
-  'body-md':  '1.25rem',
-  'body-sm':  '1.125rem',
-  'body-xs':  '1rem',
-  'body-2xs': '0.875rem',
+  'heading-xl':  '2.5rem',
+  'heading-lg':  '2rem',
+  'heading-md':  '1.5rem',
+  'heading-sm':  '1.25rem',
+  'heading-xs':  '1rem',
+  'heading-2xs': '0.75rem',
+  'body-xl':     '1.5rem',
+  'body-lg':     '1.375rem',
+  'body-md':     '1.25rem',
+  'body-sm':     '1.125rem',
+  'body-xs':     '1rem',
+  'body-2xs':    '0.875rem',
 };
 
 export default function InputPage(): React.ReactElement {
@@ -41,7 +52,7 @@ export default function InputPage(): React.ReactElement {
             description="Underline sits at outline colour at rest — lifts to primary text colour on focus."
             code={`<InputField>\n  <InputLabel htmlFor="name">Name</InputLabel>\n  <Input id="name" placeholder="Walter Benjamin" />\n</InputField>`}
             sizes={INPUT_SIZES}
-            defaultSize="body-xs"
+            defaultSize="heading-md"
             states={['default', 'hover', 'focus', 'disabled']}
             render={({ state, size }): React.ReactNode => (
               <InputField style={{ width: '100%', maxWidth: '24em' }}>
@@ -62,7 +73,7 @@ export default function InputPage(): React.ReactElement {
             description="Help text sits below the field at 40% opacity — always visible, not just on error."
             code={`<InputField>\n  <InputLabel htmlFor="email">Email</InputLabel>\n  <Input id="email" type="email" placeholder="you@studio.com" />\n  <InputHelp>Used only for transactional mail.</InputHelp>\n</InputField>`}
             sizes={INPUT_SIZES}
-            defaultSize="body-xs"
+            defaultSize="heading-md"
             states={['default', 'focus']}
             render={({ size }): React.ReactNode => (
               <InputField style={{ width: '100%', maxWidth: '24em' }}>
@@ -83,7 +94,7 @@ export default function InputPage(): React.ReactElement {
             description="Underline and error message both use status-error. Never use red on the field fill."
             code={`<InputField>\n  <InputLabel htmlFor="slug">Slug</InputLabel>\n  <Input id="slug" hasError defaultValue="bad slug" />\n  <InputError>Slug may not contain spaces.</InputError>\n</InputField>`}
             sizes={INPUT_SIZES}
-            defaultSize="body-xs"
+            defaultSize="heading-md"
             states={['default']}
             render={({ size }): React.ReactNode => (
               <InputField style={{ width: '100%', maxWidth: '24em' }}>
@@ -104,7 +115,7 @@ export default function InputPage(): React.ReactElement {
             description="Vertical resize only. Same underline treatment as single-line input."
             code={`<InputField>\n  <InputLabel htmlFor="note">Note</InputLabel>\n  <Textarea id="note" placeholder="A short paragraph..." />\n</InputField>`}
             sizes={INPUT_SIZES}
-            defaultSize="body-xs"
+            defaultSize="heading-md"
             states={['default', 'focus']}
             render={({ size }): React.ReactNode => (
               <InputField style={{ width: '100%', maxWidth: '24em' }}>

@@ -1,5 +1,8 @@
-import { forwardRef } from 'react';
+'use client';
+
+import { forwardRef, useRef } from 'react';
 import { cn } from '@/lib/cn';
+import { useGravity } from '@/hooks/useGravity';
 
 type CheckboxProps = Omit<React.ComponentPropsWithoutRef<'input'>, 'type'>;
 
@@ -37,7 +40,14 @@ interface ChoiceProps {
 }
 
 export function Choice({ children, className }: ChoiceProps): React.ReactElement {
-  return <label className={cn('choice', className)}>{children}</label>;
+  const ref = useRef<HTMLLabelElement>(null);
+  useGravity(ref as React.RefObject<HTMLElement | null>);
+
+  return (
+    <label ref={ref} className={cn('choice', className)}>
+      {children}
+    </label>
+  );
 }
 
 interface ChoiceLabelProps {

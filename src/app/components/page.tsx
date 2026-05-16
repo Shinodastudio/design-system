@@ -1,9 +1,12 @@
+'use client';
+
+import { useRef } from 'react';
 import { MainWrapper } from '@/components/layout/MainWrapper';
 import { Grid } from '@/components/layout/Grid';
 import { StickyCol } from '@/components/layout/StickyCol';
-import { Divider } from '@/components/primitives/Divider';
 import { Text } from '@/components/primitives/Text';
 import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
+import { useGravity } from '@/hooks/useGravity';
 import NextLink from 'next/link';
 
 /**
@@ -23,7 +26,40 @@ const COMPONENTS = [
   { label: 'Tabs',        href: '/components/tabs',       description: 'Horizontal tabs with animated indicator transitions.' },
   { label: 'Icon',        href: '/components/icon',       description: 'Searchable catalogue. currentColor strokes, 6 size variants.' },
   { label: 'Cursor',      href: '/components/cursor',     description: '1.25em inverted dot. Morphs on context. Lerp 0.22.' },
+  { label: 'Feedback',    href: '/components/feedback',   description: 'Badge, Alert, Progress, Skeleton — status and loading signals.' },
+  { label: 'Overlay',     href: '/components/overlay',    description: 'Tooltip, Dialog, Sheet, Popover, DropdownMenu.' },
+  { label: 'Controls',    href: '/components/controls',   description: 'Switch, Accordion, Command palette.' },
+  { label: 'Data',        href: '/components/data',       description: 'Read-only and inline-editable data tables.' },
+  { label: 'Calendar',    href: '/components/calendar',   description: 'Inline calendar picker and date text input.' },
+  { label: 'Search',      href: '/components/search',     description: 'Filterable search dropdown with keyboard navigation.' },
+  { label: 'Actions',     href: '/components/actions',    description: 'Floating Action Bar for contextual bulk operations.' },
+  { label: 'Content',     href: '/components/content',    description: 'ContentCard and DownloadTile for structured content.' },
+  { label: 'Map',         href: '/components/map',        description: 'Interactive Leaflet map — requires optional peer dependency.' },
 ] as const;
+
+interface ComponentTileProps {
+  readonly label: string;
+  readonly href: string;
+  readonly description: string;
+}
+
+function ComponentTile({ label, href, description }: ComponentTileProps): React.ReactElement {
+  const ref = useRef<HTMLAnchorElement>(null);
+  useGravity(ref);
+
+  return (
+    <NextLink
+      ref={ref}
+      href={href}
+      className="components-index-row btn"
+    >
+      <Text variant="heading-md" as="span">{label}</Text>
+      <Text variant="body-sm" opacity={40} as="p" style={{ marginTop: 'var(--space-2)' }}>
+        {description}
+      </Text>
+    </NextLink>
+  );
+}
 
 export default function ComponentsPage(): React.ReactElement {
   return (
@@ -37,17 +73,13 @@ export default function ComponentsPage(): React.ReactElement {
         </StickyCol>
         <div>
           {COMPONENTS.map((comp) => (
-            <div key={comp.href}>
-              <Divider />
-              <NextLink href={comp.href} className="components-index-row">
-                <Text variant="heading-sm" as="span">{comp.label}</Text>
-                <Text variant="body-sm" opacity={40} as="p" style={{ marginTop: 'var(--space-2)' }}>
-                  {comp.description}
-                </Text>
-              </NextLink>
-            </div>
+            <ComponentTile
+              key={comp.href}
+              label={comp.label}
+              href={comp.href}
+              description={comp.description}
+            />
           ))}
-          <Divider />
         </div>
       </Grid>
     </MainWrapper>

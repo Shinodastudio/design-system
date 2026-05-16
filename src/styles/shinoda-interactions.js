@@ -48,6 +48,16 @@ function clearContext() {
   cursorLabel.textContent = '';
 }
 
+function setBtnCursor(el) {
+  html.classList.add('cursor--btn');
+  // Walk up to the nearest interactive ancestor so we measure
+  // the actual clickable footprint, not a child text node.
+  const target = el.closest('button, a, [role="button"], [data-cursor="btn"]') || el;
+  const rect = target.getBoundingClientRect();
+  cursor.style.setProperty('--cursor-btn-w', `${rect.width}px`);
+  cursor.style.setProperty('--cursor-btn-h', `${rect.height}px`);
+}
+
 function setContext(el) {
   clearContext();
   if (!el || el === document.body || el === html) return;
@@ -55,11 +65,15 @@ function setContext(el) {
   const tag  = el.tagName?.toLowerCase();
   const role = el.getAttribute('role');
 
-  if (tag === 'button' || role === 'button' || el.classList.contains('btn')) {
-    html.classList.add('cursor--btn');
-    const rect = el.getBoundingClientRect();
-    cursor.style.setProperty('--cursor-btn-w', `${rect.width}px`);
-    cursor.style.setProperty('--cursor-btn-h', `${rect.height}px`);
+  // Buttons — morph cursor into element footprint, then fade out
+  if (tag === 'button' || role === 'button' || el.classList.contains('btn') || el.dataset.cursor === 'btn') {
+    setBtnCursor(el);
+    return;
+  }
+
+  // Links — same morph behaviour: cursor becomes the link's footprint
+  if (tag === 'a' || el.classList.contains('link')) {
+    setBtnCursor(el);
     return;
   }
 
@@ -79,6 +93,18 @@ document.addEventListener('mouseover', e => setContext(e.target));
 document.addEventListener('mouseout',  () => clearContext());
 document.addEventListener('mousedown', () => html.classList.add('cursor--active'));
 document.addEventListener('mouseup',   () => html.classList.remove('cursor--active'));
+
+document.addEventListener('focusin', e => {
+  const el = e.target;
+  if (!el || el === document.body) return;
+  const tag = el.tagName?.toLowerCase();
+  if (tag === 'input' || tag === 'textarea' || tag === 'select' || el.isContentEditable) {
+    html.classList.add('cursor--focused');
+  }
+});
+document.addEventListener('focusout', () => {
+  html.classList.remove('cursor--focused');
+});
 
 /* ─── GRAVITY ────────────────────────────────────────────────────────── */
 

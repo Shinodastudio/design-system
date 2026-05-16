@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "incremental": false,
+    "plugins": []
+  },
+  "exclude": [
+    "node_modules",
+    "scripts",
+    "src/app",
+    "src/components/catalogue"
+  ]
+}

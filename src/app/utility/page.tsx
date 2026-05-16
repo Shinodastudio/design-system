@@ -38,40 +38,6 @@ const UTILITY_GROUPS: readonly UtilityGroup[] = [
     ],
   },
   {
-    title: 'Text style',
-    note: 'Single-class modifiers applied to runs of type. Webflow names with `text-style-` prefix.',
-    items: [
-      { name: '.text-style-italic',        value: 'font-style: italic',                  demo: <span className="text-style-italic body-md">Italic emphasis</span> },
-      { name: '.text-style-strikethrough', value: 'text-decoration: line-through',       demo: <span className="text-style-strikethrough body-md">Struck through</span> },
-      { name: '.text-style-allcaps',       value: 'uppercase + wide tracking',           demo: <span className="text-style-allcaps body-md">All caps run</span> },
-      { name: '.text-style-nowrap',        value: 'white-space: nowrap',                 demo: <span className="text-style-nowrap body-md">No wrap inside this run</span> },
-      { name: '.text-style-link',          value: 'underline + offset',                  demo: <span className="text-style-link body-md">Link styled run</span> },
-      { name: '.text-style-muted',         value: 'opacity: 0.40',                       demo: <span className="text-style-muted body-md">Muted secondary copy</span> },
-      { name: '.text-style-2lines',        value: '-webkit-line-clamp: 2',               demo: <span className="text-style-2lines body-md" style={{ maxWidth: '20em' }}>Two-line clamp shown over a slightly longer string so the truncation becomes visible at this width.</span> },
-      { name: '.text-style-3lines',        value: '-webkit-line-clamp: 3',               demo: <span className="text-style-3lines body-md" style={{ maxWidth: '20em' }}>Three-line clamp shown over a longer string that wraps to three full visual lines before truncation cuts the rest of the run.</span> },
-    ],
-  },
-  {
-    title: 'Text colour',
-    note: 'Direct colour overrides — prefer opacity for hierarchy where possible.',
-    items: [
-      { name: '.text-color-primary',   value: 'color: text-primary',   demo: <span className="body-md" style={{ color: 'var(--color-text-primary)' }}>Primary</span> },
-      { name: '.text-color-secondary', value: 'color: text-secondary', demo: <span className="body-md" style={{ color: 'var(--color-text-secondary)' }}>Secondary</span> },
-      { name: '.text-color-tertiary',  value: 'color: text-tertiary',  demo: <span className="body-md" style={{ color: 'var(--color-text-tertiary)' }}>Tertiary</span> },
-      { name: '.text-color-contrast',  value: 'color: text-contrast',  demo: <span className="body-md" style={{ color: 'var(--color-text-contrast)', backgroundColor: 'var(--color-grey-strong)', padding: '0.1em 0.4em', borderRadius: 'var(--radius-xs)' }}>Contrast (on dark)</span> },
-      { name: '.text-color-white',     value: 'color: white',          demo: <span className="body-md" style={{ color: 'var(--color-text-contrast)', backgroundColor: 'var(--color-grey-strong)', padding: '0.1em 0.4em', borderRadius: 'var(--radius-xs)' }}>White (on dark)</span> },
-    ],
-  },
-  {
-    title: 'Text align',
-    note: 'Standard alignment — left is default.',
-    items: [
-      { name: '.text-align-left',   value: 'text-align: left',   demo: <span className="text-align-left body-md" style={{ display: 'block', width: '12em' }}>Left aligned</span> },
-      { name: '.text-align-center', value: 'text-align: center', demo: <span className="text-align-center body-md" style={{ display: 'block', width: '12em' }}>Centre aligned</span> },
-      { name: '.text-align-right',  value: 'text-align: right',  demo: <span className="text-align-right body-md" style={{ display: 'block', width: '12em' }}>Right aligned</span> },
-    ],
-  },
-  {
     title: 'Layout',
     note: 'Flex utilities, page shells, and the canonical 2-column grid.',
     items: [
@@ -113,17 +79,6 @@ const UTILITY_GROUPS: readonly UtilityGroup[] = [
           <div style={{ height: '12px', width: '12px', backgroundColor: 'var(--color-text-primary)' }} />
         </div>
       ) },
-    ],
-  },
-  {
-    title: 'Containers',
-    note: 'Constrained inner widths. Use sparingly — most content sits in 1312px page container.',
-    items: [
-      { name: '.container-sm',  value: 'max-width: 320px',  demo: <div className="container-sm"  style={{ height: '4px', backgroundColor: 'var(--color-text-primary)', opacity: 'var(--opacity-40)' }} /> },
-      { name: '.container-md',  value: 'max-width: 384px',  demo: <div className="container-md"  style={{ height: '4px', backgroundColor: 'var(--color-text-primary)', opacity: 'var(--opacity-40)' }} /> },
-      { name: '.container-lg',  value: 'max-width: 512px',  demo: <div className="container-lg"  style={{ height: '4px', backgroundColor: 'var(--color-text-primary)', opacity: 'var(--opacity-40)' }} /> },
-      { name: '.container-xl',  value: 'max-width: 640px',  demo: <div className="container-xl"  style={{ height: '4px', backgroundColor: 'var(--color-text-primary)', opacity: 'var(--opacity-40)' }} /> },
-      { name: '.container-5xl', value: 'max-width: 1312px', demo: <div className="container-5xl" style={{ height: '4px', backgroundColor: 'var(--color-text-primary)', opacity: 'var(--opacity-40)' }} /> },
     ],
   },
   {

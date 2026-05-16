@@ -16,7 +16,8 @@ import { useEffect, useId, useRef, useState } from 'react';
  *   └─────────────────────────────────────────────┘
  *
  * State chip turns orange with a × dismiss button when non-default is selected.
- * Clicking × resets to 'default'. Focus state auto-focuses the first focusable child.
+ * Size chip turns orange with a × dismiss button when non-default is selected.
+ * Clicking × resets to default. Focus state auto-focuses the first focusable child.
  */
 
 export type SectionState = 'default' | 'hover' | 'active' | 'focus' | 'disabled';
@@ -44,6 +45,8 @@ function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+const COPY_RESET_MS = 1500;
+
 export function ComponentSection<S extends string>({
   name,
   description,
@@ -55,14 +58,17 @@ export function ComponentSection<S extends string>({
   defaultState = 'default',
   render,
 }: ComponentSectionProps<S>): React.ReactElement {
-  const [size, setSize] = useState<S>(defaultSize ?? sizes[0]);
+  const resolvedDefault = defaultSize ?? sizes[0];
+  const [size, setSize] = useState<S>(resolvedDefault);
   const [state, setState] = useState<SectionState>(defaultState);
+  const [copied, setCopied] = useState(false);
   const frameRef = useRef<HTMLDivElement>(null);
   const sizeId = useId();
   const stateId = useId();
 
   const resolvedSizeLabel = sizeLabel ?? ((s: S): string => String(s));
-  const isNonDefault = state !== 'default';
+  const isNonDefaultState = state !== 'default';
+  const isNonDefaultSize = size !== resolvedDefault;
 
   // Auto-focus the first focusable child when state is 'focus'.
   useEffect(() => {
@@ -75,6 +81,15 @@ export function ComponentSection<S extends string>({
     focusable?.focus();
   }, [state, size]);
 
+  function handleCopy(): void {
+    navigator.clipboard.writeText(code).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), COPY_RESET_MS);
+    }).catch(() => {
+      // Clipboard write can fail in some contexts — fail silently
+    });
+  }
+
   return (
     <div className="component-section">
       {/* ── Header: name + chips ── */}
@@ -82,23 +97,35 @@ export function ComponentSection<S extends string>({
         <div className="component-section-title">
           <span className="heading-md">{name}</span>
           <div className="component-section-chips">
-            {/* Size chip — always a select dropdown */}
-            <label className="section-chip" htmlFor={sizeId}>
-              <select
-                id={sizeId}
-                className="section-chip-select"
-                value={size}
-                onChange={(e): void => setSize(e.target.value as S)}
+            {/* Size chip — orange + × when non-default, dropdown when default */}
+            {isNonDefaultSize ? (
+              <button
+                type="button"
+                className="section-chip section-chip--active"
+                onClick={(): void => setSize(resolvedDefault)}
+                aria-label={`Reset size to default (currently ${resolvedSizeLabel(size)})`}
               >
-                {sizes.map((s) => (
-                  <option key={s} value={s}>{resolvedSizeLabel(s)}</option>
-                ))}
-              </select>
-              <span className="section-chip-chevron" aria-hidden="true" />
-            </label>
+                <span className="section-chip-text">{resolvedSizeLabel(size)}</span>
+                <span className="section-chip-close" aria-hidden="true" />
+              </button>
+            ) : (
+              <label className="section-chip" htmlFor={sizeId}>
+                <select
+                  id={sizeId}
+                  className="section-chip-select"
+                  value={size}
+                  onChange={(e): void => setSize(e.target.value as S)}
+                >
+                  {sizes.map((s) => (
+                    <option key={s} value={s}>{resolvedSizeLabel(s)}</option>
+                  ))}
+                </select>
+                <span className="section-chip-chevron" aria-hidden="true" />
+              </label>
+            )}
 
             {/* State chip — orange + × when non-default, dropdown when default */}
-            {isNonDefault ? (
+            {isNonDefaultState ? (
               <button
                 type="button"
                 className="section-chip section-chip--active"
@@ -129,17 +156,34 @@ export function ComponentSection<S extends string>({
       </div>
 
       {/* ── Preview card ── */}
-      <div className="component-card">
+      <div className="component-card" style={{ position: 'relative' }}>
         <div
           ref={frameRef}
           className="component-card-preview"
-          data-state={isNonDefault ? state : undefined}
+          data-state={isNonDefaultState ? state : undefined}
           // Re-mount on state+size change so focus effect always fires.
           key={`${state}-${size}`}
         >
           {render({ state, size })}
         </div>
-        <code className="component-card-code">{code}</code>
+        <div style={{ position: 'relative' }}>
+          <code className="component-card-code">{code}</code>
+          <button
+            type="button"
+            className="btn"
+            onClick={handleCopy}
+            aria-label={copied ? 'Code copied' : 'Copy code'}
+            style={{
+              position: 'absolute',
+              top: 'var(--space-2)',
+              right: 'var(--space-2)',
+              fontSize: '0.75rem',
+              opacity: copied ? 1 : 'var(--opacity-40)' as unknown as number,
+            }}
+          >
+            {copied ? 'Copied' : 'Copy'}
+          </button>
+        </div>
       </div>
     </div>
   );
