@@ -98,6 +98,21 @@ export default function ButtonPage(): React.ReactElement {
             )}
           />
 
+          <ComponentSection
+            name="Icon only"
+            description="No label — icon footprint only. Use for toolbars and compact UI."
+            code={`<Button className="btn-icon" size={size}>\n  <Icon name="ArrowRight" size="em" />\n</Button>`}
+            sizes={BUTTON_SIZES}
+            defaultSize="lg"
+            sizeLabel={(s): string => SIZE_LABELS[s]}
+            states={['default', 'hover']}
+            render={({ size }): React.ReactNode => (
+              <Button className="btn-icon" size={size}>
+                <Icon name="ArrowRight" size="em" />
+              </Button>
+            )}
+          />
+
         </div>
       </Grid>
     </MainWrapper>

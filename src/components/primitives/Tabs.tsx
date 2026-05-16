@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useGravity } from '@/hooks/useGravity';
 import { cn } from '@/lib/cn';
 
 interface TabsContextValue {
@@ -132,9 +133,12 @@ interface TabsTriggerProps {
 export function TabsTrigger({ value, children, className }: TabsTriggerProps): React.ReactElement {
   const { active, setActive } = useTabsContext();
   const isActive = active === value;
+  const ref = useRef<HTMLButtonElement>(null);
+  useGravity(ref);
 
   return (
     <button
+      ref={ref}
       type="button"
       role="tab"
       aria-selected={isActive}

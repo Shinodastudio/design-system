@@ -1,0 +1,458 @@
+/**
+ * Shinoda Design System — Token CSS v3
+ * Updated April 2026 · Token sync May 2026
+ * 1rem = 16px
+ *
+ * v3 changes:
+ * - Letter spacing eased +0.005em across all styles
+ * - Opacity scale standardised: only 20%, 40%, 60%, 80% (content) + 5% (dividers)
+ *
+ * v3.1 changes (Figma token sync — Colour, Primitive, Unit modes):
+ * - Added accent palette (red/orange/yellow/green/blue) as distinct from status
+ * - Added full alpha overlay scale (5–90) per theme
+ * - Added full radius (none → 4xl, full), border (none → xl), blur (none → 4xl)
+ * - Added breakpoint scale (2xs → 3xl) and container scale (3xs → 5xl)
+ * - Added font weight scale (thin → black) and tracking primitive scale
+ * - --container-5xl intentionally diverges from Figma (1280) → 1312 page override
+ *
+ * v3.2 changes (Figma is source of truth for colour):
+ * - Added core.* tokens: --color-core-base / -contrast / -invert / -transparent
+ * - Added grey semantic tokens: --color-grey-strong / -core / -weak
+ * - Renamed --color-overlay-* → --color-transparent-* to match Figma vocabulary
+ * - Status tokens remain as derived conveniences (not defined in Figma)
+ *
+ * v3.3 changes (Webflow parity — design↔dev breakpoint alignment):
+ * - 4-tier responsive system mirroring Webflow's max-width media queries
+ * - Designer works in 4 canvases: 1440 desktop · 1024 tablet · 768 mobile-h · 428 mobile
+ * - Breakpoint cutoffs mirror Webflow defaults: 991 / 767 / 479 (max-width)
+ * - Semantic padding tokens become responsive at each breakpoint
+ * - Heading + subheading sizes step down on mobile to match Webflow
+ *
+ * v3.4 changes (May 2026 token spec reconciliation):
+ * - Added --container-maxwidth (responsive: 1312 / 960 / 736 / 396)
+ * - --padding-section-md bumped to 96px at tablet (was 64px)
+ * - --padding-container becomes responsive (64 → 24 at mobile-h)
+ * - --padding-card now 32px at sm canvas (was 24)
+ * - heading-xl: 40 at sm/md, 36 at xs/2xs
+ * - subheading-lg: 48 at sm/md, 32 at xs/2xs
+ * - subheading-sm: 24 at sm/md, 22 at xs/2xs (was incorrectly bumped back at ≤479)
+ */
+
+:root {
+  /* ─── FONT FAMILIES ────────────────────────────────────────────────── */
+  --font-sans:   "GT America LCG", system-ui, sans-serif;
+  --font-serif:  "GT Super Text", Georgia, serif;
+
+  /* ─── FONT WEIGHTS (full primitive scale) ──────────────────────────── */
+  --fw-thin:        100;
+  --fw-extralight:  200;
+  --fw-light:       300;
+  --fw-normal:      400;
+  --fw-book:        450;
+  --fw-medium:      500;
+  --fw-semibold:    600;
+  --fw-bold:        700;
+  --fw-extrabold:   800;
+  --fw-black:       900;
+
+  /* ─── LETTER SPACING — semantic (eased +0.005em) ───────────────────── */
+  --tracking-n040: -0.040em;
+  --tracking-n035: -0.035em;
+  --tracking-n030: -0.030em;
+  --tracking-n025: -0.025em;
+  --tracking-n020: -0.020em;
+  --tracking-n015: -0.015em;
+  --tracking-n010: -0.010em;
+  --tracking-n005: -0.005em;
+  --tracking-none:  0em;
+
+  /* ─── LETTER SPACING — Figma primitive scale ───────────────────────── */
+  --tracking-tighter: -0.05em;
+  --tracking-tight:   -0.025em;
+  --tracking-normal:   0em;
+  --tracking-wide:     0.025em;
+  --tracking-wider:    0.05em;
+  --tracking-widest:   0.1em;
+
+  /* ─── LINE HEIGHT — semantic ───────────────────────────────────────── */
+  --leading-heading:   1.05;
+  --leading-body-xl:   1.20;
+  --leading-body-md:   1.30;
+  --leading-body-xs:   1.40;
+
+  /* ─── LINE HEIGHT — Figma primitive scale ──────────────────────────── */
+  --leading-title:     1.05;
+  --leading-subtitle:  1.05;
+  --leading-body:      1.30;
+  --leading-paragraph: 1.50;
+  --leading-caption:   1.00;
+
+  /* ─── OPACITY — content (ONLY these values, ever) ──────────────────── */
+  --opacity-80: 0.80;
+  --opacity-60: 0.60;
+  --opacity-40: 0.40;
+  --opacity-20: 0.20;
+  --opacity-divider: 0.05;
+
+  /* ─── RADIUS (full Figma scale) ────────────────────────────────────── */
+  --radius-none: 0px;
+  --radius-xs:   4px;
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-2xl:  32px;
+  --radius-3xl:  64px;
+  --radius-4xl:  128px;
+  --radius-full: 9999px;
+
+  /* ─── BORDER (full Figma scale) ────────────────────────────────────── */
+  --border-none: 0px;
+  --border-sm:   1px;
+  --border-md:   2px;
+  --border-lg:   4px;
+  --border-xl:   8px;
+
+  /* ─── BLUR (full Figma scale) ──────────────────────────────────────── */
+  --blur-none: 0px;
+  --blur-xs:   8px;
+  --blur-sm:   16px;
+  --blur-md:   32px;
+  --blur-lg:   64px;
+  --blur-xl:   128px;
+  --blur-2xl:  256px;
+  --blur-3xl:  512px;
+  --blur-4xl:  1024px;
+
+  /* ─── SPACING (4px base scale) ─────────────────────────────────────── */
+  --space-0: 0px; --space-px: 1px;
+  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;  --space-4: 16px;
+  --space-5: 20px;  --space-6: 24px;  --space-7: 28px;  --space-8: 32px;
+  --space-9: 36px;  --space-10: 40px; --space-12: 48px; --space-14: 56px;
+  --space-16: 64px; --space-18: 72px; --space-20: 80px; --space-24: 96px;
+  --space-28: 112px; --space-32: 128px;
+
+  /* ─── BREAKPOINTS (Figma primitive scale) ──────────────────────────── */
+  --breakpoint-2xs: 400px;
+  --breakpoint-xs:  428px;
+  --breakpoint-sm:  640px;
+  --breakpoint-md:  768px;
+  --breakpoint-lg:  1024px;
+  --breakpoint-xl:  1280px;
+  --breakpoint-2xl: 1440px;
+  --breakpoint-3xl: 1920px;
+
+  /* ─── BREAKPOINTS — Webflow parity (the 4 working canvases) ─────────
+     Designer canvas widths: 1440 / 1024 / 768 / 428
+     CSS max-width cutoffs:  none / 991 / 767 / 479
+     A canvas applies when viewport ≤ the canvas above it. */
+  --bp-desktop:   1440px;
+  --bp-tablet:    991px;
+  --bp-mobile-h:  767px;
+  --bp-mobile:    479px;
+
+  /* ─── CONTAINERS (Figma) ───────────────────────────────────────────── */
+  --container-3xs: 128px;
+  --container-2xs: 192px;
+  --container-xs:  256px;
+  --container-sm:  320px;
+  --container-md:  384px;
+  --container-lg:  512px;
+  --container-xl:  640px;
+  --container-2xl: 768px;
+  --container-3xl: 896px;
+  --container-4xl: 1024px;
+  --container-5xl: 1312px;  /* Page override — Figma value is 1280 */
+
+  /* ─── ICON SIZES (bound by height) ─────────────────────────────────── */
+  --icon-2xs: 12px;
+  --icon-xs:  14px;
+  --icon-sm:  16px;
+  --icon-md:  20px;
+  --icon-lg:  24px;
+  --icon-xl:  32px;
+
+  /* ─── SEMANTIC SPACING — Webflow parity, em-based, RESPONSIVE ────────
+     Values step down at tablet (≤991) and mobile-h (≤767) breakpoints.
+     Overrides live in the @media blocks below. */
+  --padding-page:       4em;   /* page gutter (horizontal)                    */
+  --padding-columns:    4em;   /* between adjacent columns                    */
+  --padding-section-sm: 4em;   /* section vertical, small                     */
+  --padding-section-md: 6em;   /* section vertical, medium                    */
+  --padding-section-lg: 8em;   /* section vertical, large                     */
+  --padding-container:  4em;   /* inner container gutter                      */
+  --padding-nav:        8em;   /* content top-offset under fixed nav          */
+  --padding-card:       2em;   /* card interior                               */
+
+  /* ─── CONTAINER MAX-WIDTH — responsive (May 2026 spec) ──────────────
+     Token-driven max page widths per canvas. Components reflow automatically.
+     md (≥1440): 1312 · sm (≤1024): 960 · xs (≤768): 736 · 2xs (≤428): 396  */
+  --container-maxwidth: 1312px;
+
+  /* ─── NAV HEIGHT — measured at runtime, fallback static ──────────────
+     Components consuming this for top offset get a sane default. The Nav
+     component sets the runtime-measured value on :root via CSS var. */
+  --nav-height: 5em;
+
+  /* ─── STICKY OFFSET — top value for sticky left-column nav ────────────
+     Must clear nav bar (~60px) + progressive blur stack (112px) so the
+     sticky column never sits under the blur. Single token; responsive
+     overrides live in the @media blocks below. */
+  --sticky-offset: 11em; /* 176px — desktop */
+
+  /* ─── GREY PALETTE — light mode ────────────────────────────────────── */
+  --grey-10: #FAFAFA; --grey-20: #F4F4F5; --grey-30: #E4E4E7;
+  --grey-40: #D0D0D7; --grey-50: #A1A1AA; --grey-60: #7A7A82;
+  --grey-70: #494951; --grey-80: #333338; --grey-90: #212123;
+  --grey-100: #18181B;
+
+  /* ─── ACCENT PALETTE — light mode ──────────────────────────────────── */
+  --accent-red:    #CC0019;
+  --accent-orange: #E66900;
+  --accent-yellow: #E6C800;
+  --accent-green:  #009650;
+  --accent-blue:   #005096;
+
+  /* ─── ALPHA OVERLAY SCALE — light mode (over grey.100) ─────────────── */
+  --alpha-5:  rgba(24, 24, 27, 0.05);
+  --alpha-10: rgba(24, 24, 27, 0.10);
+  --alpha-20: rgba(24, 24, 27, 0.20);
+  --alpha-30: rgba(24, 24, 27, 0.30);
+  --alpha-40: rgba(24, 24, 27, 0.40);
+  --alpha-50: rgba(24, 24, 27, 0.50);
+  --alpha-60: rgba(24, 24, 27, 0.60);
+  --alpha-70: rgba(24, 24, 27, 0.70);
+  --alpha-80: rgba(24, 24, 27, 0.80);
+  --alpha-90: rgba(24, 24, 27, 0.90);
+
+  /* ─── CORE TOKENS — light mode (Figma: core.*) ─────────────────────── */
+  --color-core-base:        #FFFFFF;
+  --color-core-contrast:    #FFFFFF;
+  --color-core-invert:      #000000;
+  --color-core-transparent: rgba(255, 255, 255, 0);
+
+  /* ─── SEMANTIC TOKENS — light mode (Figma: semantic.*) ─────────────── */
+  --color-fill-base:         #FAFAFA;
+  --color-fill-primary:      #F4F4F5;
+  --color-fill-secondary:    #E4E4E7;
+  --color-fill-tertiary:     #D0D0D7;
+  --color-outline:           #D0D0D7;
+  --color-text-primary:      #18181B;
+  --color-text-secondary:    #494951;
+  --color-text-tertiary:     #A1A1AA;
+  --color-text-contrast:     var(--color-core-contrast);
+  --color-grey-strong:       #212123;
+  --color-grey-core:         #212123;
+  --color-grey-weak:         #E4E4E7;
+  --color-transparent-weak:   var(--alpha-5);
+  --color-transparent-core:   var(--alpha-20);
+  --color-transparent-strong: var(--alpha-60);
+
+  /* ─── STATUS — derived from accents (not in Figma) ─────────────────── */
+  --color-status-error:   var(--accent-red);
+  --color-status-warning: var(--accent-orange);
+  --color-status-info:    var(--accent-blue);
+  --color-status-success: var(--accent-green);
+}
+
+/* ─── DARK MODE ──────────────────────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Grey palette inverts in dark mode */
+    --grey-10: #18181B; --grey-20: #212123; --grey-30: #333338;
+    --grey-40: #494951; --grey-50: #7A7A82; --grey-60: #A1A1AA;
+    --grey-70: #D0D0D7; --grey-80: #E4E4E7; --grey-90: #F4F4F5;
+    --grey-100: #FAFAFA;
+
+    /* Accent shifts to brighter, more saturated values for dark backgrounds */
+    --accent-red:    #F51450;
+    --accent-orange: #FF6905;
+    --accent-yellow: #FFD700;
+    --accent-green:  #00B964;
+    --accent-blue:   #0073EB;
+
+    /* Alpha overlays use light source colour */
+    --alpha-5:  rgba(250, 250, 250, 0.05);
+    --alpha-10: rgba(250, 250, 250, 0.10);
+    --alpha-20: rgba(250, 250, 250, 0.20);
+    --alpha-30: rgba(250, 250, 250, 0.30);
+    --alpha-40: rgba(250, 250, 250, 0.40);
+    --alpha-50: rgba(250, 250, 250, 0.50);
+    --alpha-60: rgba(250, 250, 250, 0.60);
+    --alpha-70: rgba(250, 250, 250, 0.70);
+    --alpha-80: rgba(250, 250, 250, 0.80);
+    --alpha-90: rgba(250, 250, 250, 0.90);
+
+    --color-core-base: #000000; --color-core-contrast: #FFFFFF;
+    --color-core-invert: #FFFFFF; --color-core-transparent: rgba(0, 0, 0, 0);
+
+    --color-fill-base: #18181B; --color-fill-primary: #212123;
+    --color-fill-secondary: #333338; --color-fill-tertiary: #494951;
+    --color-outline: #494951;
+    --color-text-primary: #FAFAFA; --color-text-secondary: #A1A1AA;
+    --color-text-tertiary: #494951; --color-text-contrast: var(--color-core-contrast);
+    --color-grey-strong: #F4F4F5; --color-grey-core: #F4F4F5; --color-grey-weak: #212123;
+    --color-transparent-weak:   var(--alpha-5);
+    --color-transparent-core:   var(--alpha-20);
+    --color-transparent-strong: var(--alpha-60);
+    --color-status-error:   var(--accent-red);
+    --color-status-warning: var(--accent-orange);
+    --color-status-info:    var(--accent-blue);
+    --color-status-success: var(--accent-green);
+  }
+}
+
+[data-theme="dark"] {
+  --grey-10: #18181B; --grey-20: #212123; --grey-30: #333338;
+  --grey-40: #494951; --grey-50: #7A7A82; --grey-60: #A1A1AA;
+  --grey-70: #D0D0D7; --grey-80: #E4E4E7; --grey-90: #F4F4F5;
+  --grey-100: #FAFAFA;
+
+  --accent-red:    #F51450;
+  --accent-orange: #FF6905;
+  --accent-yellow: #FFD700;
+  --accent-green:  #00B964;
+  --accent-blue:   #0073EB;
+
+  --alpha-5:  rgba(250, 250, 250, 0.05);
+  --alpha-10: rgba(250, 250, 250, 0.10);
+  --alpha-20: rgba(250, 250, 250, 0.20);
+  --alpha-30: rgba(250, 250, 250, 0.30);
+  --alpha-40: rgba(250, 250, 250, 0.40);
+  --alpha-50: rgba(250, 250, 250, 0.50);
+  --alpha-60: rgba(250, 250, 250, 0.60);
+  --alpha-70: rgba(250, 250, 250, 0.70);
+  --alpha-80: rgba(250, 250, 250, 0.80);
+  --alpha-90: rgba(250, 250, 250, 0.90);
+
+  --color-core-base: #000000; --color-core-contrast: #FFFFFF;
+  --color-core-invert: #FFFFFF; --color-core-transparent: rgba(0, 0, 0, 0);
+
+  --color-fill-base: #18181B; --color-fill-primary: #212123;
+  --color-fill-secondary: #333338; --color-fill-tertiary: #494951;
+  --color-outline: #494951;
+  --color-text-primary: #FAFAFA; --color-text-secondary: #A1A1AA;
+  --color-text-tertiary: #494951; --color-text-contrast: var(--color-core-contrast);
+  --color-grey-strong: #F4F4F5; --color-grey-core: #F4F4F5; --color-grey-weak: #212123;
+  --color-transparent-weak:   var(--alpha-5);
+  --color-transparent-core:   var(--alpha-20);
+  --color-transparent-strong: var(--alpha-60);
+  --color-status-error:   var(--accent-red);
+  --color-status-warning: var(--accent-orange);
+  --color-status-info:    var(--accent-blue);
+  --color-status-success: var(--accent-green);
+}
+
+[data-theme="light"] {
+  --grey-10: #FAFAFA; --grey-20: #F4F4F5; --grey-30: #E4E4E7;
+  --grey-40: #D0D0D7; --grey-50: #A1A1AA; --grey-60: #7A7A82;
+  --grey-70: #494951; --grey-80: #333338; --grey-90: #212123;
+  --grey-100: #18181B;
+
+  --accent-red:    #CC0019;
+  --accent-orange: #E66900;
+  --accent-yellow: #E6C800;
+  --accent-green:  #009650;
+  --accent-blue:   #005096;
+
+  --alpha-5:  rgba(24, 24, 27, 0.05);
+  --alpha-10: rgba(24, 24, 27, 0.10);
+  --alpha-20: rgba(24, 24, 27, 0.20);
+  --alpha-30: rgba(24, 24, 27, 0.30);
+  --alpha-40: rgba(24, 24, 27, 0.40);
+  --alpha-50: rgba(24, 24, 27, 0.50);
+  --alpha-60: rgba(24, 24, 27, 0.60);
+  --alpha-70: rgba(24, 24, 27, 0.70);
+  --alpha-80: rgba(24, 24, 27, 0.80);
+  --alpha-90: rgba(24, 24, 27, 0.90);
+
+  --color-core-base: #FFFFFF; --color-core-contrast: #FFFFFF;
+  --color-core-invert: #000000; --color-core-transparent: rgba(255, 255, 255, 0);
+
+  --color-fill-base: #FAFAFA; --color-fill-primary: #F4F4F5;
+  --color-fill-secondary: #E4E4E7; --color-fill-tertiary: #D0D0D7;
+  --color-outline: #D0D0D7;
+  --color-text-primary: #18181B; --color-text-secondary: #494951;
+  --color-text-tertiary: #A1A1AA; --color-text-contrast: var(--color-core-contrast);
+  --color-grey-strong: #212123; --color-grey-core: #212123; --color-grey-weak: #E4E4E7;
+  --color-transparent-weak:   var(--alpha-5);
+  --color-transparent-core:   var(--alpha-20);
+  --color-transparent-strong: var(--alpha-60);
+  --color-status-error:   var(--accent-red);
+  --color-status-warning: var(--accent-orange);
+  --color-status-info:    var(--accent-blue);
+  --color-status-success: var(--accent-green);
+}
+
+/* ── Smooth theme transition ─────────────────────────────────────────── */
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition:
+    background-color 350ms cubic-bezier(0.4, 0, 0.2, 1),
+    color 350ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 350ms cubic-bezier(0.4, 0, 0.2, 1),
+    fill 350ms cubic-bezier(0.4, 0, 0.2, 1),
+    stroke 350ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* ─── RESPONSIVE SEMANTIC PADDING — Webflow cutoffs ──────────────────────
+   The single source of truth for the design↔dev breakpoint contract.
+   Each canvas (1440 / 1024 / 768 / 428) maps to a max-width media query
+   that adjusts padding tokens. Components consuming these tokens reflow
+   automatically without per-component media queries.
+*/
+
+/* Tablet canvas — 1024 designs, applies at ≤991
+   Spec (sm column): page 32 · columns 32 · section-sm 32 · section-md 96
+   · container 64 · nav 64 · card 32 · maxwidth 960
+   NOTE: --padding-nav deviates from the spec value of 64 to 112. The nav
+   has a 112px progressive blur stack hanging below the bar; with 64px
+   top padding the page title sits inside the strongest blur layers and
+   becomes unreadable. 112 clears the stack with breathing room. */
+@media (max-width: 991px) {
+  :root {
+    --padding-page:       2em;     /* 32px */
+    --padding-columns:    2em;     /* 32px */
+    --padding-section-sm: 2em;     /* 32px */
+    --padding-section-md: 6em;     /* 96px — bumped per May 2026 spec */
+    --padding-container:  4em;     /* 64px */
+    --padding-nav:        7em;     /* 112px — exceeds spec sm=64 to clear blur stack */
+    --padding-card:       2em;     /* 32px — bumped per May 2026 spec */
+    --container-maxwidth: 960px;
+    --sticky-offset:      10em;    /* 160px — slightly tighter at tablet */
+  }
+}
+
+/* Mobile-landscape canvas — 768 designs, applies at ≤767
+   Spec (xs column): page 24 · columns 24 · section-sm 24 · section-md 64
+   · container 24 · nav 24 · card 24 · maxwidth 736 */
+@media (max-width: 767px) {
+  :root {
+    --padding-page:       1.5em;   /* 24px */
+    --padding-columns:    1.5em;   /* 24px */
+    --padding-section-sm: 1.5em;   /* 24px */
+    --padding-section-md: 4em;     /* 64px */
+    --padding-container:  1.5em;   /* 24px */
+    --padding-nav:        1.5em;   /* 24px */
+    --padding-card:       1.5em;   /* 24px */
+    --container-maxwidth: 736px;
+  }
+}
+
+/* Mobile-portrait canvas — 428 designs, applies at ≤479
+   Spec (2xs column): identical to xs except maxwidth → 396 */
+@media (max-width: 479px) {
+  :root {
+    --padding-page:       1.5em;
+    --padding-columns:    1.5em;
+    --padding-section-sm: 1.5em;
+    --padding-section-md: 4em;
+    --padding-container:  1.5em;
+    --padding-nav:        1.5em;
+    --padding-card:       1.5em;
+    --container-maxwidth: 396px;
+  }
+}

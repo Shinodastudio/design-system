@@ -5,6 +5,7 @@
 export const NAV_ITEMS = [
   { label: 'Colour',     href: '/colour'     },
   { label: 'Type',       href: '/type'       },
+  { label: 'Icons',      href: '/icons'      },
   { label: 'Components', href: '/components' },
   { label: 'Structure',  href: '/structure'  },
   { label: 'Widths',     href: '/widths'     },

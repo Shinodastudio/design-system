@@ -124,22 +124,22 @@ export default function TypePage(): React.ReactElement {
           />
         </StickyCol>
         <div>
-          <Text variant="subheading-md" as="h2" className="type-section-heading">Headings</Text>
+          <Text variant="heading-md" as="h2" className="type-section-heading">Headings</Text>
           {HEADING_VARIANTS.map((v) => <TypeRow key={v} variant={v} />)}
 
-          <Text variant="subheading-md" as="h2" className="type-section-heading">Subheadings</Text>
+          <Text variant="heading-md" as="h2" className="type-section-heading">Subheadings</Text>
           {SUBHEADING_VARIANTS.map((v) => <TypeRow key={v} variant={v} />)}
 
-          <Text variant="subheading-md" as="h2" className="type-section-heading">Body</Text>
+          <Text variant="heading-md" as="h2" className="type-section-heading">Body</Text>
           {BODY_VARIANTS.map((v) => <TypeRow key={v} variant={v} />)}
 
-          <Text variant="subheading-md" as="h2" className="type-section-heading">Inline text styles</Text>
+          <Text variant="heading-md" as="h2" className="type-section-heading">Inline text styles</Text>
           <Text variant="body-sm" opacity={40} as="p" style={{ paddingBottom: 'var(--space-4)' }}>
             Single-class modifiers applied to runs of type. Combine with any variant.
           </Text>
           {TEXT_UTILITIES.map((u) => <UtilityRow key={u.className} utility={u} />)}
 
-          <Text variant="subheading-md" as="h2" className="type-section-heading">Text colour</Text>
+          <Text variant="heading-md" as="h2" className="type-section-heading">Text colour</Text>
           <Text variant="body-sm" opacity={40} as="p" style={{ paddingBottom: 'var(--space-4)' }}>
             Four semantic text-colour tokens. Use the token, never a raw hex.
           </Text>
@@ -158,7 +158,7 @@ export default function TypePage(): React.ReactElement {
             </div>
           ))}
 
-          <Text variant="subheading-md" as="h2" className="type-section-heading">Alignment</Text>
+          <Text variant="heading-md" as="h2" className="type-section-heading">Alignment</Text>
           <Text variant="body-sm" opacity={40} as="p" style={{ paddingBottom: 'var(--space-4)' }}>
             Three alignment utilities. Apply to a block-level element.
           </Text>
@@ -178,7 +178,7 @@ export default function TypePage(): React.ReactElement {
             </div>
           ))}
 
-          <Text variant="subheading-md" as="h2" className="type-section-heading">Rich text</Text>
+          <Text variant="heading-md" as="h2" className="type-section-heading">Rich text</Text>
           <Text variant="body-sm" opacity={40} as="p" style={{ paddingBottom: 'var(--space-4)' }}>
             Long-form flow — every HTML primitive styled to system. The <code>&lt;RichText&gt;</code> wrapper holds h1–h6, p, lists, blockquote, code, hr, and figure with caption.
           </Text>
@@ -204,7 +204,7 @@ export default function TypePage(): React.ReactElement {
             </RichText>
           </div>
 
-          <Text variant="subheading-md" as="h2" className="type-section-heading">Opacity scale</Text>
+          <Text variant="heading-md" as="h2" className="type-section-heading">Opacity scale</Text>
           <Text variant="body-sm" opacity={40} as="p" style={{ paddingBottom: 'var(--space-4)' }}>
             The only four content opacities permitted in the system.
           </Text>
