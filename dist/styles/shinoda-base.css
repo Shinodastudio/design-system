@@ -1,0 +1,2111 @@
+/**
+ * Shinoda Design System — Base Stylesheet v3
+ * Import AFTER shinoda-tokens.css
+ *
+ * v3 changes:
+ * - Cursor positioning fixed (left/top instead of calc transform)
+ * - Letter spacing eased +0.005em across all styles
+ * - Opacity only: 20%, 40%, 60%, 80% (content) + 5% (dividers)
+ * - Button: radius-sm, spring zoom ::before, cursor hides on hover
+ * - Link: left-to-right underline build, background fade, cursor hides on hover
+ * - Nav: fixed, progressive blur, constrained inner width
+ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  cursor: none;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-normal);
+  font-size: 1.5rem;
+  line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-n030);
+  color: var(--color-text-primary);
+  background-color: var(--color-fill-base);
+  min-height: 100dvh;
+}
+
+img, video, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; background: none; border: none; cursor: none; }
+
+::selection {
+  background-color: var(--color-text-primary);
+  color: var(--color-fill-base);
+}
+
+/* ─── TYPOGRAPHY — eased tracking ────────────────────────────────────── */
+
+.heading-xl  { font-size: 2.5rem;   font-weight: var(--fw-normal); line-height: var(--leading-heading); letter-spacing: var(--tracking-n040); }
+.heading-lg  { font-size: 2rem;     font-weight: var(--fw-normal); line-height: var(--leading-heading); letter-spacing: var(--tracking-n035); }
+.heading-md  { font-size: 1.5rem;   font-weight: var(--fw-normal); line-height: var(--leading-heading); letter-spacing: var(--tracking-n030); }
+.heading-sm  { font-size: 1.25rem;  font-weight: var(--fw-normal); line-height: var(--leading-heading); letter-spacing: var(--tracking-n025); }
+.heading-xs  { font-size: 1rem;     font-weight: var(--fw-normal); line-height: var(--leading-heading); letter-spacing: var(--tracking-n020); }
+.heading-2xs { font-size: 0.75rem;  font-weight: var(--fw-book);   line-height: var(--leading-heading); letter-spacing: var(--tracking-n015); }
+
+.subheading-lg { font-family: var(--font-serif); font-weight: var(--fw-book); font-size: 3rem;   line-height: var(--leading-heading); letter-spacing: var(--tracking-n040); }
+.subheading-md { font-family: var(--font-serif); font-weight: var(--fw-book); font-size: 2rem;   line-height: var(--leading-heading); letter-spacing: var(--tracking-n040); }
+.subheading-sm { font-family: var(--font-serif); font-weight: var(--fw-book); font-size: 1.5rem; line-height: var(--leading-heading); letter-spacing: var(--tracking-n040); }
+
+/* Responsive type — May 2026 spec.
+   Cutoffs: md (≥1440) · sm (≤1024) · xs (≤768) · 2xs (≤428).
+   Step-down boundary for size-change variants sits at the sm cutoff (≤1024). */
+@media (max-width: 1023px) {
+  .heading-xl    { font-size: 2.25rem; }   /* 36px (was 40) */
+  .subheading-lg { font-size: 2rem; }      /* 32px (was 48) */
+}
+@media (max-width: 991px) {
+  .subheading-md { font-size: 1.5rem; }
+  .subheading-sm { font-size: 1.375rem; }  /* 22px */
+}
+
+.body-xl  { font-size: 1.5rem;   font-weight: var(--fw-normal); line-height: var(--leading-body-xl); letter-spacing: var(--tracking-n025); }
+.body-lg  { font-size: 1.375rem; font-weight: var(--fw-normal); line-height: var(--leading-body-xl); letter-spacing: var(--tracking-n020); }
+.body-md  { font-size: 1.25rem;  font-weight: var(--fw-normal); line-height: var(--leading-body-md); letter-spacing: var(--tracking-n015); }
+.body-sm  { font-size: 1.125rem; font-weight: var(--fw-normal); line-height: var(--leading-body-md); letter-spacing: var(--tracking-n010); }
+.body-xs  { font-size: 1rem;     font-weight: var(--fw-normal); line-height: var(--leading-body-xs); letter-spacing: var(--tracking-n005); }
+.body-2xs { font-size: 0.875rem; font-weight: var(--fw-normal); line-height: var(--leading-body-xs); letter-spacing: var(--tracking-none); }
+
+/* ─── OPACITY — only these values, ever ──────────────────────────────── */
+.op-80 { opacity: var(--opacity-80); }
+.op-60 { opacity: var(--opacity-60); }
+.op-40 { opacity: var(--opacity-40); }
+.op-20 { opacity: var(--opacity-20); }
+
+/* ─── TEXT STYLE UTILITIES ──────────────────────────────────────────────
+   Both the short Shinoda form (.text-italic) and the Webflow canonical form
+   (.text-style-italic) are defined as aliases so the catalogue can label
+   classes using the Webflow vocabulary that designers see in Designer. */
+.text-italic,        .text-style-italic        { font-style: italic; }
+.text-strikethrough, .text-style-strikethrough { text-decoration: line-through; }
+.text-allcaps,       .text-style-allcaps       { text-transform: uppercase; letter-spacing: var(--tracking-wide); }
+.text-nowrap,        .text-style-nowrap        { white-space: nowrap; }
+.text-muted,         .text-style-muted         { opacity: var(--opacity-40); }
+.text-style-link     { text-decoration: underline; text-underline-offset: 0.25em; }
+
+.text-align-left   { text-align: left; }
+.text-align-center { text-align: center; }
+.text-align-right  { text-align: right; }
+
+.text-2lines, .text-3lines,
+.text-style-2lines, .text-style-3lines {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.text-2lines, .text-style-2lines { -webkit-line-clamp: 2; line-clamp: 2; }
+.text-3lines, .text-style-3lines { -webkit-line-clamp: 3; line-clamp: 3; }
+
+/* ─── ICON SIZES ─────────────────────────────────────────────────────── */
+.icon { display: inline-block; flex-shrink: 0; }
+.icon-2xs { width: var(--icon-2xs); height: var(--icon-2xs); }
+.icon-xs  { width: var(--icon-xs);  height: var(--icon-xs);  }
+.icon-sm  { width: var(--icon-sm);  height: var(--icon-sm);  }
+.icon-md  { width: var(--icon-md);  height: var(--icon-md);  }
+.icon-lg  { width: var(--icon-lg);  height: var(--icon-lg);  }
+.icon-xl  { width: var(--icon-xl);  height: var(--icon-xl);  }
+/* `icon-em` scales with the parent text — use inside Button/Link so the
+   glyph height matches the label cap height across every size variant. */
+.icon-em  { width: 1em; height: 1em; vertical-align: -0.125em; }
+
+/* ─── LAYOUT ─────────────────────────────────────────────────────────── */
+.page-wrapper {
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+/* main-wrapper consumes responsive --padding-page (4em → 2em → 1.5em) and
+   --padding-nav (8em → 4em → 1.5em). Both step down at Webflow breakpoints. */
+.main-wrapper {
+  flex: 1;
+  width: 100%;
+  max-width: var(--container-5xl);
+  margin-inline: auto;
+  padding-inline: var(--padding-page);
+  padding-top: var(--sticky-offset);
+  padding-bottom: var(--padding-section-lg);
+}
+.padding-global { padding-inline: var(--padding-page); }
+
+/* min-width: 0 on children prevents content from blowing past 1fr allocation. */
+.grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.grid-2col > * { min-width: 0; }
+/* Sticky left column — `top` must clear the nav bar + progressive blur stack
+   (see --sticky-offset in tokens). Previously used --space-6 (24px) which sat
+   inside the blur tail and ate the title under the blur. */
+.col-sticky { position: sticky; top: var(--sticky-offset); align-self: start; height: fit-content; }
+/* Collapse to single column at Webflow's mobile-landscape cutoff (767) to
+   match the design canvas — keeps two columns at tablet (1024 canvas, ≤991). */
+@media (max-width: 767px) {
+  .grid-2col { grid-template-columns: 1fr; }
+  .col-sticky { position: static; }
+}
+
+/* Dividers — horizontal only, 5% opacity */
+.divider { width: 100%; height: var(--border-sm); background-color: var(--color-text-primary); opacity: var(--opacity-divider); border: none; }
+
+/* ─── NAV — fixed, constrained inner, Webflow-parity sizing ──────────────
+   Inner padding uses responsive --padding-page (4em → 2em → 1.5em).
+   Vertical padding uses --space-5 (20px) → --space-4 (16px) on mobile.
+   At ≤991, the link strip becomes horizontally scrollable to handle 9 items.
+   At ≤767, the strip collapses behind a disclosure button (CSS-only, <details>). */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 999;
+  overflow: visible;
+}
+.nav-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  max-width: var(--container-5xl);
+  margin-inline: auto;
+  padding-block: var(--space-4);
+  padding-inline: var(--padding-page);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  background-color: color-mix(in srgb, var(--color-fill-base) 70%, transparent);
+  position: relative;
+  z-index: 1;
+}
+.nav-links {
+  display: flex;
+  flex: 1 0 0;
+  gap: var(--space-8);
+  list-style: none;
+  align-items: center;
+  min-width: 0;
+}
+
+/* Nav links — body-xs (0.875rem) text buttons, 80% opacity at rest.
+   ::before inset matches the global button spec (-0.1em on all sides). */
+.nav-link.btn,
+.nav-link {
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n015);
+  opacity: var(--opacity-80);
+}
+.nav-link::before {
+  inset: -0.1em;
+  border-radius: var(--radius-sm);
+}
+.nav-link:hover { opacity: 1; }
+.nav-link.is-active { opacity: 1; }
+
+/* Tablet (≤991): horizontal scroll strip so 9 links never wrap or break the bar. */
+@media (max-width: 991px) {
+  .nav-links {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-links > li { flex-shrink: 0; }
+}
+
+/* Mobile-landscape and below (≤767): hide the nav entirely.
+   Items are rendered by <Footer> instead — see Footer.tsx. */
+@media (max-width: 767px) {
+  .nav { display: none; }
+}
+
+/* ─── FOOTER — only visible ≤767, mirrors nav items as vertical list ── */
+.footer { display: none; }
+@media (max-width: 767px) {
+  .footer {
+    display: block;
+    width: 100%;
+    max-width: var(--container-5xl);
+    margin-inline: auto;
+    padding-block: var(--padding-section-md) var(--padding-section-sm);
+    padding-inline: var(--padding-page);
+  }
+  .footer-nav {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: 0;
+    margin: 0;
+  }
+  .footer-nav-link { display: inline-block; }
+  .footer-nav-link:hover { opacity: 1; }
+}
+
+/* ─── BUTTONS — no padding; bg inset 10% from text bounds (Figma spec) ─
+   The outer element is exactly the text's natural bounding box — no extra
+   space. The hover background (::before) is inset 10% / 10.07% so it sits
+   just inside the text, not outside it. This matches Figma 3904-2513 where
+   button-bg uses inset-[10%_10.07%] with no padding on the container. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--tracking-n030);
+  line-height: var(--leading-heading);
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: none;
+  position: relative;
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1), opacity 150ms ease;
+}
+/* Spring zoom background — extends 0.1em beyond the text footprint on all sides.
+   At rest: scale(0.8) compresses it back to approximately text-width (invisible).
+   On hover: springs to scale(1) — full text bounds + 0.1em padding on all sides.
+   The pre-hover state is imperceptible; the hover reveals the full pill. */
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: -0.1em;
+  background-color: var(--color-transparent-core);
+  border-radius: var(--radius-sm);
+  transform: scale(0.8);
+  opacity: 0;
+  transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 150ms ease;
+  pointer-events: none;
+}
+.btn:hover::before  { transform: scale(1);   opacity: 1; }
+.btn:active::before { transform: scale(0.95); opacity: 1; }
+.btn:active         { opacity: var(--opacity-80); }
+
+/* Icon buttons — square, no gap; restore small padding for visual balance */
+.btn-icon {
+  padding: 0;
+  gap: 0;
+  line-height: 1;
+}
+
+/* Button size variants — Webflow parity.
+   `.btn` base is 1.5rem (heading-md). Size modifiers override font-size only;
+   padding scales naturally via em. Letter-spacing follows the corresponding
+   heading scale so tracking eases at smaller sizes. */
+.btn-size-xs { font-size: 0.875rem; letter-spacing: var(--tracking-n015); }
+.btn-size-sm { font-size: 1rem;     letter-spacing: var(--tracking-n020); }
+.btn-size-md { font-size: 1.25rem;  letter-spacing: var(--tracking-n025); }
+.btn-size-lg { font-size: 1.5rem;   letter-spacing: var(--tracking-n030); }
+.btn-size-xl { font-size: 2rem;     letter-spacing: var(--tracking-n035); }
+.btn-size-2xl { font-size: 2.5rem;  letter-spacing: var(--tracking-n040); }
+
+/* ─── LINKS — May 2026 spec section 8 ────────────────────────────────────
+   Underline is ALWAYS present (this is the semantic distinction between a
+   link and a button). At rest the underline sits at 20% opacity; on hover
+   it transitions to full opacity alongside a subtle background fill.
+   Gravity-pulled on proximity, cursor hides on hover. */
+.link {
+  color: var(--color-text-primary);
+  cursor: none;
+  display: inline;
+  padding: 0.1em 0.15em;
+  border-radius: var(--radius-sm);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  /* Two stacked background-images at the underline position:
+     Layer 1 (top) — full opacity, starts at 0 width, wipes to 100% on hover.
+     Layer 2 (bottom) — 20% opacity base, always 100% wide. */
+  background-image:
+    linear-gradient(to right, currentColor, currentColor),
+    linear-gradient(to right,
+      color-mix(in srgb, currentColor 20%, transparent),
+      color-mix(in srgb, currentColor 20%, transparent)
+    );
+  background-size: 0% 1px, 100% 1px;
+  background-position: bottom 0.15em left, bottom 0.15em left;
+  background-repeat: no-repeat, no-repeat;
+  text-decoration: none;
+  background-color: transparent;
+  /* Gravity */
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+  transition:
+    background-size 280ms cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 200ms ease,
+    transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.link:hover {
+  background-size: 100% 1px, 100% 1px;
+  background-color: var(--color-transparent-core);
+}
+
+/* ─── CURSOR — single inverted dot, fixed positioning ────────────────── */
+.cursor {
+  position: fixed; left: 0; top: 0;
+  pointer-events: none; z-index: 9999;
+  border-radius: var(--radius-full);
+  transform: translate(-50%, -50%);
+  background: var(--color-text-primary);
+  mix-blend-mode: difference;
+  width: 1.25em; height: 1.25em;
+  transition: width 180ms cubic-bezier(0.34, 1.4, 0.64, 1),
+              height 180ms cubic-bezier(0.34, 1.4, 0.64, 1),
+              border-radius 180ms cubic-bezier(0.34, 1.4, 0.64, 1),
+              opacity 200ms ease;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.cursor-label {
+  font-family: var(--font-sans); font-size: 0.5rem;
+  font-weight: var(--fw-medium); letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--color-fill-base); white-space: nowrap;
+  opacity: 0; transition: opacity 100ms ease;
+  mix-blend-mode: difference; pointer-events: none;
+}
+/* Button hover — cursor morphs into the button's own footprint, then fades out.
+   The button's ::before bg takes over as the visible affordance.
+   JS measures the hovered element and writes --cursor-btn-w / --cursor-btn-h. */
+html.cursor--btn .cursor {
+  width: var(--cursor-btn-w, 4em);
+  height: var(--cursor-btn-h, 1.5em);
+  border-radius: var(--radius-sm);
+  opacity: 0;
+}
+/* Text — I-beam */
+html.cursor--text .cursor { width: 2px; height: 1.5em; border-radius: 1px; }
+/* Image / expand chip */
+html.cursor--chip .cursor { min-width: 3.5em; width: auto; height: 1.75em; border-radius: var(--radius-full); padding: 0 0.5em; }
+html.cursor--chip .cursor-label { opacity: 1; }
+/* Press — scale down */
+html.cursor--active .cursor { transform: translate(-50%,-50%) scale(0.8); }
+/* Focus — hide cursor while typing */
+html.cursor--focused .cursor { opacity: 0; }
+.cursor.is-hidden { opacity: 0; }
+
+/* ─── COPY VALUE ─────────────────────────────────────────────────────── */
+.copy-value {
+  display: inline-flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: none;
+  font: inherit;
+  color: inherit;
+  transition: opacity 150ms ease;
+}
+.copy-value:hover { opacity: var(--opacity-60); }
+.copy-value.is-copied { opacity: 1; }
+.copy-feedback {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: var(--tracking-n015);
+  opacity: var(--opacity-60);
+}
+
+/* ─── CONTAINERS ─────────────────────────────────────────────────────── */
+.container-sm  { max-width: var(--container-sm);  margin-inline: auto; }
+.container-md  { max-width: var(--container-md);  margin-inline: auto; }
+.container-lg  { max-width: var(--container-lg);  margin-inline: auto; }
+.container-xl  { max-width: var(--container-xl);  margin-inline: auto; }
+.container-5xl { max-width: var(--container-5xl); margin-inline: auto; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+.flex { display: flex; } .flex-col { flex-direction: column; }
+.items-center { align-items: center; } .justify-between { justify-content: space-between; }
+.gap-2 { gap: var(--space-2); } .gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); } .gap-6 { gap: var(--space-6); }
+.w-full { width: 100%; } .min-h-screen { min-height: 100dvh; }
+
+/* ─── OVERFLOW + POINTER-EVENTS ──────────────────────────────────────── */
+.overflow-visible { overflow: visible; }
+.overflow-hidden  { overflow: hidden; }
+.overflow-auto    { overflow: auto; }
+.overflow-scroll  { overflow: scroll; }
+
+.pointer-events-auto { pointer-events: auto; }
+.pointer-events-none { pointer-events: none; }
+
+/* ─── Z-INDEX ────────────────────────────────────────────────────────── */
+.z-1 { z-index: 1; }
+.z-2 { z-index: 2; }
+
+/* ─── ASPECT RATIO ───────────────────────────────────────────────────── */
+.aspect-1-1   { aspect-ratio: 1 / 1; }
+.aspect-2-3   { aspect-ratio: 2 / 3; }
+.aspect-3-2   { aspect-ratio: 3 / 2; }
+.aspect-16-9  { aspect-ratio: 16 / 9; }
+
+/* ─── BUTTON ROW ─────────────────────────────────────────────────────── */
+.button-row { display: inline-flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+
+/* ─── SECTION TILE — homepage card ───────────────────────────────────────
+   Card chrome: hairline border at 5% opacity, radius-sm, padding-card.
+   Hover overlay uses --color-transparent-core (20% alpha) as :hover fallback
+   for the Figma proximity reveal — flagged in SectionTile.tsx per spec. */
+.section-tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-card);
+  padding: var(--padding-card);
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  color: inherit;
+  text-decoration: none;
+  cursor: none;
+  position: relative;
+  overflow: hidden;
+}
+/* Hover-only affordance — 20% transparent-core overlay. No border at rest
+   (the 5% opacity tier is reserved for horizontal dividers per system rule). */
+.section-tile::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--color-transparent-core);
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+.section-tile:hover::before { opacity: 1; }
+.section-tile > * { position: relative; z-index: 1; }
+
+.section-tile-image {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  background-color: var(--color-fill-secondary);
+  border-radius: var(--radius-xs);
+}
+[data-theme="dark"] .section-tile-image { background-color: var(--color-transparent-weak); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .section-tile-image {
+    background-color: var(--color-transparent-weak);
+  }
+}
+
+.section-tile-body { display: flex; flex-direction: column; gap: var(--space-2); }
+.section-tile-title { margin: 0; }
+.section-tile-desc  { margin: 0; }
+
+/* ─── ICON CATALOG — hover-swap glyph for name ───────────────────────── */
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 1px;
+  background-color: var(--color-transparent-weak);
+  margin-top: var(--space-4);
+}
+.icon-grid-cell {
+  background-color: var(--color-fill-base);
+  padding: var(--space-5) var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 84px;
+  position: relative;
+  text-align: center;
+}
+.icon-grid-glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 150ms ease;
+}
+.icon-grid-name {
+  position: absolute;
+  inset: var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 150ms ease;
+  hyphens: auto;
+  word-break: break-word;
+  line-height: 1.15;
+  pointer-events: none;
+}
+.icon-grid-cell:hover .icon-grid-glyph { opacity: 0; }
+.icon-grid-cell:hover .icon-grid-name  { opacity: var(--opacity-40); }
+
+/* ─── COMPONENT PREVIEWER — chip dropdowns + forced-state frame ────────
+   Each component page uses ONE previewer in the right column. Two chips
+   (state + size) toggle a single live preview. The `data-state` attribute
+   on `.preview-frame` triggers state-specific overrides that mirror the
+   real :hover / :active treatments so screenshots match runtime. */
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding-block: var(--space-4);
+}
+.preview-chips {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+/* ─── Preview chips — Figma 3904-6580 spec ───────────────────────────
+   Padding: pl-6px pr-4px py-4px. Radius: radius-xs (4px), not a pill.
+   Background: 10% opacity tint of --chip-color via ::before pseudo-element.
+   No border. Orange (--accent-orange) when value ≠ default. */
+.preview-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-1) var(--space-1) var(--space-1) 6px;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  font-size: 0.875rem;
+  font-family: var(--font-sans);
+  letter-spacing: var(--tracking-n010);
+  cursor: none;
+  --chip-color: var(--color-text-tertiary);
+}
+/* 10% opacity tinted background — matches Figma's absolute button-bg element */
+.preview-chip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--chip-color);
+  border-radius: var(--radius-xs);
+  opacity: 0.1;
+  pointer-events: none;
+}
+/* Orange state: chip value differs from its default */
+.preview-chip--active {
+  --chip-color: var(--accent-orange);
+}
+/* Inner label + select wrapper */
+.preview-chip-inner {
+  display: inline-flex;
+  align-items: center;
+  cursor: none;
+}
+.preview-chip-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  font: inherit;
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n010);
+  color: var(--chip-color);
+  cursor: none;
+  outline: none;
+  position: relative;
+  z-index: 1;
+}
+/* ▾ chevron — shown when value = default */
+.preview-chip-chevron {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-right: var(--border-sm) solid var(--chip-color);
+  border-bottom: var(--border-sm) solid var(--chip-color);
+  transform: rotate(45deg) translateY(-1px);
+  flex-shrink: 0;
+  opacity: var(--opacity-60);
+  position: relative;
+  z-index: 1;
+}
+/* × dismiss — shown when value ≠ default */
+.preview-chip-dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+  line-height: 1;
+  color: var(--chip-color);
+  cursor: none;
+  position: relative;
+  z-index: 1;
+}
+.preview-frame {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 8em;
+  padding: var(--padding-card);
+  border: var(--border-sm) solid var(--color-transparent-weak);
+  border-radius: var(--radius-sm);
+}
+
+/* ── Forced-state visual overrides ────────────────────────────────────
+   These match the real :hover / :active rules so the live preview reads
+   identically to a runtime interaction. Shared between .preview-frame
+   (ComponentPreviewer) and .component-card-preview (ComponentSection).
+   Keep in sync with .btn, .link, .input. */
+.preview-frame[data-state="hover"] .btn::before,
+.component-card-preview[data-state="hover"] .btn::before {
+  transform: scale(1);
+  opacity: 1;
+}
+.preview-frame[data-state="active"] .btn::before,
+.component-card-preview[data-state="active"] .btn::before {
+  transform: scale(0.95);
+  opacity: 1;
+}
+.preview-frame[data-state="active"] .btn,
+.component-card-preview[data-state="active"] .btn {
+  opacity: var(--opacity-80);
+}
+.preview-frame[data-state="hover"] .link,
+.component-card-preview[data-state="hover"] .link {
+  background-size: 100% 1px, 100% 1px;
+  background-color: var(--color-transparent-core);
+}
+.preview-frame[data-state="hover"] .input,
+.preview-frame[data-state="hover"] .textarea,
+.preview-frame[data-state="hover"] .select-native,
+.component-card-preview[data-state="hover"] .input,
+.component-card-preview[data-state="hover"] .textarea,
+.component-card-preview[data-state="hover"] .select-native {
+  border-bottom-color: var(--color-text-tertiary);
+}
+.preview-frame[data-state="focus"] .input,
+.preview-frame[data-state="focus"] .textarea,
+.preview-frame[data-state="focus"] .select-native,
+.component-card-preview[data-state="focus"] .input,
+.component-card-preview[data-state="focus"] .textarea,
+.component-card-preview[data-state="focus"] .select-native {
+  border-bottom-color: var(--color-text-primary);
+}
+
+/* ─── COMPONENT SECTION — Figma 3907-10352 ───────────────────────────────
+   One named variant row: title + chips → description → preview card.
+   Multiple sections stack vertically in the right column of a component page. */
+.component-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-card);
+  padding-bottom: var(--padding-section-sm);
+}
+.component-section-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.component-section-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.component-section-chips {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* ── Section chip — size selector (always) and state selector / badge ── */
+.section-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-1) var(--space-1) var(--space-1) 6px;
+  border-radius: var(--radius-xs);
+  background-color: color-mix(in srgb, var(--color-text-tertiary) 10%, transparent);
+  color: var(--color-text-tertiary);
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n005);
+  cursor: none;
+  border: none;
+  font-family: inherit;
+}
+/* Orange accent — non-default state chip */
+.section-chip--active {
+  background-color: color-mix(in srgb, var(--accent-orange) 10%, transparent);
+  color: var(--accent-orange);
+}
+.section-chip-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  font: inherit;
+  color: inherit;
+  cursor: none;
+  outline: none;
+  padding: 0;
+  max-width: 12em;
+}
+.section-chip-chevron {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-right: var(--border-sm) solid currentColor;
+  border-bottom: var(--border-sm) solid currentColor;
+  transform: translateY(-25%) rotate(45deg);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+/* × close mark — CSS-only, no SVG import needed */
+.section-chip-close {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  position: relative;
+  flex-shrink: 0;
+}
+.section-chip-close::before,
+.section-chip-close::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+}
+.section-chip-close::before { transform: translateY(-50%) rotate(45deg); }
+.section-chip-close::after  { transform: translateY(-50%) rotate(-45deg); }
+
+/* ── Component preview card ─────────────────────────────────────────── */
+.component-card {
+  background-color: var(--color-fill-primary);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.component-card-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 8em;
+  padding: var(--padding-card);
+}
+/* Code snippet — monospace, 40% opacity, sits below the preview inside the card */
+.component-card-code {
+  display: block;
+  padding: var(--space-2);
+  opacity: var(--opacity-40);
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-none);
+  white-space: pre;
+  overflow-x: auto;
+  line-height: 1.4;
+}
+
+/* ─── LINK PAGE — 50/50 variant grid ─────────────────────────────────── */
+.link-variant-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+}
+@media (max-width: 767px) {
+  .link-variant-grid { grid-template-columns: 1fr; }
+}
+/* Force the hover preview demo to render in its hovered visual state. */
+.is-hover-preview {
+  background-size: 100% 1px, 100% 1px !important;
+  background-color: var(--color-transparent-core) !important;
+}
+
+/* ─── UTILITY PAGE — class + live demo row ───────────────────────────── */
+.utility-row {
+  display: grid;
+  grid-template-columns: minmax(0, 280px) 1fr;
+  gap: var(--space-6);
+  align-items: center;
+  padding-block: var(--space-4);
+}
+.utility-row-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+.utility-row-demo {
+  display: flex;
+  align-items: center;
+  min-height: 2em;
+  overflow: hidden;
+}
+@media (max-width: 479px) {
+  .utility-row { grid-template-columns: 1fr; }
+}
+
+/* ─── COMPONENTS INDEX — link row ────────────────────────────────────── */
+.components-index-row {
+  display: block;
+  padding-block: var(--space-6);
+  text-decoration: none;
+  color: inherit;
+  cursor: none;
+  transition: opacity 200ms ease;
+}
+.components-index-row:hover { opacity: var(--opacity-80); }
+
+/* ─── TYPE PAGE — specimen rows ──────────────────────────────────────── */
+.type-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-6);
+  align-items: baseline;
+  padding-block: var(--space-6);
+}
+.type-row-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  text-align: right;
+}
+.type-section-heading {
+  padding-block: var(--space-12) var(--space-4);
+}
+.type-section-heading:first-child { padding-top: 0; }
+
+/* ─── COLOUR PAGE — swatch card + metadata row ───────────────────────── */
+.colour-group-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  /* Figma 3907-10702: py-section-sm (64px) top; bottom feeds into group-list gap */
+  padding-block: var(--padding-section-sm) var(--space-8);
+}
+.colour-group-list { display: flex; flex-direction: column; gap: var(--space-4); padding-bottom: var(--padding-section-sm); }
+
+/* Row: equal-width swatch + meta side by side, vertically centred */
+.colour-row {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+}
+@media (max-width: 479px) {
+  .colour-row { flex-direction: column; }
+}
+
+/* Swatch chip — fixed 128px height, flex-1 to match meta width */
+.colour-swatch {
+  position: relative;
+  flex: 1 0 0;
+  height: 8rem;
+  border-radius: var(--radius-sm);
+  border: var(--border-sm) solid var(--color-outline);
+  overflow: hidden;
+  background-color: var(--color-fill-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: var(--space-1);
+}
+/* Text token swatches show the specimen only — no fill background */
+.colour-swatch[data-kind="text"] { background-color: transparent; }
+
+.colour-swatch-fill { position: absolute; inset: 0; }
+
+/* "Aa" specimen — top-left, heading-xl size, fills available height */
+.colour-swatch-aa {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  padding: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: 2.5rem;
+  letter-spacing: var(--tracking-n040);
+  line-height: 1;
+}
+
+/* Copyable CSS-var label — bottom of chip, interactive (Figma 3904-6412) */
+.colour-swatch-code {
+  position: absolute;
+  bottom: var(--space-1);
+  left: var(--space-1);
+  right: var(--space-1);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border-radius: var(--radius-xs);
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  letter-spacing: var(--tracking-none);
+  color: var(--color-text-primary);
+  opacity: var(--opacity-40);
+  background-color: transparent;
+  transition: opacity 150ms ease, background-color 150ms ease;
+  z-index: 1;
+  overflow: hidden;
+}
+.colour-swatch-code:hover,
+.colour-swatch-code.is-copied {
+  opacity: 1;
+  background-color: var(--color-fill-secondary);
+}
+.colour-swatch-code-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  mix-blend-mode: difference;
+}
+.colour-swatch-code-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+.colour-swatch-code:hover .colour-swatch-code-icon,
+.colour-swatch-code.is-copied .colour-swatch-code-icon {
+  opacity: 1;
+}
+
+/* Meta column — flex-1, bottom-aligned to mirror swatch height */
+.colour-row-meta {
+  flex: 1 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  height: 8rem;
+  justify-content: flex-end;
+}
+.colour-row-heading {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+/* Hex badge — tertiary text on a subtle background pill */
+.colour-row-hex {
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-none);
+  padding: 0.15em 0.4em;
+  background: var(--color-transparent-weak);
+  border-radius: var(--radius-xs);
+  color: var(--color-text-tertiary);
+}
+
+/* ─── FULL-WIDTH CATALOGUE PAGES ─────────────────────────────────────────
+   Widths, paddings, margins, grids, utility — content spans both columns.
+   The intro mirrors the 50% left-column width; content flows below full-width. */
+.page-wide-intro {
+  max-width: 50%;
+  padding-block-end: var(--padding-section-sm);
+}
+@media (max-width: 767px) {
+  .page-wide-intro { max-width: 100%; }
+}
+
+/* Section header within full-width pages */
+.page-wide-section {
+  padding-block-start: var(--padding-section-sm);
+}
+.page-wide-section + .page-wide-section {
+  padding-block-start: var(--padding-section-sm);
+}
+
+/* Width/breakpoint bar — a 2D box delineating a pixel value ─────────────
+   Width is set inline (= the actual token value). Label beside it. */
+.width-bar-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding-block: var(--space-4);
+}
+.width-bar {
+  height: 40px;
+  flex-shrink: 1;
+  background-color: var(--color-fill-secondary);
+  border: var(--border-sm) solid var(--color-outline);
+  border-radius: var(--radius-xs);
+}
+.width-bar-label {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+/* ─── CATALOGUE INTRO — left-column header block (Figma 3907-10330) ─────
+   Flex row: [icon-only back btn] [title + description col].
+   items-start ensures both start at the same y, aligning the title top
+   with the first row of right-column content. */
+.catalogue-intro-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+/* Icon-only back button — square, heading-md size (24px) */
+.catalogue-intro-back {
+  flex-shrink: 0;
+  opacity: var(--opacity-40);
+  transition: opacity 150ms ease;
+}
+.catalogue-intro-back:hover { opacity: 1; }
+/* Title + description stacked */
+.catalogue-intro-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/* ─── HOMEPAGE — header + tile grid ──────────────────────────────────── */
+.home-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-bottom: var(--padding-section-md);
+}
+/* `ds-heading` — primary system label per Webflow class inventory.
+   Renders heading-xl size at full opacity, fw-normal. */
+.ds-heading { font-weight: var(--fw-normal); }
+
+.home-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--padding-columns);
+  padding-bottom: var(--padding-section-lg);
+}
+@media (max-width: 767px) {
+  .home-tiles { grid-template-columns: 1fr; }
+}
+
+/* ─── RESPONSIVE VISIBILITY ──────────────────────────────────────────── */
+.hide { display: none !important; }
+@media (max-width: 991px) { .hide-tablet           { display: none !important; } }
+@media (max-width: 767px) { .hide-mobile-landscape { display: none !important; } }
+@media (max-width: 479px) { .hide-mobile-portrait  { display: none !important; } }
+
+/* ─── FORM CONTROLS — May 2026 spec sections 12, 13, 14 ─────────────────
+   Input: underline-only style. No outer box. Single 1px rule along the
+   bottom edge sitting at --color-outline. On focus the underline lifts
+   to full primary text colour (100% currentColor) — mirrors the Link
+   hover pattern (20% rest → 100% on engagement). No orange accent.
+   Caret tracks the same primary text colour. */
+.input, .textarea, .select-native {
+  display: block;
+  width: 100%;
+  font: inherit;
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n015);
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  border-bottom: var(--border-sm) solid var(--color-outline);
+  border-radius: 0;
+  padding: var(--space-3) 0;
+  outline: none;
+  cursor: none;
+  caret-color: var(--color-text-primary);
+  transition: border-color 200ms ease;
+}
+.input::placeholder, .textarea::placeholder { color: var(--color-text-tertiary); }
+.input:hover, .textarea:hover, .select-native:hover {
+  border-bottom-color: var(--color-text-tertiary);
+}
+.input:focus, .input:focus-visible,
+.textarea:focus, .textarea:focus-visible,
+.select-native:focus, .select-native:focus-visible {
+  border-bottom-color: var(--color-text-primary);
+}
+.textarea { min-height: 6em; resize: vertical; line-height: var(--leading-body-md); }
+
+.input-label {
+  display: block;
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n010);
+  opacity: var(--opacity-60);
+  margin-bottom: var(--space-2);
+}
+.input-help {
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n005);
+  opacity: var(--opacity-40);
+  margin-top: var(--space-2);
+}
+.input-error {
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n005);
+  color: var(--color-status-error);
+  margin-top: var(--space-2);
+}
+.input.is-error, .textarea.is-error, .select-native.is-error {
+  border-bottom-color: var(--color-status-error);
+  color: var(--color-status-error);
+}
+
+/* Select wrapper — adds chevron. Underline-only field, chevron flush right. */
+.select {
+  position: relative;
+  display: block;
+}
+.select-native {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: var(--space-8);
+}
+.select::after {
+  content: '';
+  position: absolute;
+  right: var(--space-2);
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: var(--border-md) solid var(--color-text-primary);
+  border-bottom: var(--border-md) solid var(--color-text-primary);
+  transform: translateY(-75%) rotate(45deg);
+  pointer-events: none;
+  opacity: var(--opacity-60);
+}
+
+/* Checkbox + radio — May 2026 spec section 13.
+   Webflow MCP source-of-truth styling could not be programmatically pulled
+   via REST data tools (Designer-only). Current treatment is a best-effort
+   match to the Shinoda system: 1rem control, 1px outline at rest, filled
+   on check. Reconcile against Webflow Designer when access becomes available. */
+.checkbox, .radio {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border: var(--border-sm) solid var(--color-outline);
+  background: transparent;
+  cursor: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0.15em;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+.checkbox { border-radius: var(--radius-xs); }
+.radio    { border-radius: var(--radius-full); }
+.checkbox:hover, .radio:hover { border-color: var(--color-text-tertiary); }
+.checkbox:checked, .radio:checked {
+  background: var(--color-text-primary);
+  border-color: var(--color-text-primary);
+}
+.checkbox:checked::after {
+  content: '';
+  width: 0.4em;
+  height: 0.65em;
+  border-right: 2px solid var(--color-fill-base);
+  border-bottom: 2px solid var(--color-fill-base);
+  transform: rotate(45deg) translate(-1px, -1px);
+}
+.radio:checked::after {
+  content: '';
+  width: 0.45em;
+  height: 0.45em;
+  background: var(--color-fill-base);
+  border-radius: var(--radius-full);
+}
+
+.choice {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  cursor: none;
+  padding-block: var(--space-2);
+  position: relative;
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.choice::before {
+  content: '';
+  position: absolute;
+  inset: -0.1em;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-transparent-core);
+  transform: scale(0.8);
+  opacity: 0;
+  transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 150ms ease;
+  pointer-events: none;
+}
+.choice:hover::before { transform: scale(1); opacity: 1; }
+.choice-label {
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n010);
+}
+
+/* ─── TABS ───────────────────────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: 100%;
+}
+.tabs-list {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  border-bottom: var(--border-sm) solid var(--color-transparent-weak);
+  width: 100%;
+  position: relative;
+}
+.tabs-trigger {
+  padding: var(--space-3) var(--space-4);
+  font: inherit;
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n020);
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  cursor: none;
+  position: relative;
+  opacity: var(--opacity-40);
+  transition: opacity 200ms ease;
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+}
+.tabs-trigger::before {
+  content: '';
+  position: absolute;
+  inset: -0.1em;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-transparent-core);
+  transform: scale(0.8);
+  opacity: 0;
+  transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 150ms ease;
+  pointer-events: none;
+}
+.tabs-trigger:hover::before { transform: scale(1); opacity: 1; }
+.tabs-trigger:hover { opacity: var(--opacity-80); }
+.tabs-trigger[data-active="true"] { opacity: 1; }
+
+/* Shared indicator — JS measures the active trigger and translates the bar
+   to match. Width and translateX come from inline styles set in TabsList. */
+.tabs-indicator {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  height: var(--border-md);
+  background: var(--color-text-primary);
+  pointer-events: none;
+  transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1),
+              width 280ms cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 200ms ease;
+}
+/* Avoid a flash at origin (0,0) on first paint — fade in only once measured. */
+.tabs-indicator[data-ready="false"] { opacity: 0; }
+
+.tabs-panel {
+  padding-block: var(--space-4);
+  animation: tabs-panel-enter 220ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+@keyframes tabs-panel-enter {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tabs-indicator { transition: none; }
+  .tabs-panel { animation: none; }
+}
+
+/* ─── RICH TEXT BLOCK ────────────────────────────────────────────────── */
+.rich-text { font-size: 1.25rem; line-height: var(--leading-body-md); letter-spacing: var(--tracking-n015); }
+
+/* Rich text size variants — Webflow parity.
+   Variants override base font-size; child elements (p, h1–h6, li) inherit
+   via em so the entire flow scales proportionally. */
+.rich-text-sm { font-size: 1rem;     letter-spacing: var(--tracking-n010); }
+.rich-text-md { font-size: 1.25rem;  letter-spacing: var(--tracking-n015); }
+.rich-text-lg { font-size: 1.5rem;   letter-spacing: var(--tracking-n020); }
+.rich-text > * + * { margin-top: var(--space-4); }
+.rich-text h1, .rich-text h2, .rich-text h3, .rich-text h4, .rich-text h5, .rich-text h6 {
+  line-height: var(--leading-heading);
+  font-weight: var(--fw-normal);
+}
+.rich-text > h1 + *, .rich-text > h2 + *, .rich-text > h3 + *,
+.rich-text > h4 + *, .rich-text > h5 + *, .rich-text > h6 + * {
+  margin-top: var(--space-4);
+}
+.rich-text > * + h1, .rich-text > * + h2, .rich-text > * + h3,
+.rich-text > * + h4, .rich-text > * + h5, .rich-text > * + h6 {
+  margin-top: var(--space-10);
+}
+.rich-text h1 { font-size: 2.5rem;  letter-spacing: var(--tracking-n040); }
+.rich-text h2 { font-size: 2rem;    letter-spacing: var(--tracking-n035); }
+.rich-text h3 { font-size: 1.5rem;  letter-spacing: var(--tracking-n030); }
+.rich-text h4 { font-size: 1.25rem; letter-spacing: var(--tracking-n025); }
+.rich-text h5 { font-size: 1rem;    letter-spacing: var(--tracking-n020); }
+.rich-text h6 { font-size: 0.875rem; letter-spacing: var(--tracking-n015); opacity: var(--opacity-60); text-transform: uppercase; }
+.rich-text p { line-height: var(--leading-body-md); }
+.rich-text strong { font-weight: var(--fw-medium); }
+.rich-text em { font-style: italic; }
+.rich-text a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 20%, transparent);
+  text-underline-offset: 0.25em;
+  transition: text-decoration-color 200ms ease;
+}
+.rich-text a:hover { text-decoration-color: currentColor; }
+.rich-text ul, .rich-text ol { padding-left: var(--space-6); }
+.rich-text ul { list-style: disc; }
+.rich-text ol { list-style: decimal; }
+.rich-text li { margin-top: var(--space-2); line-height: var(--leading-body-md); }
+.rich-text li::marker { color: var(--color-text-tertiary); }
+.rich-text blockquote {
+  padding-left: var(--space-4);
+  border-left: var(--border-md) solid var(--color-text-primary);
+  font-style: italic;
+}
+.rich-text code {
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-size: 0.9em;
+  padding: 0.1em 0.3em;
+  background: var(--color-transparent-weak);
+  border-radius: var(--radius-xs);
+}
+.rich-text pre {
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-size: 0.9em;
+  padding: var(--space-4);
+  background: var(--color-fill-primary);
+  border: var(--border-sm) solid var(--color-outline);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+}
+.rich-text pre code { background: transparent; padding: 0; }
+.rich-text hr { border: none; height: 1px; background: var(--color-text-primary); opacity: var(--opacity-divider); margin-block: var(--space-8); }
+/* Images embedded in a rich-text flow — 16px corner radius per May 2026 spec.
+   Use <figure><img/><figcaption/></figure> for captioned images. */
+.rich-text figure { margin-block: var(--space-6); }
+.rich-text img    { width: 100%; height: auto; border-radius: var(--radius-lg); display: block; }
+.rich-text figcaption {
+  margin-top: var(--space-3);
+  font-size: 1.125rem;
+  letter-spacing: var(--tracking-n010);
+  line-height: var(--leading-body-md);
+  opacity: var(--opacity-40);
+}
+/* Placeholder block used when no real image is provided — keeps documentation
+   functional without committing a binary asset to the repo. */
+.rich-text-image-placeholder {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-lg);
+  background: var(--color-fill-secondary);
+}
+
+/* ─── BADGE ──────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-sans);
+  font-weight: var(--fw-book);
+  border-radius: var(--radius-xs);
+  white-space: nowrap;
+  background-color: var(--color-transparent-weak);
+  color: var(--color-text-primary);
+}
+.badge-sm { font-size: 0.75rem;  letter-spacing: var(--tracking-n010); padding: 0.1em 0.4em; }
+.badge-md { font-size: 0.875rem; letter-spacing: var(--tracking-n010); padding: 0.2em 0.5em; }
+.badge-default  { background-color: var(--color-transparent-weak); color: var(--color-text-primary); }
+.badge-success  { background-color: color-mix(in srgb, var(--color-status-success) 15%, transparent); color: var(--color-status-success); }
+.badge-warning  { background-color: color-mix(in srgb, var(--color-status-warning) 15%, transparent); color: var(--color-status-warning); }
+.badge-error    { background-color: color-mix(in srgb, var(--color-status-error) 15%, transparent);   color: var(--color-status-error); }
+.badge-info     { background-color: color-mix(in srgb, var(--color-status-info) 15%, transparent);    color: var(--color-status-info); }
+
+/* ─── ALERT ──────────────────────────────────────────────────────────────── */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-left: 3px solid var(--color-text-primary);
+  background-color: var(--color-fill-primary);
+  width: 100%;
+}
+.alert-default { border-left-color: var(--color-text-primary); }
+.alert-success { border-left-color: var(--color-status-success); }
+.alert-warning { border-left-color: var(--color-status-warning); }
+.alert-error   { border-left-color: var(--color-status-error); }
+.alert-info    { border-left-color: var(--color-status-info); }
+.alert-body { flex: 1; display: flex; flex-direction: column; gap: var(--space-1); }
+.alert-title { font-size: 1rem; letter-spacing: var(--tracking-n015); font-weight: var(--fw-medium); }
+.alert-content { font-size: 1rem; letter-spacing: var(--tracking-n010); opacity: var(--opacity-80); }
+.alert-dismiss { opacity: var(--opacity-40); flex-shrink: 0; transition: opacity 150ms ease; }
+.alert-dismiss:hover { opacity: 1; }
+
+/* ─── PROGRESS ───────────────────────────────────────────────────────────── */
+.progress { display: flex; flex-direction: column; gap: var(--space-2); width: 100%; }
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n010);
+  opacity: var(--opacity-60);
+}
+.progress-value { font-variant-numeric: tabular-nums; }
+.progress-track {
+  width: 100%;
+  background-color: var(--color-transparent-weak);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.progress-sm .progress-track { height: 4px; }
+.progress-md .progress-track { height: 8px; }
+.progress-fill {
+  height: 100%;
+  background-color: var(--color-text-primary);
+  opacity: var(--opacity-80);
+  border-radius: var(--radius-full);
+  transition: width 300ms ease;
+}
+
+/* ─── SKELETON ───────────────────────────────────────────────────────────── */
+.skeleton {
+  display: block;
+  width: 100%;
+  height: 1em;
+  border-radius: var(--radius-xs);
+  background-color: var(--color-text-primary);
+  animation: skeleton-pulse 1.6s ease-in-out infinite;
+}
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: var(--opacity-20); }
+  50%       { opacity: var(--opacity-40); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; opacity: var(--opacity-20); }
+}
+
+/* ─── TOOLTIP ────────────────────────────────────────────────────────────── */
+.tooltip-root { position: relative; display: inline-flex; }
+.tooltip-content {
+  position: absolute;
+  z-index: 1000;
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--color-fill-secondary);
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n010);
+  border-radius: var(--radius-xs);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 150ms ease;
+  max-width: 280px;
+  white-space: normal;
+  word-break: break-word;
+}
+.tooltip-hidden { opacity: 0; pointer-events: none; }
+
+/* ─── DIALOG ─────────────────────────────────────────────────────────────── */
+.dialog {
+  padding: 0;
+  border: none;
+  background: transparent;
+  max-width: 90vw;
+  width: 480px;
+}
+.dialog::backdrop {
+  background-color: var(--color-fill-base);
+  opacity: var(--opacity-60);
+}
+.dialog-content {
+  background-color: var(--color-fill-base);
+  border: var(--border-sm) solid var(--color-transparent-weak);
+  border-radius: var(--radius-sm);
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  position: relative;
+}
+.dialog-header { display: flex; flex-direction: column; gap: var(--space-2); }
+.dialog-title { font-size: 1.5rem; letter-spacing: var(--tracking-n030); line-height: var(--leading-heading); }
+.dialog-description { font-size: 1rem; letter-spacing: var(--tracking-n015); opacity: var(--opacity-60); }
+.dialog-footer { display: flex; gap: var(--space-3); justify-content: flex-end; flex-wrap: wrap; }
+.dialog-close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  opacity: var(--opacity-40);
+  transition: opacity 150ms ease;
+}
+.dialog-close:hover { opacity: 1; }
+
+/* ─── SHEET ──────────────────────────────────────────────────────────────── */
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: var(--color-fill-base);
+  opacity: 0;
+  z-index: 998;
+  transition: opacity 250ms ease;
+  pointer-events: none;
+}
+.sheet-overlay-open {
+  opacity: var(--opacity-60);
+  pointer-events: auto;
+}
+.sheet-content {
+  position: fixed;
+  z-index: 999;
+  background-color: var(--color-fill-base);
+  border: var(--border-sm) solid var(--color-transparent-weak);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-8);
+  transition: transform 250ms ease;
+}
+.sheet-content-right {
+  top: 0; right: 0; bottom: 0;
+  width: min(480px, 90vw);
+  transform: translateX(100%);
+}
+.sheet-content-left {
+  top: 0; left: 0; bottom: 0;
+  width: min(480px, 90vw);
+  transform: translateX(-100%);
+}
+.sheet-content-bottom {
+  left: 0; right: 0; bottom: 0;
+  height: min(60vh, 480px);
+  transform: translateY(100%);
+}
+.sheet-content-open { transform: none; }
+.sheet-close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  opacity: var(--opacity-40);
+  transition: opacity 150ms ease;
+}
+.sheet-close:hover { opacity: 1; }
+.sheet-header { display: flex; flex-direction: column; gap: var(--space-2); }
+.sheet-title { font-size: 1.5rem; letter-spacing: var(--tracking-n030); line-height: var(--leading-heading); }
+.sheet-footer { display: flex; gap: var(--space-3); justify-content: flex-end; flex-wrap: wrap; margin-top: auto; }
+
+/* ─── POPOVER ────────────────────────────────────────────────────────────── */
+.popover-content {
+  position: absolute;
+  z-index: 997;
+  background-color: var(--color-fill-base);
+  border: var(--border-sm) solid var(--color-transparent-weak);
+  border-radius: var(--radius-sm);
+  padding: var(--space-4);
+  min-width: 200px;
+  opacity: 1;
+  transition: opacity 150ms ease;
+}
+.popover-hidden { opacity: 0; pointer-events: none; }
+
+/* ─── DROPDOWN MENU ──────────────────────────────────────────────────────── */
+.dropdown-content {
+  position: absolute;
+  z-index: 997;
+  background-color: var(--color-fill-base);
+  border: var(--border-sm) solid var(--color-transparent-weak);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) 0;
+  min-width: 160px;
+  opacity: 1;
+  transition: opacity 150ms ease;
+}
+.dropdown-hidden { opacity: 0; pointer-events: none; }
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-4);
+  font: inherit;
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n015);
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: none;
+  transition: background-color 100ms ease;
+}
+.dropdown-item:hover { background-color: var(--color-transparent-weak); }
+.dropdown-item-disabled { opacity: var(--opacity-40); }
+.dropdown-separator {
+  height: var(--border-sm);
+  background-color: var(--color-text-primary);
+  opacity: var(--opacity-divider);
+  margin: var(--space-1) 0;
+}
+.dropdown-label {
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.75rem;
+  letter-spacing: var(--tracking-n010);
+  opacity: var(--opacity-40);
+  text-transform: uppercase;
+}
+
+/* ─── SWITCH ─────────────────────────────────────────────────────────────── */
+.switch-root {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 2.5rem;
+  height: 1.375rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-fill-secondary);
+  border: none;
+  padding: 0;
+  cursor: none;
+  flex-shrink: 0;
+  transition: background-color 200ms ease;
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+}
+.switch::before {
+  content: '';
+  position: absolute;
+  inset: -0.1em;
+  border-radius: var(--radius-full);
+  background-color: var(--color-transparent-core);
+  transform: scale(0.8);
+  opacity: 0;
+  transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 150ms ease;
+  pointer-events: none;
+}
+.switch:hover::before { transform: scale(1); opacity: 1; }
+.switch-on { background-color: var(--color-text-primary); }
+.switch-disabled { opacity: var(--opacity-40); }
+.switch-thumb {
+  display: block;
+  width: 1rem;
+  height: 1rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-fill-base);
+  position: absolute;
+  left: var(--space-1);
+  transform: translateX(0);
+  transition: transform 200ms cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.switch-on .switch-thumb { transform: translateX(calc(2.5rem - 1rem - var(--space-1) * 2)); }
+.switch-label { font-size: 1rem; letter-spacing: var(--tracking-n015); cursor: none; }
+
+/* ─── ACCORDION ──────────────────────────────────────────────────────────── */
+.accordion { display: flex; flex-direction: column; width: 100%; }
+.accordion-item {
+  border-bottom: var(--border-sm) solid color-mix(in srgb, var(--color-text-primary) 5%, transparent);
+}
+.accordion-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-4) 0;
+  font: inherit;
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n015);
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: none;
+  gap: var(--space-4);
+  position: relative;
+}
+.accordion-trigger::before {
+  content: '';
+  position: absolute;
+  inset: -0.1em;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-transparent-core);
+  transform: scale(0.8);
+  opacity: 0;
+  transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 150ms ease;
+  pointer-events: none;
+}
+.accordion-trigger:hover::before { transform: scale(1); opacity: 1; }
+.accordion-trigger:hover { opacity: 1; }
+.accordion-trigger-text { flex: 1; }
+.accordion-chevron {
+  flex-shrink: 0;
+  transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.accordion-chevron-open { transform: rotate(180deg); }
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.accordion-content-open { max-height: 600px; }
+.accordion-content-inner { padding-bottom: var(--space-4); font-size: 1rem; letter-spacing: var(--tracking-n010); opacity: var(--opacity-80); }
+@media (prefers-reduced-motion: reduce) {
+  .accordion-content { transition: none; }
+  .accordion-chevron { transition: none; }
+}
+
+/* ─── COMMAND ────────────────────────────────────────────────────────────── */
+.command {
+  display: flex;
+  flex-direction: column;
+  border: var(--border-sm) solid var(--color-transparent-weak);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-fill-base);
+  overflow: hidden;
+}
+.command-input-wrap {
+  border-bottom: var(--border-sm) solid var(--color-transparent-weak);
+  padding: var(--space-3) var(--space-4);
+}
+.command-input {
+  display: block;
+  width: 100%;
+  font: inherit;
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n015);
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  outline: none;
+  caret-color: var(--color-text-primary);
+}
+.command-input::placeholder { color: var(--color-text-tertiary); }
+.command-list { max-height: 320px; overflow-y: auto; padding: var(--space-1) 0; }
+.command-empty { padding: var(--space-4); font-size: 0.875rem; letter-spacing: var(--tracking-n010); opacity: var(--opacity-40); text-align: center; }
+.command-group { padding: var(--space-1) 0; }
+.command-group-label {
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.75rem;
+  letter-spacing: var(--tracking-n010);
+  opacity: var(--opacity-40);
+  text-transform: uppercase;
+}
+.command-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: var(--space-2) var(--space-4);
+  font: inherit;
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n015);
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: none;
+  transition: background-color 100ms ease;
+}
+.command-item:hover,
+.command-item:focus { background-color: var(--color-transparent-weak); outline: none; }
+.command-item-disabled { opacity: var(--opacity-40); }
+.command-separator {
+  height: var(--border-sm);
+  background-color: var(--color-text-primary);
+  opacity: var(--opacity-divider);
+  margin: var(--space-1) 0;
+}
+
+/* ─── TABLE ──────────────────────────────────────────────────────────────── */
+.table-wrapper { width: 100%; overflow-x: auto; }
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n010);
+}
+.table-sticky-header .table-header th { position: sticky; top: 0; z-index: 1; background-color: var(--color-fill-base); }
+.table-head {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-weight: var(--fw-normal);
+  opacity: var(--opacity-40);
+  border-bottom: var(--border-sm) solid color-mix(in srgb, var(--color-text-primary) 5%, transparent);
+  white-space: nowrap;
+}
+.table-cell {
+  padding: var(--space-3) var(--space-4);
+  vertical-align: middle;
+}
+.table-row + .table-row .table-cell,
+.table-row + .table-row .table-head {
+  border-top: var(--border-sm) solid color-mix(in srgb, var(--color-text-primary) 5%, transparent);
+}
+.table-caption {
+  caption-side: bottom;
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n010);
+  opacity: var(--opacity-40);
+  text-align: left;
+}
+.table-footer .table-cell {
+  border-top: var(--border-sm) solid color-mix(in srgb, var(--color-text-primary) 5%, transparent);
+  font-weight: var(--fw-medium);
+}
+
+/* ─── EDITABLE TABLE ─────────────────────────────────────────────────────── */
+.editable-cell-clickable { cursor: none; }
+.editable-cell-clickable:hover { background-color: var(--color-transparent-weak); }
+.editable-cell-active { padding: 0; }
+.editable-cell-input {
+  display: block;
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  font: inherit;
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n010);
+  color: var(--color-text-primary);
+  background: var(--color-fill-primary);
+  border: none;
+  outline: none;
+  caret-color: var(--color-text-primary);
+}
+select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor: none; }
+
+/* ─── CALENDAR ───────────────────────────────────────────────────────────── */
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 280px;
+  background-color: var(--color-fill-base);
+  border: var(--border-sm) solid var(--color-transparent-weak);
+  border-radius: var(--radius-sm);
+  padding: var(--space-4);
+}
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.calendar-nav-btn {
+  opacity: var(--opacity-40);
+  padding: var(--space-1);
+  transition: opacity 150ms ease;
+}
+.calendar-nav-btn:hover { opacity: 1; }
+.calendar-month-label { font-size: 1rem; letter-spacing: var(--tracking-n015); }
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.calendar-day-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-1);
+  font-size: 0.75rem;
+  letter-spacing: var(--tracking-n010);
+  opacity: var(--opacity-40);
+}
+.calendar-day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1;
+  font: inherit;
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n010);
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-xs);
+  cursor: none;
+  transition: background-color 100ms ease;
+}
+.calendar-day:hover:not(.calendar-day-disabled):not(.calendar-day-outside) {
+  background-color: var(--color-transparent-weak);
+}
+.calendar-day-today {
+  font-weight: var(--fw-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+.calendar-day-selected {
+  background-color: var(--color-text-primary);
+  color: var(--color-fill-base);
+}
+.calendar-day-selected:hover { background-color: var(--color-text-primary); }
+.calendar-day-outside { opacity: var(--opacity-20); }
+.calendar-day-disabled { opacity: var(--opacity-20); }
+
+/* ─── DATE INPUT ─────────────────────────────────────────────────────────── */
+.date-input { position: relative; width: 100%; }
+.date-input-popover {
+  position: absolute;
+  z-index: 997;
+}
+
+/* ─── SEARCH DROPDOWN ────────────────────────────────────────────────────── */
+.search-dropdown { position: relative; width: 100%; }
+.search-dropdown-list {
+  position: absolute;
+  z-index: 997;
+  background-color: var(--color-fill-base);
+  border: var(--border-sm) solid var(--color-transparent-weak);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) 0;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.search-dropdown-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  font: inherit;
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n015);
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: none;
+  transition: background-color 100ms ease;
+}
+.search-dropdown-item:hover,
+.search-dropdown-item:focus { background-color: var(--color-transparent-weak); outline: none; }
+.search-dropdown-item-selected { background-color: var(--color-transparent-weak); }
+.search-dropdown-item-label { font-size: 1rem; }
+.search-dropdown-item-description { font-size: 0.875rem; letter-spacing: var(--tracking-n010); opacity: var(--opacity-60); }
+.search-dropdown-empty {
+  padding: var(--space-4);
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n010);
+  opacity: var(--opacity-40);
+  text-align: center;
+}
+
+/* ─── FLOATING ACTION BAR ────────────────────────────────────────────────── */
+.fab {
+  position: fixed;
+  bottom: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 990;
+  animation: fab-enter 220ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+@keyframes fab-enter {
+  from { opacity: 0; transform: translateX(-50%) translateY(16px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.fab-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-5);
+  background-color: var(--color-fill-secondary);
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
+  border: var(--border-sm) solid var(--color-transparent-weak);
+  border-radius: var(--radius-sm);
+}
+.fab-count {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n010);
+  opacity: var(--opacity-60);
+  white-space: nowrap;
+}
+.fab-clear { opacity: var(--opacity-40); transition: opacity 150ms ease; }
+.fab-clear:hover { opacity: 1; }
+.fab-actions { display: flex; align-items: center; gap: var(--space-2); }
+.fab-action { font-size: 0.875rem; letter-spacing: var(--tracking-n010); }
+.fab-action-destructive { color: var(--color-status-error); }
+.fab-action-icon { display: flex; align-items: center; }
+@media (prefers-reduced-motion: reduce) {
+  .fab { animation: none; }
+}
+
+/* ─── CONTENT CARD ───────────────────────────────────────────────────────── */
+.content-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background-color: var(--color-fill-primary);
+  border-radius: var(--radius-sm);
+  border: var(--border-sm) solid var(--color-transparent-weak);
+  transition: background-color 150ms ease;
+}
+.content-card-interactive { cursor: none; }
+.content-card-interactive:hover { background-color: color-mix(in srgb, var(--color-transparent-weak) 100%, var(--color-fill-primary) 0%); }
+.content-card-body { display: flex; flex-direction: column; gap: var(--space-2); flex: 1; }
+.content-card-title { font-size: 1rem; letter-spacing: var(--tracking-n015); font-weight: var(--fw-medium); }
+.content-card-description { font-size: 0.875rem; letter-spacing: var(--tracking-n010); opacity: var(--opacity-60); }
+.content-card-content { font-size: 1rem; letter-spacing: var(--tracking-n010); }
+.content-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding-top: var(--space-3);
+  border-top: var(--border-sm) solid color-mix(in srgb, var(--color-text-primary) 5%, transparent);
+}
+.content-card-metadata { font-size: 0.875rem; letter-spacing: var(--tracking-n010); opacity: var(--opacity-40); }
+
+/* ─── DOWNLOAD TILE ──────────────────────────────────────────────────────── */
+.download-tile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background-color: var(--color-fill-primary);
+  border-radius: var(--radius-sm);
+  border: var(--border-sm) solid var(--color-transparent-weak);
+}
+.download-tile-icon { opacity: var(--opacity-40); flex-shrink: 0; }
+.download-tile-body { flex: 1; display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.download-tile-filename { font-size: 1rem; letter-spacing: var(--tracking-n015); font-weight: var(--fw-medium); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.download-tile-meta { display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: center; }
+.download-tile-type {
+  font-size: 0.75rem;
+  letter-spacing: var(--tracking-n010);
+  padding: 0.1em 0.4em;
+  background-color: var(--color-transparent-weak);
+  border-radius: var(--radius-xs);
+  text-transform: uppercase;
+}
+.download-tile-size { font-size: 0.875rem; letter-spacing: var(--tracking-n010); opacity: var(--opacity-40); }
+.download-tile-description { font-size: 0.875rem; letter-spacing: var(--tracking-n010); opacity: var(--opacity-60); }
+.download-tile-action { flex-shrink: 0; }
+
+/* ─── MAP ─────────────────────────────────────────────────────────────────── */
+.map-container { width: 100%; height: 400px; border-radius: var(--radius-sm); overflow: hidden; }
+.map-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  width: 100%;
+  height: 400px;
+  background-color: var(--color-fill-primary);
+  border: var(--border-sm) solid var(--color-transparent-weak);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n010);
+  opacity: var(--opacity-60);
+  text-align: center;
+  padding: var(--space-6);
+}
+.map-placeholder code {
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-size: 0.875rem;
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--color-transparent-weak);
+  border-radius: var(--radius-xs);
+}
