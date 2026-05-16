@@ -10,15 +10,24 @@ import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 import { Icon } from '@/components/icons';
 
 const SIZE_LABELS: Record<ButtonSize, string> = {
-  xs:    'xs · 14px',
-  sm:    'sm · 16px',
-  md:    'md · 20px',
-  lg:    'lg · 24px',
-  xl:    'xl · 32px',
-  '2xl': '2xl · 40px',
+  'heading-xl':    'heading-xl · 40px',
+  'heading-lg':    'heading-lg · 32px',
+  'heading-md':    'heading-md · 24px',
+  'heading-sm':    'heading-sm · 20px',
+  'heading-xs':    'heading-xs · 16px',
+  'heading-2xs':   'heading-2xs · 14px',
+  'subheading-lg': 'subheading-lg · 48px',
+  'subheading-md': 'subheading-md · 32px',
+  'subheading-sm': 'subheading-sm · 24px',
+  'body-xl':       'body-xl · 24px',
+  'body-lg':       'body-lg · 22px',
+  'body-md':       'body-md · 20px',
+  'body-sm':       'body-sm · 18px',
+  'body-xs':       'body-xs · 16px',
+  'body-2xs':      'body-2xs · 14px',
 };
 
-const BUTTON_STATES = ['default', 'hover', 'active', 'disabled'] as const;
+const BUTTON_STATES = ['default', 'hover', 'active', 'focus', 'disabled'] as const;
 
 export default function ButtonPage(): React.ReactElement {
   return (
@@ -35,9 +44,9 @@ export default function ButtonPage(): React.ReactElement {
           <ComponentSection
             name="Text Button"
             description="Transparent at rest — 20% overlay fill reveals on hover via ::before scale-up."
-            code={`<Button size="lg">Label</Button>`}
+            code={`<Button size="heading-md">Label</Button>`}
             sizes={BUTTON_SIZES}
-            defaultSize="lg"
+            defaultSize="heading-md"
             sizeLabel={(s): string => SIZE_LABELS[s]}
             states={BUTTON_STATES}
             render={({ state, size }): React.ReactNode => (
@@ -56,7 +65,7 @@ export default function ButtonPage(): React.ReactElement {
             description="Icon uses size='em' — scales with the button's font size across all tiers."
             code={`<Button>\n  <Icon name="ArrowRight" size="em" />\n  Continue\n</Button>`}
             sizes={BUTTON_SIZES}
-            defaultSize="lg"
+            defaultSize="heading-md"
             sizeLabel={(s): string => SIZE_LABELS[s]}
             states={['default', 'hover']}
             render={({ size }): React.ReactNode => (
@@ -72,7 +81,7 @@ export default function ButtonPage(): React.ReactElement {
             description="Same em-sized glyph placed after the label — direction signals forward navigation."
             code={`<Button>\n  Continue\n  <Icon name="ArrowRight" size="em" />\n</Button>`}
             sizes={BUTTON_SIZES}
-            defaultSize="lg"
+            defaultSize="heading-md"
             sizeLabel={(s): string => SIZE_LABELS[s]}
             states={['default', 'hover']}
             render={({ size }): React.ReactNode => (
@@ -88,7 +97,7 @@ export default function ButtonPage(): React.ReactElement {
             description="Pass asChild to render as an anchor while keeping all button styles and gravity."
             code={`<Button asChild>\n  <a href="/path">Navigate</a>\n</Button>`}
             sizes={BUTTON_SIZES}
-            defaultSize="lg"
+            defaultSize="heading-md"
             sizeLabel={(s): string => SIZE_LABELS[s]}
             states={['default', 'hover']}
             render={({ size }): React.ReactNode => (
@@ -103,7 +112,7 @@ export default function ButtonPage(): React.ReactElement {
             description="No label — icon footprint only. Use for toolbars and compact UI."
             code={`<Button className="btn-icon" size={size}>\n  <Icon name="ArrowRight" size="em" />\n</Button>`}
             sizes={BUTTON_SIZES}
-            defaultSize="lg"
+            defaultSize="heading-md"
             sizeLabel={(s): string => SIZE_LABELS[s]}
             states={['default', 'hover']}
             render={({ size }): React.ReactNode => (

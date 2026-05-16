@@ -45,7 +45,7 @@ export function CatalogueIntro({
   return (
     <div className="catalogue-intro">
       <div className="catalogue-intro-header">
-        <Button asChild size="lg" className="btn-icon catalogue-intro-back" aria-label="Back">
+        <Button asChild size="heading-md" className="btn-icon catalogue-intro-back" aria-label="Back">
           <NextLink href={parent}>
             <Icon name="CaretLeft" size="em" />
           </NextLink>

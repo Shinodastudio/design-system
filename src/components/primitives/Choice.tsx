@@ -44,7 +44,7 @@ export function Choice({ children, className }: ChoiceProps): React.ReactElement
   useGravity(ref as React.RefObject<HTMLElement | null>);
 
   return (
-    <label ref={ref} className={cn('choice', className)}>
+    <label ref={ref} className={cn('choice', className)} data-cursor="btn">
       {children}
     </label>
   );

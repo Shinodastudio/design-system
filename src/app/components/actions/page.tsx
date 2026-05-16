@@ -47,10 +47,10 @@ export default function ActionsPage(): React.ReactElement {
             render={(): React.ReactNode => (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', width: '100%' }}>
                 <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                  <Button size="sm" onClick={() => setSelected(prev => Math.max(0, prev - 1))}>
+                  <Button size="heading-xs" onClick={() => setSelected(prev => Math.max(0, prev - 1))}>
                     −
                   </Button>
-                  <Button size="sm" onClick={() => setSelected(prev => prev + 1)}>
+                  <Button size="heading-xs" onClick={() => setSelected(prev => prev + 1)}>
                     +
                   </Button>
                   <span className="body-sm op-60" style={{ alignSelf: 'center', marginLeft: 'var(--space-2)' }}>
@@ -75,10 +75,10 @@ export default function ActionsPage(): React.ReactElement {
             render={(): React.ReactNode => (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', width: '100%' }}>
                 <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                  <Button size="sm" onClick={() => setSelectedDestructive(prev => Math.max(0, prev - 1))}>
+                  <Button size="heading-xs" onClick={() => setSelectedDestructive(prev => Math.max(0, prev - 1))}>
                     −
                   </Button>
-                  <Button size="sm" onClick={() => setSelectedDestructive(prev => prev + 1)}>
+                  <Button size="heading-xs" onClick={() => setSelectedDestructive(prev => prev + 1)}>
                     +
                   </Button>
                   <span className="body-sm op-60" style={{ alignSelf: 'center', marginLeft: 'var(--space-2)' }}>

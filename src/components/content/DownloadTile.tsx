@@ -49,7 +49,7 @@ export function DownloadTile({
         {isDownloading ? (
           <Skeleton width={80} height={28} />
         ) : (
-          <Button size="sm" onClick={onDownload} aria-label={`Download ${filename}`}>
+          <Button size="heading-xs" onClick={onDownload} aria-label={`Download ${filename}`}>
             Download
           </Button>
         )}

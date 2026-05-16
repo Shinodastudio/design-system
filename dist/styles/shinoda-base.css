@@ -140,7 +140,7 @@ button { font: inherit; background: none; border: none; cursor: none; }
 /* Sticky left column — `top` must clear the nav bar + progressive blur stack
    (see --sticky-offset in tokens). Previously used --space-6 (24px) which sat
    inside the blur tail and ate the title under the blur. */
-.col-sticky { position: sticky; top: var(--sticky-offset); align-self: start; height: fit-content; }
+.col-sticky { position: sticky; top: var(--sticky-offset); align-self: start; height: fit-content; padding-right: var(--space-6); }
 /* Collapse to single column at Webflow's mobile-landscape cutoff (767) to
    match the design canvas — keeps two columns at tablet (1024 canvas, ≤991). */
 @media (max-width: 767px) {
@@ -148,7 +148,7 @@ button { font: inherit; background: none; border: none; cursor: none; }
   .col-sticky { position: static; }
 }
 
-/* Dividers — horizontal only, 5% opacity */
+/* Dividers — horizontal only, 10% opacity (token --opacity-divider) */
 .divider { width: 100%; height: var(--border-sm); background-color: var(--color-text-primary); opacity: var(--opacity-divider); border: none; }
 
 /* ─── NAV — fixed, constrained inner, Webflow-parity sizing ──────────────
@@ -193,8 +193,11 @@ button { font: inherit; background: none; border: none; cursor: none; }
   letter-spacing: var(--tracking-n015);
   opacity: var(--opacity-80);
 }
+/* Nav buttons get a more generous click footprint — the global -0.1em felt
+   undersized in the nav strip. -0.5em horizontal, -0.3em vertical reads
+   as a comfortable padded chip on hover. */
 .nav-link::before {
-  inset: -0.1em;
+  inset: -0.3em -0.5em;
   border-radius: var(--radius-sm);
 }
 .nav-link:hover { opacity: 1; }
@@ -293,16 +296,40 @@ button { font: inherit; background: none; border: none; cursor: none; }
   line-height: 1;
 }
 
-/* Button size variants — Webflow parity.
-   `.btn` base is 1.5rem (heading-md). Size modifiers override font-size only;
-   padding scales naturally via em. Letter-spacing follows the corresponding
-   heading scale so tracking eases at smaller sizes. */
-.btn-size-xs { font-size: 0.875rem; letter-spacing: var(--tracking-n015); }
-.btn-size-sm { font-size: 1rem;     letter-spacing: var(--tracking-n020); }
-.btn-size-md { font-size: 1.25rem;  letter-spacing: var(--tracking-n025); }
-.btn-size-lg { font-size: 1.5rem;   letter-spacing: var(--tracking-n030); }
-.btn-size-xl { font-size: 2rem;     letter-spacing: var(--tracking-n035); }
-.btn-size-2xl { font-size: 2.5rem;  letter-spacing: var(--tracking-n040); }
+/* Button size variants — Figma parity (May 2026).
+   Sizes map 1:1 to the type scale: 6 headings, 3 subheadings, 6 body sizes.
+   Subheadings use the serif (GT Super Text) at fw-book; body and heading use
+   the sans (GT America) at fw-normal. Padding scales naturally via em. */
+.btn-size-heading-xl  { font-size: 2.5rem;   letter-spacing: var(--tracking-n040); line-height: var(--leading-heading); }
+.btn-size-heading-lg  { font-size: 2rem;     letter-spacing: var(--tracking-n035); line-height: var(--leading-heading); }
+.btn-size-heading-md  { font-size: 1.5rem;   letter-spacing: var(--tracking-n030); line-height: var(--leading-heading); }
+.btn-size-heading-sm  { font-size: 1.25rem;  letter-spacing: var(--tracking-n025); line-height: var(--leading-heading); }
+.btn-size-heading-xs  { font-size: 1rem;     letter-spacing: var(--tracking-n020); line-height: var(--leading-heading); }
+.btn-size-heading-2xs { font-size: 0.875rem; letter-spacing: var(--tracking-n015); line-height: var(--leading-heading); }
+
+.btn-size-subheading-lg { font-size: 3rem;   letter-spacing: var(--tracking-n040); line-height: var(--leading-heading); font-family: var(--font-serif); font-weight: var(--fw-book); }
+.btn-size-subheading-md { font-size: 2rem;   letter-spacing: var(--tracking-n040); line-height: var(--leading-heading); font-family: var(--font-serif); font-weight: var(--fw-book); }
+.btn-size-subheading-sm { font-size: 1.5rem; letter-spacing: var(--tracking-n040); line-height: var(--leading-heading); font-family: var(--font-serif); font-weight: var(--fw-book); }
+
+.btn-size-body-xl  { font-size: 1.5rem;    letter-spacing: var(--tracking-n025); line-height: var(--leading-body-xl); }
+.btn-size-body-lg  { font-size: 1.375rem;  letter-spacing: var(--tracking-n020); line-height: var(--leading-body-xl); }
+.btn-size-body-md  { font-size: 1.25rem;   letter-spacing: var(--tracking-n015); line-height: var(--leading-body-md); }
+.btn-size-body-sm  { font-size: 1.125rem;  letter-spacing: var(--tracking-n010); line-height: var(--leading-body-md); }
+.btn-size-body-xs  { font-size: 1rem;      letter-spacing: var(--tracking-n005); line-height: var(--leading-body-xs); }
+.btn-size-body-2xs { font-size: 0.875rem;  letter-spacing: var(--tracking-none); line-height: var(--leading-body-xs); }
+
+/* Focus ring — visible only via keyboard navigation. Outline sits 4px
+   outside the button footprint so it doesn't fight the spring-zoom bg. */
+.btn:focus-visible {
+  outline: var(--border-md) solid var(--color-text-primary);
+  outline-offset: var(--space-1);
+  border-radius: var(--radius-sm);
+}
+/* Icons inside buttons and links never receive pointer events themselves —
+   ensures the cursor's btn-context detection (which walks closest()) always
+   resolves to the button/link, hiding the cursor on icon-only buttons too. */
+.btn > svg, .btn > * > svg,
+.link > svg, .link > * > svg { pointer-events: none; }
 
 /* ─── LINKS — May 2026 spec section 8 ────────────────────────────────────
    Underline is ALWAYS present (this is the semantic distinction between a
@@ -326,7 +353,7 @@ button { font: inherit; background: none; border: none; cursor: none; }
       color-mix(in srgb, currentColor 20%, transparent),
       color-mix(in srgb, currentColor 20%, transparent)
     );
-  background-size: 0% 1px, 100% 1px;
+  background-size: 0% 2px, 100% 2px;
   background-position: bottom 0.15em left, bottom 0.15em left;
   background-repeat: no-repeat, no-repeat;
   text-decoration: none;
@@ -340,9 +367,16 @@ button { font: inherit; background: none; border: none; cursor: none; }
     transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .link:hover {
-  background-size: 100% 1px, 100% 1px;
+  background-size: 100% 2px, 100% 2px;
   background-color: var(--color-transparent-core);
 }
+.link[aria-disabled="true"],
+.link.is-disabled {
+  opacity: var(--opacity-40);
+  pointer-events: none;
+}
+/* Active state — slight opacity drop on press, mirroring buttons */
+.link:active { opacity: var(--opacity-80); }
 
 /* ─── CURSOR — single inverted dot, fixed positioning ────────────────── */
 .cursor {
@@ -350,7 +384,11 @@ button { font: inherit; background: none; border: none; cursor: none; }
   pointer-events: none; z-index: 9999;
   border-radius: var(--radius-full);
   transform: translate(-50%, -50%);
-  background: var(--color-text-primary);
+  /* Pure white + difference blend — matches Webflow convention.
+     With mix-blend-mode: difference the visible result EQUALS the
+     primary text colour in both light and dark mode (perception of
+     "same color as primary text"), AND inverts text underneath. */
+  background: var(--color-core-contrast);
   mix-blend-mode: difference;
   width: 1.25em; height: 1.25em;
   transition: width 180ms cubic-bezier(0.34, 1.4, 0.64, 1),
@@ -1098,7 +1136,7 @@ html.cursor--focused .cursor { opacity: 0; }
   color: var(--color-text-primary);
   background: transparent;
   border: none;
-  border-bottom: var(--border-sm) solid var(--color-outline);
+  border-bottom: var(--border-md) solid var(--color-outline);
   border-radius: 0;
   padding: var(--space-3) 0;
   outline: none;
@@ -1170,19 +1208,22 @@ html.cursor--focused .cursor { opacity: 0; }
    via REST data tools (Designer-only). Current treatment is a best-effort
    match to the Shinoda system: 1rem control, 1px outline at rest, filled
    on check. Reconcile against Webflow Designer when access becomes available. */
+/* Checkbox + radio — outer always square via aspect-ratio + box-sizing, inner
+   dot/tick uses % of parent so the shape stays uniform regardless of font-size
+   context. Grid centring removes the padding-tweak guesswork that left the
+   radio dot oblong. cursor: none on the input AND wrapping .choice. */
 .checkbox, .radio {
   appearance: none;
   -webkit-appearance: none;
   width: 1rem;
-  height: 1rem;
+  aspect-ratio: 1;
+  box-sizing: border-box;
   border: var(--border-sm) solid var(--color-outline);
   background: transparent;
   cursor: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
-  padding: 0.15em;
   transition: border-color 150ms ease, background-color 150ms ease;
 }
 .checkbox { border-radius: var(--radius-xs); }
@@ -1194,16 +1235,16 @@ html.cursor--focused .cursor { opacity: 0; }
 }
 .checkbox:checked::after {
   content: '';
-  width: 0.4em;
-  height: 0.65em;
+  width: 40%;
+  height: 65%;
   border-right: 2px solid var(--color-fill-base);
   border-bottom: 2px solid var(--color-fill-base);
   transform: rotate(45deg) translate(-1px, -1px);
 }
 .radio:checked::after {
   content: '';
-  width: 0.45em;
-  height: 0.45em;
+  width: 45%;
+  aspect-ratio: 1;
   background: var(--color-fill-base);
   border-radius: var(--radius-full);
 }
@@ -1397,24 +1438,33 @@ html.cursor--focused .cursor { opacity: 0; }
   background: var(--color-fill-secondary);
 }
 
-/* ─── BADGE ──────────────────────────────────────────────────────────────── */
+/* ─── BADGE — Figma May 2026 spec (node 3904:6580) ───────────────────────────
+   Single canonical size: body-2xs (14px), fw-normal, --radius-sm background
+   with 10% accent tint. Asymmetric padding leaves room for an optional icon
+   in the right slot (4px right, 6px left). Hover drops to 40% opacity. */
 .badge {
   display: inline-flex;
   align-items: center;
+  gap: 2px;
   font-family: var(--font-sans);
-  font-weight: var(--fw-book);
-  border-radius: var(--radius-xs);
+  font-size: 0.875rem;
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--tracking-n005);
+  line-height: var(--leading-body-xs);
+  /* Figma asymmetric padding — pl 6px, pr 4px, py 4px */
+  padding: 4px 4px 4px 6px;
+  border-radius: var(--radius-sm);
   white-space: nowrap;
-  background-color: var(--color-transparent-weak);
-  color: var(--color-text-primary);
+  transition: opacity 150ms ease;
 }
-.badge-sm { font-size: 0.75rem;  letter-spacing: var(--tracking-n010); padding: 0.1em 0.4em; }
-.badge-md { font-size: 0.875rem; letter-spacing: var(--tracking-n010); padding: 0.2em 0.5em; }
-.badge-default  { background-color: var(--color-transparent-weak); color: var(--color-text-primary); }
-.badge-success  { background-color: color-mix(in srgb, var(--color-status-success) 15%, transparent); color: var(--color-status-success); }
-.badge-warning  { background-color: color-mix(in srgb, var(--color-status-warning) 15%, transparent); color: var(--color-status-warning); }
-.badge-error    { background-color: color-mix(in srgb, var(--color-status-error) 15%, transparent);   color: var(--color-status-error); }
-.badge-info     { background-color: color-mix(in srgb, var(--color-status-info) 15%, transparent);    color: var(--color-status-info); }
+.badge:hover { opacity: var(--opacity-40); }
+
+.badge-neutral { background-color: color-mix(in srgb, var(--color-text-tertiary) 10%, transparent); color: var(--color-text-tertiary); }
+.badge-red     { background-color: color-mix(in srgb, var(--accent-red)    10%, transparent); color: var(--accent-red); }
+.badge-orange  { background-color: color-mix(in srgb, var(--accent-orange) 10%, transparent); color: var(--accent-orange); }
+.badge-yellow  { background-color: color-mix(in srgb, var(--accent-yellow) 10%, transparent); color: var(--accent-yellow); }
+.badge-green   { background-color: color-mix(in srgb, var(--accent-green)  10%, transparent); color: var(--accent-green); }
+.badge-blue    { background-color: color-mix(in srgb, var(--accent-blue)   10%, transparent); color: var(--accent-blue); }
 
 /* ─── ALERT ──────────────────────────────────────────────────────────────── */
 .alert {
@@ -1425,6 +1475,14 @@ html.cursor--focused .cursor { opacity: 0; }
   border-left: 3px solid var(--color-text-primary);
   background-color: var(--color-fill-primary);
   width: 100%;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+.alert-visible { opacity: 1; transform: none; }
+.alert-exiting { opacity: 0; transform: translateY(-4px); transition: opacity 150ms ease, transform 150ms ease; }
+@media (prefers-reduced-motion: reduce) {
+  .alert, .alert-visible, .alert-exiting { transition: none; transform: none; }
 }
 .alert-default { border-left-color: var(--color-text-primary); }
 .alert-success { border-left-color: var(--color-status-success); }
@@ -1480,23 +1538,24 @@ html.cursor--focused .cursor { opacity: 0; }
   .skeleton { animation: none; opacity: var(--opacity-20); }
 }
 
-/* ─── TOOLTIP ────────────────────────────────────────────────────────────── */
+/* ─── TOOLTIP — always inverted to the current theme ────────────────────────
+   Tooltip bg uses --color-text-primary (dark in light mode, light in dark
+   mode) so it ALWAYS contrasts maximally with the page. Text uses fill-base.
+   Radius is --radius-sm (8px) per system convention. */
 .tooltip-root { position: relative; display: inline-flex; }
 .tooltip-content {
   position: absolute;
   z-index: 1000;
   padding: var(--space-2) var(--space-3);
-  background-color: var(--color-fill-secondary);
-  color: var(--color-text-primary);
+  background-color: var(--color-text-primary);
+  color: var(--color-fill-base);
   font-size: 0.875rem;
   letter-spacing: var(--tracking-n010);
-  border-radius: var(--radius-xs);
-  white-space: nowrap;
+  border-radius: var(--radius-sm);
   pointer-events: none;
   opacity: 1;
   transition: opacity 150ms ease;
   max-width: 280px;
-  white-space: normal;
   word-break: break-word;
 }
 .tooltip-hidden { opacity: 0; pointer-events: none; }
@@ -1508,10 +1567,16 @@ html.cursor--focused .cursor { opacity: 0; }
   background: transparent;
   max-width: 90vw;
   width: 480px;
+  /* Centre to viewport — native <dialog> already does this in modern browsers
+     via auto margins, but reassert in case author overrides exist. */
+  margin: auto;
 }
+/* Scrim — blur + darken behind the dialog. The dialog::backdrop sits between
+   the page and the dialog, so backdrop-filter blurs the page underneath. */
 .dialog::backdrop {
-  background-color: var(--color-fill-base);
-  opacity: var(--opacity-60);
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(var(--blur-xs));
+  -webkit-backdrop-filter: blur(var(--blur-xs));
 }
 .dialog-content {
   background-color: var(--color-fill-base);
@@ -1536,18 +1601,22 @@ html.cursor--focused .cursor { opacity: 0; }
 }
 .dialog-close:hover { opacity: 1; }
 
-/* ─── SHEET ──────────────────────────────────────────────────────────────── */
+/* ─── SHEET — left/right only, inset 8px to become a floating card ──────────
+   Scrim uses the same blur + darken treatment as Dialog. The sheet panel is
+   inset 8px from every edge and carries --radius-sm to read as a card. */
 .sheet-overlay {
   position: fixed;
   inset: 0;
-  background-color: var(--color-fill-base);
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(var(--blur-xs));
+  -webkit-backdrop-filter: blur(var(--blur-xs));
   opacity: 0;
   z-index: 998;
   transition: opacity 250ms ease;
   pointer-events: none;
 }
 .sheet-overlay-open {
-  opacity: var(--opacity-60);
+  opacity: 1;
   pointer-events: auto;
 }
 .sheet-content {
@@ -1555,26 +1624,24 @@ html.cursor--focused .cursor { opacity: 0; }
   z-index: 999;
   background-color: var(--color-fill-base);
   border: var(--border-sm) solid var(--color-transparent-weak);
+  border-radius: var(--radius-sm);
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
   padding: var(--space-8);
   transition: transform 250ms ease;
+  /* Floating card — inset 8px from each edge */
+  top: var(--space-2);
+  bottom: var(--space-2);
+  width: min(480px, calc(100vw - var(--space-4)));
 }
 .sheet-content-right {
-  top: 0; right: 0; bottom: 0;
-  width: min(480px, 90vw);
-  transform: translateX(100%);
+  right: var(--space-2);
+  transform: translateX(calc(100% + var(--space-2)));
 }
 .sheet-content-left {
-  top: 0; left: 0; bottom: 0;
-  width: min(480px, 90vw);
-  transform: translateX(-100%);
-}
-.sheet-content-bottom {
-  left: 0; right: 0; bottom: 0;
-  height: min(60vh, 480px);
-  transform: translateY(100%);
+  left: var(--space-2);
+  transform: translateX(calc(-100% - var(--space-2)));
 }
 .sheet-content-open { transform: none; }
 .sheet-close {
@@ -2109,3 +2176,116 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
   background-color: var(--color-transparent-weak);
   border-radius: var(--radius-xs);
 }
+
+/* ─── FILE DROPZONE ──────────────────────────────────────────────────────────
+   Interactive drop target. Dashed border is intentional (upload convention).
+   The hidden <input type="file"> is display:none — the whole zone is the click
+   target. Drag-over and error are modifier classes added via JS / prop. */
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-10) var(--space-8);
+  border: var(--border-sm) dashed var(--color-outline);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-fill-primary);
+  text-align: center;
+  cursor: none;
+  user-select: none;
+  transition: border-color 200ms ease, background-color 200ms ease;
+}
+.dropzone:focus-visible {
+  outline: var(--border-sm) solid var(--color-text-primary);
+  outline-offset: var(--space-1);
+}
+.dropzone-active {
+  border-color: var(--color-text-primary);
+  background-color: var(--color-fill-secondary);
+}
+.dropzone-error {
+  border-color: var(--color-status-error);
+}
+.dropzone-disabled {
+  opacity: var(--opacity-40);
+  pointer-events: none;
+}
+.dropzone-icon {
+  opacity: var(--opacity-40);
+  color: var(--color-text-primary);
+  transition: opacity 200ms ease;
+}
+.dropzone-active .dropzone-icon {
+  opacity: var(--opacity-80);
+}
+.dropzone-label {
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n010);
+  color: var(--color-text-primary);
+}
+.dropzone-hint {
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n005);
+  opacity: var(--opacity-40);
+}
+.dropzone-error-text {
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n005);
+  color: var(--color-status-error);
+}
+
+/* ─── FILE CHIP ──────────────────────────────────────────────────────────────
+   Compact row representing a queued / uploaded file. Filename truncates with
+   ellipsis; size is fixed-width metadata at 40%. Remove button uses gravity. */
+.file-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-fill-primary);
+  border: var(--border-sm) solid var(--color-transparent-weak);
+  border-radius: var(--radius-sm);
+  min-width: 0;
+}
+.file-chip-icon {
+  flex-shrink: 0;
+  opacity: var(--opacity-40);
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+}
+.file-chip-name {
+  flex: 1;
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n010);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.file-chip-size {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  letter-spacing: var(--tracking-n005);
+  opacity: var(--opacity-40);
+}
+.file-chip-remove {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-1);
+  background: none;
+  border: none;
+  border-radius: var(--radius-xs);
+  cursor: none;
+  opacity: var(--opacity-40);
+  color: var(--color-text-primary);
+  transition: opacity 150ms ease;
+  position: relative;
+  --gravity-x: 0px;
+  --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+}
+.file-chip-remove:hover { opacity: var(--opacity-80); }

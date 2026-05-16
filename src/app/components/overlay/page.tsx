@@ -58,7 +58,7 @@ export default function OverlayPage(): React.ReactElement {
               <div style={{ display: 'flex', gap: 'var(--space-4)', flexWrap: 'wrap' }}>
                 {(['top', 'bottom', 'left', 'right'] as const).map(side => (
                   <Tooltip key={side} content={`Tooltip on ${side}`} side={side} delay={0}>
-                    <Button size="sm">{side}</Button>
+                    <Button size="heading-xs">{side}</Button>
                   </Tooltip>
                 ))}
               </div>
@@ -74,7 +74,7 @@ export default function OverlayPage(): React.ReactElement {
             render={(): React.ReactNode => (
               <Dialog>
                 <DialogTrigger>
-                  <Button size="md">Open dialog</Button>
+                  <Button size="heading-sm">Open dialog</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
@@ -86,7 +86,7 @@ export default function OverlayPage(): React.ReactElement {
                   </DialogDescription>
                   <DialogFooter>
                     <DialogClose>Cancel</DialogClose>
-                    <Button size="md">Confirm</Button>
+                    <Button size="heading-sm">Confirm</Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
@@ -95,16 +95,16 @@ export default function OverlayPage(): React.ReactElement {
 
           <ComponentSection
             name="Sheet"
-            description="Slide-in panel anchored to an edge. Three sides: left, right, bottom."
+            description="Floating side panel — inset 8px from each edge so it reads as a card. Left or right anchor."
             code={`<Sheet side="right">\n  <SheetTrigger><Button>Open sheet</Button></SheetTrigger>\n  <SheetContent>…</SheetContent>\n</Sheet>`}
             sizes={SIZES}
             states={['default']}
             render={(): React.ReactNode => (
               <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
-                {(['right', 'left', 'bottom'] as const).map(side => (
+                {(['right', 'left'] as const).map(side => (
                   <Sheet key={side} side={side}>
                     <SheetTrigger>
-                      <Button size="sm">{side}</Button>
+                      <Button size="heading-xs">{side}</Button>
                     </SheetTrigger>
                     <SheetContent>
                       <SheetHeader>
@@ -129,7 +129,7 @@ export default function OverlayPage(): React.ReactElement {
             render={(): React.ReactNode => (
               <Popover>
                 <PopoverTrigger>
-                  <Button size="md">Open popover</Button>
+                  <Button size="heading-sm">Open popover</Button>
                 </PopoverTrigger>
                 <PopoverContent>
                   <div style={{ padding: 'var(--space-3)', minWidth: '160px' }}>
@@ -149,7 +149,7 @@ export default function OverlayPage(): React.ReactElement {
             render={(): React.ReactNode => (
               <DropdownMenu>
                 <DropdownMenuTrigger>
-                  <Button size="md">Actions</Button>
+                  <Button size="heading-sm">Actions</Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuLabel>File</DropdownMenuLabel>

@@ -263,13 +263,41 @@ function useGravity(ref) {
     return () => document.removeEventListener("mousemove", onMove);
   }, [ref]);
 }
+
+// src/components/primitives/Button.constants.ts
+var BUTTON_SIZES = [
+  "heading-xl",
+  "heading-lg",
+  "heading-md",
+  "heading-sm",
+  "heading-xs",
+  "heading-2xs",
+  "subheading-lg",
+  "subheading-md",
+  "subheading-sm",
+  "body-xl",
+  "body-lg",
+  "body-md",
+  "body-sm",
+  "body-xs",
+  "body-2xs"
+];
 var SIZE_CLASS = {
-  "xs": "btn-size-xs",
-  "sm": "btn-size-sm",
-  "md": "btn-size-md",
-  "lg": "btn-size-lg",
-  "xl": "btn-size-xl",
-  "2xl": "btn-size-2xl"
+  "heading-xl": "btn-size-heading-xl",
+  "heading-lg": "btn-size-heading-lg",
+  "heading-md": "btn-size-heading-md",
+  "heading-sm": "btn-size-heading-sm",
+  "heading-xs": "btn-size-heading-xs",
+  "heading-2xs": "btn-size-heading-2xs",
+  "subheading-lg": "btn-size-subheading-lg",
+  "subheading-md": "btn-size-subheading-md",
+  "subheading-sm": "btn-size-subheading-sm",
+  "body-xl": "btn-size-body-xl",
+  "body-lg": "btn-size-body-lg",
+  "body-md": "btn-size-body-md",
+  "body-sm": "btn-size-body-sm",
+  "body-xs": "btn-size-body-xs",
+  "body-2xs": "btn-size-body-2xs"
 };
 function Button(_a) {
   var _b = _a, {
@@ -299,23 +327,41 @@ function Button(_a) {
 
 // src/components/primitives/ShinodaLink.tsx
 init_cn();
-function ShinodaLink({ href, children, className, external = false }) {
+var LINK_SIZES = BUTTON_SIZES;
+function ShinodaLink({
+  href,
+  children,
+  className,
+  external = false,
+  size,
+  disabled = false
+}) {
   const ref = react.useRef(null);
   useGravity(ref);
+  const classes = cn(
+    "link",
+    size != null ? `btn-size-${size}` : void 0,
+    disabled && "is-disabled",
+    className
+  );
   if (external) {
     return /* @__PURE__ */ jsxRuntime.jsx(
       "a",
       {
         ref,
-        href,
-        className: cn("link", className),
+        href: disabled ? void 0 : href,
+        className: classes,
         target: "_blank",
         rel: "noopener noreferrer",
+        "aria-disabled": disabled || void 0,
         children
       }
     );
   }
-  return /* @__PURE__ */ jsxRuntime.jsx(NextLink__default.default, { ref, href, className: cn("link", className), children });
+  if (disabled) {
+    return /* @__PURE__ */ jsxRuntime.jsx("a", { ref, className: classes, "aria-disabled": "true", children });
+  }
+  return /* @__PURE__ */ jsxRuntime.jsx(NextLink__default.default, { ref, href, className: classes, children });
 }
 
 // src/components/primitives/Input.tsx
@@ -564,6 +610,185 @@ var SIZE_CLASS2 = {
 };
 function RichText({ children, className, size = "md" }) {
   return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("rich-text", SIZE_CLASS2[size], className), children });
+}
+
+// src/components/primitives/FileDropzone.tsx
+init_cn();
+function formatFileSize(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1048576) return `${Math.round(bytes / 1024)} KB`;
+  if (bytes < 1073741824) return `${(bytes / 1048576).toFixed(1)} MB`;
+  return `${(bytes / 1073741824).toFixed(1)} GB`;
+}
+function FileIcon() {
+  return /* @__PURE__ */ jsxRuntime.jsxs("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true", children: [
+    /* @__PURE__ */ jsxRuntime.jsx("rect", { x: "2.5", y: "1.5", width: "11", height: "13", rx: "1.5", stroke: "currentColor", strokeWidth: "1.25" }),
+    /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M5 6.5h6M5 9.5h4", stroke: "currentColor", strokeWidth: "1.25", strokeLinecap: "round" })
+  ] });
+}
+function UploadIcon() {
+  return /* @__PURE__ */ jsxRuntime.jsxs("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", "aria-hidden": "true", children: [
+    /* @__PURE__ */ jsxRuntime.jsx(
+      "path",
+      {
+        d: "M12 15V7M12 7L9 10M12 7l3 3",
+        stroke: "currentColor",
+        strokeWidth: "1.5",
+        strokeLinecap: "round",
+        strokeLinejoin: "round"
+      }
+    ),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      "path",
+      {
+        d: "M5 17v1.5A1.5 1.5 0 006.5 20h11a1.5 1.5 0 001.5-1.5V17",
+        stroke: "currentColor",
+        strokeWidth: "1.5",
+        strokeLinecap: "round"
+      }
+    )
+  ] });
+}
+function FileChip({ file, onRemove, className }) {
+  const removeRef = react.useRef(null);
+  useGravity(removeRef);
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: cn("file-chip", className), children: [
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "file-chip-icon", children: /* @__PURE__ */ jsxRuntime.jsx(FileIcon, {}) }),
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "file-chip-name", title: file.name, children: file.name }),
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "file-chip-size", children: formatFileSize(file.size) }),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      "button",
+      {
+        ref: removeRef,
+        type: "button",
+        className: "file-chip-remove",
+        onClick: onRemove,
+        "aria-label": `Remove ${file.name}`,
+        children: /* @__PURE__ */ jsxRuntime.jsx("svg", { width: "10", height: "10", viewBox: "0 0 10 10", fill: "none", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntime.jsx(
+          "path",
+          {
+            d: "M1 1l8 8M9 1L1 9",
+            stroke: "currentColor",
+            strokeWidth: "1.5",
+            strokeLinecap: "round"
+          }
+        ) })
+      }
+    )
+  ] });
+}
+function FileDropzone({
+  accept,
+  multiple = false,
+  maxSize,
+  label = "Drop files here, or browse",
+  hint,
+  error,
+  disabled = false,
+  onFilesAccepted,
+  onFilesRejected,
+  className
+}) {
+  const [isDragOver, setIsDragOver] = react.useState(false);
+  const inputRef = react.useRef(null);
+  const processFiles = react.useCallback(
+    (fileList) => {
+      const all = Array.from(fileList);
+      if (maxSize == null) {
+        onFilesAccepted(all);
+        return;
+      }
+      const accepted = all.filter((f) => f.size <= maxSize);
+      const rejected = all.filter((f) => f.size > maxSize);
+      if (accepted.length > 0) onFilesAccepted(accepted);
+      if (rejected.length > 0) onFilesRejected == null ? void 0 : onFilesRejected(rejected);
+    },
+    [maxSize, onFilesAccepted, onFilesRejected]
+  );
+  const handleDragOver = react.useCallback(
+    (e) => {
+      e.preventDefault();
+      if (!disabled) setIsDragOver(true);
+    },
+    [disabled]
+  );
+  const handleDragLeave = react.useCallback((e) => {
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setIsDragOver(false);
+    }
+  }, []);
+  const handleDrop = react.useCallback(
+    (e) => {
+      e.preventDefault();
+      setIsDragOver(false);
+      if (disabled || e.dataTransfer.files.length === 0) return;
+      processFiles(e.dataTransfer.files);
+    },
+    [disabled, processFiles]
+  );
+  const handleChange = react.useCallback(
+    (e) => {
+      if (e.target.files == null || e.target.files.length === 0) return;
+      processFiles(e.target.files);
+      e.target.value = "";
+    },
+    [processFiles]
+  );
+  const handleClick = react.useCallback(() => {
+    var _a;
+    if (!disabled) (_a = inputRef.current) == null ? void 0 : _a.click();
+  }, [disabled]);
+  const handleKeyDown = react.useCallback(
+    (e) => {
+      var _a;
+      if ((e.key === "Enter" || e.key === " ") && !disabled) {
+        e.preventDefault();
+        (_a = inputRef.current) == null ? void 0 : _a.click();
+      }
+    },
+    [disabled]
+  );
+  return /* @__PURE__ */ jsxRuntime.jsxs(
+    "div",
+    {
+      role: "button",
+      tabIndex: disabled ? -1 : 0,
+      "aria-disabled": disabled,
+      "aria-label": label,
+      className: cn(
+        "dropzone",
+        isDragOver && "dropzone-active",
+        error != null && "dropzone-error",
+        disabled && "dropzone-disabled",
+        className
+      ),
+      onDragOver: handleDragOver,
+      onDragLeave: handleDragLeave,
+      onDrop: handleDrop,
+      onClick: handleClick,
+      onKeyDown: handleKeyDown,
+      children: [
+        /* @__PURE__ */ jsxRuntime.jsx(
+          "input",
+          {
+            ref: inputRef,
+            type: "file",
+            accept,
+            multiple,
+            disabled,
+            onChange: handleChange,
+            "aria-hidden": "true",
+            tabIndex: -1,
+            style: { display: "none" }
+          }
+        ),
+        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "dropzone-icon", children: /* @__PURE__ */ jsxRuntime.jsx(UploadIcon, {}) }),
+        /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dropzone-label", children: isDragOver ? "Release to upload" : label }),
+        hint != null && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dropzone-hint", children: hint }),
+        error != null && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dropzone-error-text", role: "alert", children: error })
+      ]
+    }
+  );
 }
 
 // src/components/icons/Icon.tsx
@@ -2147,7 +2372,7 @@ function NavLinks({ items }) {
     Button,
     {
       asChild: true,
-      size: "xs",
+      size: "heading-2xs",
       className: cn(
         "nav-link",
         pathname === item.href ? "is-active" : void 0
@@ -2463,22 +2688,16 @@ function SectionTile({
 // src/components/feedback/Badge.tsx
 init_cn();
 function Badge({
-  variant = "default",
-  size = "md",
+  variant = "neutral",
   className,
   children
 }) {
-  return /* @__PURE__ */ jsxRuntime.jsx(
-    "span",
-    {
-      className: cn("badge", `badge-${variant}`, `badge-${size}`, className),
-      children
-    }
-  );
+  return /* @__PURE__ */ jsxRuntime.jsx("span", { className: cn("badge", `badge-${variant}`, className), children });
 }
 
 // src/components/feedback/Alert.tsx
 init_cn();
+var DISMISS_ANIMATION_MS = 200;
 function Alert({
   variant = "default",
   title,
@@ -2486,11 +2705,28 @@ function Alert({
   onDismiss,
   className
 }) {
+  const [isMounted, setIsMounted] = react.useState(false);
+  const [isExiting, setIsExiting] = react.useState(false);
+  react.useEffect(() => {
+    const id = requestAnimationFrame(() => setIsMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+  function handleDismiss() {
+    if (onDismiss == null) return;
+    setIsExiting(true);
+    window.setTimeout(() => onDismiss(), DISMISS_ANIMATION_MS);
+  }
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
     {
       role: "alert",
-      className: cn("alert", `alert-${variant}`, className),
+      className: cn(
+        "alert",
+        `alert-${variant}`,
+        isMounted && !isExiting && "alert-visible",
+        isExiting && "alert-exiting",
+        className
+      ),
       children: [
         /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "alert-body", children: [
           title != null && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "alert-title", children: title }),
@@ -2502,7 +2738,7 @@ function Alert({
             type: "button",
             className: "alert-dismiss btn",
             "aria-label": "Dismiss",
-            onClick: onDismiss,
+            onClick: handleDismiss,
             children: /* @__PURE__ */ jsxRuntime.jsx("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M3 3L13 13M13 3L3 13", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }) })
           }
         )
@@ -4086,7 +4322,7 @@ function DownloadTile({
         description != null && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "download-tile-description", children: description })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "download-tile-action", children: isDownloading ? /* @__PURE__ */ jsxRuntime.jsx(Skeleton, { width: 80, height: 28 }) : /* @__PURE__ */ jsxRuntime.jsx(Button, { size: "sm", onClick: onDownload, "aria-label": `Download ${filename}`, children: "Download" }) })
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "download-tile-action", children: isDownloading ? /* @__PURE__ */ jsxRuntime.jsx(Skeleton, { width: 80, height: 28 }) : /* @__PURE__ */ jsxRuntime.jsx(Button, { size: "heading-xs", onClick: onDownload, "aria-label": `Download ${filename}`, children: "Download" }) })
   ] });
 }
 
@@ -4333,6 +4569,8 @@ exports.DropdownMenuSeparator = DropdownMenuSeparator;
 exports.DropdownMenuTrigger = DropdownMenuTrigger;
 exports.EditableTable = EditableTable;
 exports.FONT_WEIGHT_TOKENS = FONT_WEIGHT_TOKENS;
+exports.FileChip = FileChip;
+exports.FileDropzone = FileDropzone;
 exports.FloatingActionBar = FloatingActionBar;
 exports.Footer = Footer;
 exports.Grid = Grid;
@@ -4346,6 +4584,7 @@ exports.InputField = InputField;
 exports.InputHelp = InputHelp;
 exports.InputLabel = InputLabel;
 exports.LEADING_TOKENS = LEADING_TOKENS;
+exports.LINK_SIZES = LINK_SIZES;
 exports.MainWrapper = MainWrapper;
 exports.Map = Map2;
 exports.MapNoSSR = MapNoSSR;
@@ -4398,6 +4637,7 @@ exports.ThemeToggle = ThemeToggle;
 exports.Tooltip = Tooltip;
 exports.TooltipRoot = TooltipRoot;
 exports.cn = cn;
+exports.formatFileSize = formatFileSize;
 exports.useCursor = useCursor;
 exports.useGravity = useGravity;
 exports.useTheme = useTheme;

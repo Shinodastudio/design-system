@@ -77,14 +77,27 @@ function setContext(el) {
     return;
   }
 
+  // Form controls — morph cursor into the field footprint (Magic Cursor style)
+  if (tag === 'input' || tag === 'textarea' || tag === 'select') {
+    setBtnCursor(el);
+    return;
+  }
+
   if (tag === 'img' || tag === 'figure' || el.dataset.cursor === 'expand') {
     html.classList.add('cursor--chip');
     cursorLabel.textContent = el.dataset.cursorLabel || 'expand';
     return;
   }
 
-  if (tag === 'input' || tag === 'textarea' || el.isContentEditable ||
-      ['p','h1','h2','h3','h4','h5','h6','li','blockquote','span','em','strong','time','cite'].includes(tag)) {
+  // Explicit data-cursor="text" override — use on <label> or any wrapper that
+  // contains selectable text but isn't a native text element in the list below.
+  if (el.dataset.cursor === 'text') {
+    html.classList.add('cursor--text');
+    return;
+  }
+
+  if (el.isContentEditable ||
+      ['p','h1','h2','h3','h4','h5','h6','li','blockquote','span','em','strong','time','cite','label'].includes(tag)) {
     html.classList.add('cursor--text');
   }
 }
