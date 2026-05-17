@@ -11,6 +11,13 @@
  * the Figma source defines buttons by type tier instead.
  */
 
+export const ACCENT_COLORS = [
+  'red', 'orange', 'yellow', 'green', 'blue',
+  'error', 'warning', 'success', 'info',
+] as const;
+
+export type AccentColor = typeof ACCENT_COLORS[number];
+
 export const BUTTON_SIZES = [
   'heading-xl',
   'heading-lg',

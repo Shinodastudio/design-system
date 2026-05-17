@@ -1,10 +1,11 @@
 'use client';
 
+import { useId, useState } from 'react';
 import { MainWrapper } from '@/components/layout/MainWrapper';
 import { Grid } from '@/components/layout/Grid';
 import { StickyCol } from '@/components/layout/StickyCol';
 import { Button } from '@/components/primitives/Button';
-import { BUTTON_SIZES, type ButtonSize } from '@/components/primitives/Button.constants';
+import { BUTTON_SIZES, type ButtonSize, ACCENT_COLORS, type AccentColor } from '@/components/primitives/Button.constants';
 import { ComponentSection } from '@/components/catalogue/ComponentSection';
 import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 import { Icon } from '@/components/icons';
@@ -29,7 +30,55 @@ const SIZE_LABELS: Record<ButtonSize, string> = {
 
 const BUTTON_STATES = ['default', 'hover', 'active', 'focus', 'disabled'] as const;
 
+function capitalize(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export default function ButtonPage(): React.ReactElement {
+  const [accent, setAccent] = useState<AccentColor | undefined>(undefined);
+  const accentSelectId = useId();
+
+  const accentCode = accent != null
+    ? `<Button size="heading-md" accent="${accent}">Label</Button>`
+    : `<Button size="heading-md">Label</Button>`;
+
+  const accentChip = accent != null ? (
+    <button
+      type="button"
+      className="section-chip section-chip--active"
+      onClick={(): void => setAccent(undefined)}
+      aria-label={`Reset accent to default (currently ${accent})`}
+    >
+      <span className="section-chip-text">{capitalize(accent)}</span>
+      <span className="section-chip-close" aria-hidden="true" />
+    </button>
+  ) : (
+    <label className="section-chip" htmlFor={accentSelectId}>
+      <select
+        id={accentSelectId}
+        className="section-chip-select"
+        value=""
+        onChange={(e): void => {
+          const val = e.target.value;
+          setAccent(val !== '' ? val as AccentColor : undefined);
+        }}
+      >
+        <option value="">Accent</option>
+        <optgroup label="Semantic">
+          {(['error', 'warning', 'success', 'info'] as const).map((a) => (
+            <option key={a} value={a}>{capitalize(a)}</option>
+          ))}
+        </optgroup>
+        <optgroup label="Palette">
+          {ACCENT_COLORS.filter((a) => !['error', 'warning', 'success', 'info'].includes(a)).map((a) => (
+            <option key={a} value={a}>{capitalize(a)}</option>
+          ))}
+        </optgroup>
+      </select>
+      <span className="section-chip-chevron" aria-hidden="true" />
+    </label>
+  );
+
   return (
     <MainWrapper>
       <Grid>
@@ -43,15 +92,17 @@ export default function ButtonPage(): React.ReactElement {
 
           <ComponentSection
             name="Text Button"
-            description="Transparent at rest — 20% overlay fill reveals on hover via ::before scale-up."
-            code={`<Button size="heading-md">Label</Button>`}
+            description="Transparent at rest — 20% overlay fill reveals on hover via ::before scale-up. Accent tints text and background; 10% at rest, 20% on hover."
+            code={accentCode}
             sizes={BUTTON_SIZES}
             defaultSize="heading-md"
             sizeLabel={(s): string => SIZE_LABELS[s]}
             states={BUTTON_STATES}
+            extraChips={accentChip}
             render={({ state, size }): React.ReactNode => (
               <Button
                 size={size}
+                accent={accent}
                 disabled={state === 'disabled'}
                 className={state === 'disabled' ? 'op-40' : undefined}
               >

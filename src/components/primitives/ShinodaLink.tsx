@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import NextLink from 'next/link';
 import { cn } from '@/lib/cn';
 import { useGravity } from '@/hooks/useGravity';
-import { BUTTON_SIZES, type ButtonSize } from './Button.constants';
+import { BUTTON_SIZES, type ButtonSize, type AccentColor } from './Button.constants';
 
 /**
  * Link sizes mirror the Button size scale 1:1 — see Button.constants for the
@@ -21,6 +21,12 @@ interface ShinodaLinkProps {
   readonly external?: boolean;
   readonly size?: LinkSize;
   readonly disabled?: boolean;
+  /**
+   * Accent colour variant — tints the link text, underline, and background
+   * with a semantic or raw palette colour. Background is 10% tint at rest,
+   * 20% on hover. Underline inherits via currentColor automatically.
+   */
+  readonly accent?: AccentColor;
 }
 
 export function ShinodaLink({
@@ -30,6 +36,7 @@ export function ShinodaLink({
   external = false,
   size,
   disabled = false,
+  accent,
 }: ShinodaLinkProps): React.ReactElement {
   const ref = useRef<HTMLAnchorElement>(null);
   useGravity(ref);
@@ -38,6 +45,7 @@ export function ShinodaLink({
     'link',
     size != null ? `btn-size-${size}` : undefined,
     disabled && 'is-disabled',
+    accent != null ? `link--accent link--accent-${accent}` : undefined,
     className,
   );
 

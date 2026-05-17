@@ -89,6 +89,17 @@ const GROUPS: readonly ColourGroup[] = [
       { name: '--color-transparent-strong', label: 'Transparent Strong', hex: 'rgba(24,24,27,.60)', description: '60% — scrim, backdrop' },
     ],
   },
+  {
+    title: 'Accent',
+    description: 'Semantic status and emphasis colours — inverts to lighter values in dark mode. Aliased as error / warning / success / info on status tokens.',
+    tokens: [
+      { name: '--accent-red',    label: 'Accent Red',    hex: '#CC0019', description: 'Destructive actions, errors' },
+      { name: '--accent-orange', label: 'Accent Orange', hex: '#E66900', description: 'Warnings, caution states' },
+      { name: '--accent-yellow', label: 'Accent Yellow', hex: '#E6C800', description: 'Highlights, attention' },
+      { name: '--accent-green',  label: 'Accent Green',  hex: '#009650', description: 'Success, confirmation' },
+      { name: '--accent-blue',   label: 'Accent Blue',   hex: '#005096', description: 'Informational, links' },
+    ],
+  },
 ];
 
 function Swatch({ token }: { readonly token: ColourToken }): React.ReactElement {

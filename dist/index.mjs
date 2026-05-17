@@ -103,11 +103,13 @@ function Button(_a) {
   var _b = _a, {
     asChild = false,
     size,
+    accent,
     className,
     children
   } = _b, props = __objRest(_b, [
     "asChild",
     "size",
+    "accent",
     "className",
     "children"
   ]);
@@ -118,7 +120,12 @@ function Button(_a) {
     Comp,
     __spreadProps(__spreadValues({
       ref,
-      className: cn("btn", size != null ? SIZE_CLASS[size] : void 0, className)
+      className: cn(
+        "btn",
+        size != null ? SIZE_CLASS[size] : void 0,
+        accent != null ? `btn--accent btn--accent-${accent}` : void 0,
+        className
+      )
     }, props), {
       children
     })
@@ -131,7 +138,8 @@ function ShinodaLink({
   className,
   external = false,
   size,
-  disabled = false
+  disabled = false,
+  accent
 }) {
   const ref = useRef(null);
   useGravity(ref);
@@ -139,6 +147,7 @@ function ShinodaLink({
     "link",
     size != null ? `btn-size-${size}` : void 0,
     disabled && "is-disabled",
+    accent != null ? `link--accent link--accent-${accent}` : void 0,
     className
   );
   if (external) {
@@ -2588,7 +2597,9 @@ function Tooltip({
   content,
   children,
   side = "top",
-  delay = 400
+  delay = 400,
+  width = "variable",
+  icon = false
 }) {
   const id = useId();
   const [visible, setVisible] = useState(false);
@@ -2667,16 +2678,24 @@ function Tooltip({
   return /* @__PURE__ */ jsxs(TooltipContext.Provider, { value: { id, visible, position, side, triggerRef, show, hide }, children: [
     triggerEl,
     typeof document !== "undefined" && ReactDOM.createPortal(
-      /* @__PURE__ */ jsx(
+      /* @__PURE__ */ jsxs(
         "div",
         {
           ref: tooltipRef,
           id,
           role: "tooltip",
-          className: cn("tooltip-content", `tooltip-content-${side}`, !visible && "tooltip-hidden"),
+          className: cn(
+            "tooltip-content",
+            `tooltip-content-${side}`,
+            width === "fixed" && "tooltip-content-fixed",
+            !visible && "tooltip-hidden"
+          ),
           style: { top: position.top, left: position.left },
           "aria-hidden": !visible,
-          children: content
+          children: [
+            content,
+            icon && width !== "fixed" && /* @__PURE__ */ jsx("span", { className: "tooltip-icon", children: /* @__PURE__ */ jsx(Icon, { name: "CaretDown", size: "2xs" }) })
+          ]
         }
       ),
       document.body
@@ -4195,6 +4214,43 @@ function DownloadTile({
     /* @__PURE__ */ jsx("div", { className: "download-tile-action", children: isDownloading ? /* @__PURE__ */ jsx(Skeleton, { width: 80, height: 28 }) : /* @__PURE__ */ jsx(Button, { size: "heading-xs", onClick: onDownload, "aria-label": `Download ${filename}`, children: "Download" }) })
   ] });
 }
+var COPIED_FEEDBACK_MS = 1600;
+function CodeSnippet({
+  code,
+  copyLabel = "Copy code",
+  className
+}) {
+  const [copied, setCopied] = useState(false);
+  const timeoutRef = useRef(null);
+  useEffect(() => () => {
+    if (timeoutRef.current != null) clearTimeout(timeoutRef.current);
+  }, []);
+  const handleCopy = useCallback(async () => {
+    if (typeof navigator === "undefined" || navigator.clipboard == null) return;
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      if (timeoutRef.current != null) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => setCopied(false), COPIED_FEEDBACK_MS);
+    } catch (err) {
+      console.error("CodeSnippet \u2014 clipboard write failed", err);
+    }
+  }, [code]);
+  return /* @__PURE__ */ jsxs(
+    "button",
+    {
+      type: "button",
+      className: cn("code-snippet", copied && "code-snippet-copied", className),
+      onClick: handleCopy,
+      "aria-label": copyLabel,
+      "data-cursor": "btn",
+      children: [
+        /* @__PURE__ */ jsx("span", { className: "code-snippet-text", children: copied ? "Copied to Clipboard" : code }),
+        /* @__PURE__ */ jsx("span", { className: "code-snippet-action", "aria-hidden": "true", children: /* @__PURE__ */ jsx(Icon, { name: copied ? "CheckCircle" : "Copy", size: "sm" }) })
+      ]
+    }
+  );
+}
 
 // src/lib/tokens.ts
 var HEADING_VARIANTS = [
@@ -4384,6 +4440,6 @@ var FONT_WEIGHT_TOKENS = [
   { name: "--fw-black", value: "900" }
 ];
 
-export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, Badge, Button, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, ContentCard, Cursor, DateInput, Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EditableTable, FONT_WEIGHT_TOKENS, FileChip, FileDropzone, FloatingActionBar, Footer, Grid, HEADING_VARIANTS, ICONS, ICONS_BY_ID, Icon, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, MainWrapper, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, PADDING_TOKENS, PageWrapper, Popover, PopoverContent, PopoverTrigger, Progress, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, SearchDropdown, SectionTile, Select, Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };
+export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, Badge, Button, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, ContentCard, Cursor, DateInput, Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EditableTable, FONT_WEIGHT_TOKENS, FileChip, FileDropzone, FloatingActionBar, Footer, Grid, HEADING_VARIANTS, ICONS, ICONS_BY_ID, Icon, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, MainWrapper, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, PADDING_TOKENS, PageWrapper, Popover, PopoverContent, PopoverTrigger, Progress, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, SearchDropdown, SectionTile, Select, Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map
