@@ -50,17 +50,23 @@ export default function OverlayPage(): React.ReactElement {
 
           <ComponentSection
             name="Tooltip"
-            description="Appears on hover or focus after 400ms. Portalled to body. Four sides."
-            code={`<Tooltip content="Helpful hint" side="top">\n  <Button>Hover me</Button>\n</Tooltip>`}
+            description="Appears on hover or focus after 400ms. Portalled to body. Four placement sides. Variable width (hugs content) or fixed 256px. Optional CaretDown icon."
+            code={`<Tooltip content="Helpful hint" side="top">\n  <Button>Hover me</Button>\n</Tooltip>\n\n<Tooltip content="Fixed-width tooltip wraps long text" width="fixed" side="bottom">\n  <Button>Fixed width</Button>\n</Tooltip>\n\n<Tooltip content="With icon" icon side="top">\n  <Button>Icon</Button>\n</Tooltip>`}
             sizes={SIZES}
             states={['default']}
             render={(): React.ReactNode => (
-              <div style={{ display: 'flex', gap: 'var(--space-4)', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 'var(--space-4)', flexWrap: 'wrap', alignItems: 'center' }}>
                 {(['top', 'bottom', 'left', 'right'] as const).map(side => (
                   <Tooltip key={side} content={`Tooltip on ${side}`} side={side} delay={0}>
                     <Button size="heading-xs">{side}</Button>
                   </Tooltip>
                 ))}
+                <Tooltip content="Fixed-width tooltip wraps long text here" width="fixed" side="top" delay={0}>
+                  <Button size="heading-xs">fixed</Button>
+                </Tooltip>
+                <Tooltip content="With caret" icon side="top" delay={0}>
+                  <Button size="heading-xs">icon</Button>
+                </Tooltip>
               </div>
             )}
           />

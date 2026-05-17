@@ -685,26 +685,16 @@ interface SectionTileProps {
 }
 declare function SectionTile({ label, description, href, className, }: SectionTileProps): React.ReactElement;
 
-/**
- * Badge variants — Figma May 2026 spec (node 3904:6580).
- *
- * Six colour variants only. No size variants: the Figma component has a
- * single canonical size (14px / body-2xs, fw-normal, --radius-sm background
- * with 10% accent tint, asymmetric 6px-left/4px-right padding for icon slot).
- *
- * Status-named aliases (default/success/warning/error/info) are NOT supported
- * — callers must use the colour name directly. This forces explicit semantics
- * at the call site.
- */
 type BadgeVariant = 'neutral' | 'red' | 'orange' | 'yellow' | 'green' | 'blue';
 interface BadgeProps {
     readonly variant?: BadgeVariant;
     readonly className?: string;
     readonly children: React.ReactNode;
+    readonly onClick?: () => void;
 }
-declare function Badge({ variant, className, children, }: BadgeProps): React.ReactElement;
+declare function Badge({ variant, className, children, onClick, }: BadgeProps): React.ReactElement;
 
-type AlertVariant = 'default' | 'success' | 'warning' | 'error' | 'info';
+type AlertVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'urgent';
 interface AlertProps {
     readonly variant?: AlertVariant;
     readonly title?: string;
@@ -874,9 +864,27 @@ interface SwitchProps {
     readonly onCheckedChange?: (value: boolean) => void;
     readonly disabled?: boolean;
     readonly label?: string;
+    /** Size variant — mirrors the button/type scale. Default: heading-xs (1rem). */
+    readonly size?: ButtonSize;
     readonly className?: string;
 }
-declare function Switch({ checked: controlledChecked, defaultChecked, onCheckedChange, disabled, label, className, }: SwitchProps): React.ReactElement;
+declare function Switch({ checked: controlledChecked, defaultChecked, onCheckedChange, disabled, label, size, className, }: SwitchProps): React.ReactElement;
+
+interface SliderProps {
+    readonly min?: number;
+    readonly max?: number;
+    /** Snap increment. Default: 1. */
+    readonly step?: number;
+    /** Controlled value. */
+    readonly value?: number;
+    readonly defaultValue?: number;
+    readonly onChange?: (value: number) => void;
+    /** Render min/max labels below the track. */
+    readonly showLabels?: boolean;
+    readonly disabled?: boolean;
+    readonly className?: string;
+}
+declare function Slider({ min, max, step, value: controlledValue, defaultValue, onChange, showLabels, disabled, className, }: SliderProps): React.ReactElement;
 
 type AccordionType = 'single' | 'multiple';
 interface AccordionProps {
@@ -885,9 +893,11 @@ interface AccordionProps {
     readonly value?: string | readonly string[];
     readonly onValueChange?: (value: string | readonly string[]) => void;
     readonly children: React.ReactNode;
+    /** Size variant — mirrors the button/type scale. Default: heading-xs (1rem). */
+    readonly size?: ButtonSize;
     readonly className?: string;
 }
-declare function Accordion({ type, defaultValue, value: controlledValue, onValueChange, children, className, }: AccordionProps): React.ReactElement;
+declare function Accordion({ type, defaultValue, value: controlledValue, onValueChange, children, size, className, }: AccordionProps): React.ReactElement;
 interface AccordionItemProps {
     readonly value: string;
     readonly children: React.ReactNode;
@@ -1124,4 +1134,4 @@ declare function useTheme(): readonly [Theme, () => void];
 
 declare function cn(...inputs: readonly ClassValue[]): string;
 
-export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, type AlertVariant, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, Badge, type BadgeVariant, type BodyVariant, Button, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, ContentCard, Cursor, type CursorRef, DateInput, Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, type EditableColumn, EditableTable, FONT_WEIGHT_TOKENS, FileChip, type FileChipProps, FileDropzone, type FileDropzoneProps, type FloatingAction, FloatingActionBar, Footer, Grid, HEADING_VARIANTS, type HeadingVariant, ICONS, ICONS_BY_ID, Icon, type IconProps, type IconRecord, type IconSize, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, type LinkSize, MainWrapper, Map, type MapMarker, MapNoSSR, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, type OpacityLevel, PADDING_TOKENS, PageWrapper, Popover, PopoverContent, PopoverTrigger, Progress, type ProgressSize, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, SearchDropdown, type SearchOption, SectionTile, Select, type SemanticColor, Sheet, SheetContent, SheetFooter, SheetHeader, type SheetSide, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, StickyCol, type SubheadingVariant, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, type TooltipSide, type TypeVariant, cn, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };
+export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, type AlertVariant, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, Badge, type BadgeVariant, type BodyVariant, Button, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, ContentCard, Cursor, type CursorRef, DateInput, Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, type EditableColumn, EditableTable, FONT_WEIGHT_TOKENS, FileChip, type FileChipProps, FileDropzone, type FileDropzoneProps, type FloatingAction, FloatingActionBar, Footer, Grid, HEADING_VARIANTS, type HeadingVariant, ICONS, ICONS_BY_ID, Icon, type IconProps, type IconRecord, type IconSize, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, type LinkSize, MainWrapper, Map, type MapMarker, MapNoSSR, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, type OpacityLevel, PADDING_TOKENS, PageWrapper, Popover, PopoverContent, PopoverTrigger, Progress, type ProgressSize, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, SearchDropdown, type SearchOption, SectionTile, Select, type SemanticColor, Sheet, SheetContent, SheetFooter, SheetHeader, type SheetSide, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, type SubheadingVariant, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, type TooltipSide, type TypeVariant, cn, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };

@@ -484,7 +484,7 @@ var Radio = react.forwardRef(
 function Choice({ children, className }) {
   const ref = react.useRef(null);
   useGravity(ref);
-  return /* @__PURE__ */ jsxRuntime.jsx("label", { ref, className: cn("choice", className), children });
+  return /* @__PURE__ */ jsxRuntime.jsx("label", { ref, className: cn("choice", className), "data-cursor": "btn", children });
 }
 function ChoiceLabel({ children, className }) {
   return /* @__PURE__ */ jsxRuntime.jsx("span", { className: cn("choice-label", className), children });
@@ -650,16 +650,15 @@ function UploadIcon() {
   ] });
 }
 function FileChip({ file, onRemove, className }) {
-  const removeRef = react.useRef(null);
-  useGravity(removeRef);
-  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: cn("file-chip", className), children: [
-    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "file-chip-icon", children: /* @__PURE__ */ jsxRuntime.jsx(FileIcon, {}) }),
+  const chipRef = react.useRef(null);
+  useGravity(chipRef);
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { ref: chipRef, className: cn("file-chip", className), children: [
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "file-chip-icon", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntime.jsx(FileIcon, {}) }),
     /* @__PURE__ */ jsxRuntime.jsx("span", { className: "file-chip-name", title: file.name, children: file.name }),
     /* @__PURE__ */ jsxRuntime.jsx("span", { className: "file-chip-size", children: formatFileSize(file.size) }),
     /* @__PURE__ */ jsxRuntime.jsx(
       "button",
       {
-        ref: removeRef,
         type: "button",
         className: "file-chip-remove",
         onClick: onRemove,
@@ -691,6 +690,8 @@ function FileDropzone({
 }) {
   const [isDragOver, setIsDragOver] = react.useState(false);
   const inputRef = react.useRef(null);
+  const dropzoneRef = react.useRef(null);
+  useGravity(dropzoneRef);
   const processFiles = react.useCallback(
     (fileList) => {
       const all = Array.from(fileList);
@@ -751,6 +752,7 @@ function FileDropzone({
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
     {
+      ref: dropzoneRef,
       role: "button",
       tabIndex: disabled ? -1 : 0,
       "aria-disabled": disabled,
@@ -2690,9 +2692,23 @@ init_cn();
 function Badge({
   variant = "neutral",
   className,
-  children
+  children,
+  onClick
 }) {
-  return /* @__PURE__ */ jsxRuntime.jsx("span", { className: cn("badge", `badge-${variant}`, className), children });
+  const ref = react.useRef(null);
+  useGravity(ref);
+  const Tag = onClick != null ? "button" : "span";
+  return /* @__PURE__ */ jsxRuntime.jsx(
+    Tag,
+    {
+      ref,
+      type: onClick != null ? "button" : void 0,
+      className: cn("badge", `badge-${variant}`, className),
+      "data-cursor": "btn",
+      onClick,
+      children
+    }
+  );
 }
 
 // src/components/feedback/Alert.tsx
@@ -2707,18 +2723,29 @@ function Alert({
 }) {
   const [isMounted, setIsMounted] = react.useState(false);
   const [isExiting, setIsExiting] = react.useState(false);
+  const alertRef = react.useRef(null);
+  const dismissTimerRef = react.useRef(null);
+  useGravity(alertRef);
   react.useEffect(() => {
     const id = requestAnimationFrame(() => setIsMounted(true));
     return () => cancelAnimationFrame(id);
   }, []);
+  react.useEffect(() => {
+    return () => {
+      if (dismissTimerRef.current != null) {
+        window.clearTimeout(dismissTimerRef.current);
+      }
+    };
+  }, []);
   function handleDismiss() {
     if (onDismiss == null) return;
     setIsExiting(true);
-    window.setTimeout(() => onDismiss(), DISMISS_ANIMATION_MS);
+    dismissTimerRef.current = window.setTimeout(() => onDismiss(), DISMISS_ANIMATION_MS);
   }
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
     {
+      ref: alertRef,
       role: "alert",
       className: cn(
         "alert",
@@ -3395,20 +3422,23 @@ function Switch({
   onCheckedChange,
   disabled = false,
   label,
+  size = "heading-xs",
   className
 }) {
   const [internalChecked, setInternalChecked] = react.useState(defaultChecked);
   const checked = controlledChecked != null ? controlledChecked : internalChecked;
   const id = react.useId();
+  const rootRef = react.useRef(null);
   const ref = react.useRef(null);
   useGravity(ref);
+  useGravity(rootRef);
   const handleToggle = () => {
     if (disabled) return;
     const next = !checked;
     if (controlledChecked == null) setInternalChecked(next);
     onCheckedChange == null ? void 0 : onCheckedChange(next);
   };
-  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: cn("switch-root", className), children: [
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { ref: rootRef, className: cn("switch-root", `switch-root-size-${size}`, className), children: [
     /* @__PURE__ */ jsxRuntime.jsx(
       "button",
       {
@@ -3424,7 +3454,145 @@ function Switch({
         children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: "switch-thumb" })
       }
     ),
-    label != null && /* @__PURE__ */ jsxRuntime.jsx("label", { htmlFor: id, className: "switch-label", children: label })
+    label != null && /* @__PURE__ */ jsxRuntime.jsx("label", { htmlFor: id, className: "switch-label", "data-cursor": "text", children: label })
+  ] });
+}
+
+// src/components/controls/Slider.tsx
+init_cn();
+function snap(raw, min, max, step) {
+  const stepped = Math.round((raw - min) / step) * step + min;
+  return Math.min(max, Math.max(min, stepped));
+}
+function Slider({
+  min = 0,
+  max = 100,
+  step = 1,
+  value: controlledValue,
+  defaultValue,
+  onChange,
+  showLabels = false,
+  disabled = false,
+  className
+}) {
+  const [internalValue, setInternalValue] = react.useState(
+    defaultValue != null ? defaultValue : min
+  );
+  const value = controlledValue != null ? controlledValue : internalValue;
+  const [showTooltip, setShowTooltip] = react.useState(false);
+  const trackRef = react.useRef(null);
+  const thumbRef = react.useRef(null);
+  const id = react.useId();
+  const isDragging = react.useRef(false);
+  useGravity(thumbRef);
+  const percent = (value - min) / (max - min) * 100;
+  const updateFromClient = react.useCallback(
+    (clientX) => {
+      if (disabled || !trackRef.current) return;
+      const rect = trackRef.current.getBoundingClientRect();
+      const raw = (clientX - rect.left) / rect.width * (max - min) + min;
+      const next = snap(raw, min, max, step);
+      if (controlledValue == null) setInternalValue(next);
+      onChange == null ? void 0 : onChange(next);
+    },
+    [disabled, min, max, step, controlledValue, onChange]
+  );
+  const handlePointerDown = react.useCallback(
+    (e) => {
+      if (disabled) return;
+      e.currentTarget.setPointerCapture(e.pointerId);
+      isDragging.current = true;
+      setShowTooltip(true);
+      updateFromClient(e.clientX);
+    },
+    [disabled, updateFromClient]
+  );
+  const handlePointerMove = react.useCallback(
+    (e) => {
+      if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
+      updateFromClient(e.clientX);
+    },
+    [updateFromClient]
+  );
+  const handlePointerUp = react.useCallback(
+    (e) => {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+      isDragging.current = false;
+      setShowTooltip(false);
+    },
+    []
+  );
+  const handleKeyDown = react.useCallback(
+    (e) => {
+      if (disabled) return;
+      let next = null;
+      switch (e.key) {
+        case "ArrowRight":
+        case "ArrowUp":
+          e.preventDefault();
+          next = snap(value + step, min, max, step);
+          break;
+        case "ArrowLeft":
+        case "ArrowDown":
+          e.preventDefault();
+          next = snap(value - step, min, max, step);
+          break;
+        case "Home":
+          e.preventDefault();
+          next = min;
+          break;
+        case "End":
+          e.preventDefault();
+          next = max;
+          break;
+      }
+      if (next !== null) {
+        if (controlledValue == null) setInternalValue(next);
+        onChange == null ? void 0 : onChange(next);
+      }
+    },
+    [disabled, value, step, min, max, controlledValue, onChange]
+  );
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: cn("slider", disabled && "slider-disabled", className), children: [
+    /* @__PURE__ */ jsxRuntime.jsxs(
+      "div",
+      {
+        ref: trackRef,
+        role: "slider",
+        id,
+        "aria-valuemin": min,
+        "aria-valuemax": max,
+        "aria-valuenow": value,
+        "aria-disabled": disabled || void 0,
+        tabIndex: disabled ? -1 : 0,
+        "data-cursor": "btn",
+        className: "slider-track-area",
+        onPointerDown: handlePointerDown,
+        onPointerMove: handlePointerMove,
+        onPointerUp: handlePointerUp,
+        onFocus: () => setShowTooltip(true),
+        onBlur: () => setShowTooltip(false),
+        onKeyDown: handleKeyDown,
+        children: [
+          /* @__PURE__ */ jsxRuntime.jsx("div", { className: "slider-track", children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "slider-fill", style: { width: `${percent}%` } }) }),
+          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "slider-thumb-wrap", style: { left: `${percent}%` }, children: [
+            /* @__PURE__ */ jsxRuntime.jsx("div", { ref: thumbRef, className: "slider-thumb" }),
+            /* @__PURE__ */ jsxRuntime.jsx(
+              "div",
+              {
+                className: cn("slider-tooltip", showTooltip && "is-visible"),
+                "aria-hidden": "true",
+                children: value
+              }
+            )
+          ] })
+        ]
+      }
+    ),
+    showLabels && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "slider-labels", "aria-hidden": "true", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("span", { children: min }),
+      /* @__PURE__ */ jsxRuntime.jsx("span", { children: max })
+    ] })
   ] });
 }
 
@@ -3448,6 +3616,7 @@ function Accordion({
   value: controlledValue,
   onValueChange,
   children,
+  size = "heading-xs",
   className
 }) {
   const defaultSet = new Set(
@@ -3473,7 +3642,7 @@ function Accordion({
     },
     [type, openValues, controlledValue, onValueChange]
   );
-  return /* @__PURE__ */ jsxRuntime.jsx(AccordionContext.Provider, { value: { type, openValues, toggle }, children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("accordion", className), children }) });
+  return /* @__PURE__ */ jsxRuntime.jsx(AccordionContext.Provider, { value: { type, openValues, toggle }, children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("accordion", `accordion-size-${size}`, className), children }) });
 }
 function AccordionItem({ value, children, className }) {
   const { openValues } = useAccordionContext();
@@ -4616,6 +4785,7 @@ exports.SheetTitle = SheetTitle;
 exports.SheetTrigger = SheetTrigger;
 exports.ShinodaLink = ShinodaLink;
 exports.Skeleton = Skeleton;
+exports.Slider = Slider;
 exports.StickyCol = StickyCol;
 exports.Switch = Switch;
 exports.TRACKING_TOKENS = TRACKING_TOKENS;

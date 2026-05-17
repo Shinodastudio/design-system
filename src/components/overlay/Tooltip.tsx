@@ -12,6 +12,7 @@ import {
 } from 'react';
 import ReactDOM from 'react-dom';
 import { cn } from '@/lib/cn';
+import { Icon } from '@/components/icons/Icon';
 
 export type TooltipSide = 'top' | 'bottom' | 'left' | 'right';
 
@@ -43,6 +44,16 @@ interface TooltipProps {
   readonly children: React.ReactElement<React.HTMLAttributes<HTMLElement>>;
   readonly side?: TooltipSide;
   readonly delay?: number;
+  /**
+   * `variable` (default) — pill hugs its content, max-width unconstrained.
+   * `fixed` — 256px wide, text wraps. Matches Figma Width=Fixed variant.
+   */
+  readonly width?: 'variable' | 'fixed';
+  /**
+   * Renders a `CaretDown` icon beside the label. Only applies in `variable`
+   * mode; ignored when `width="fixed"`. Matches Figma icon=true variant.
+   */
+  readonly icon?: boolean;
 }
 
 export function Tooltip({
@@ -50,6 +61,8 @@ export function Tooltip({
   children,
   side = 'top',
   delay = 400,
+  width = 'variable',
+  icon = false,
 }: TooltipProps): React.ReactElement {
   const id = useId();
   const [visible, setVisible] = useState(false);
@@ -140,11 +153,21 @@ export function Tooltip({
             ref={tooltipRef}
             id={id}
             role="tooltip"
-            className={cn('tooltip-content', `tooltip-content-${side}`, !visible && 'tooltip-hidden')}
+            className={cn(
+              'tooltip-content',
+              `tooltip-content-${side}`,
+              width === 'fixed' && 'tooltip-content-fixed',
+              !visible && 'tooltip-hidden',
+            )}
             style={{ top: position.top, left: position.left }}
             aria-hidden={!visible}
           >
             {content}
+            {icon && width !== 'fixed' && (
+              <span className="tooltip-icon">
+                <Icon name="CaretDown" size="2xs" />
+              </span>
+            )}
           </div>,
           document.body,
         )}
