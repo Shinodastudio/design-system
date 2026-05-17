@@ -391,9 +391,9 @@ button { font: inherit; background: none; border: none; cursor: none; }
   background: var(--color-core-contrast);
   mix-blend-mode: difference;
   width: 1.25em; height: 1.25em;
-  transition: width 180ms cubic-bezier(0.34, 1.4, 0.64, 1),
-              height 180ms cubic-bezier(0.34, 1.4, 0.64, 1),
-              border-radius 180ms cubic-bezier(0.34, 1.4, 0.64, 1),
+  transition: width 200ms cubic-bezier(0.34, 1.4, 0.64, 1),
+              height 200ms cubic-bezier(0.34, 1.4, 0.64, 1),
+              border-radius 200ms cubic-bezier(0.34, 1.4, 0.64, 1),
               opacity 200ms ease;
   display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
@@ -404,14 +404,18 @@ button { font: inherit; background: none; border: none; cursor: none; }
   opacity: 0; transition: opacity 100ms ease;
   mix-blend-mode: difference; pointer-events: none;
 }
-/* Button hover — cursor morphs into the button's own footprint, then fades out.
-   The button's ::before bg takes over as the visible affordance.
-   JS measures the hovered element and writes --cursor-btn-w / --cursor-btn-h. */
+/* Button hover — cursor morphs into the button's footprint then dissolves.
+   Morph leads (spring, 200ms), fade follows with 60ms delay — iPad Magic Cursor
+   feel. Explicit transition override applies only in this state. */
 html.cursor--btn .cursor {
   width: var(--cursor-btn-w, 4em);
   height: var(--cursor-btn-h, 1.5em);
   border-radius: var(--radius-sm);
   opacity: 0;
+  transition: width 200ms cubic-bezier(0.34, 1.4, 0.64, 1),
+              height 200ms cubic-bezier(0.34, 1.4, 0.64, 1),
+              border-radius 200ms cubic-bezier(0.34, 1.4, 0.64, 1),
+              opacity 150ms ease 60ms;
 }
 /* Text — I-beam */
 html.cursor--text .cursor { width: 2px; height: 1.5em; border-radius: 1px; }
@@ -1451,11 +1455,15 @@ html.cursor--focused .cursor { opacity: 0; }
   font-weight: var(--fw-normal);
   letter-spacing: var(--tracking-n005);
   line-height: var(--leading-body-xs);
-  /* Figma asymmetric padding — pl 6px, pr 4px, py 4px */
+  /* Figma: pl 6px, pr 4px, py 4px */
   padding: 4px 4px 4px 6px;
-  border-radius: var(--radius-sm);
+  /* Figma outer clip = 4px (radius-xs) */
+  border-radius: var(--radius-xs);
   white-space: nowrap;
-  transition: opacity 150ms ease;
+  cursor: none;
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+  transition: opacity 150ms ease, transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .badge:hover { opacity: var(--opacity-40); }
 
@@ -1474,12 +1482,16 @@ html.cursor--focused .cursor { opacity: 0; }
   padding: var(--space-4) var(--space-5);
   border-left: 3px solid var(--color-text-primary);
   background-color: var(--color-fill-primary);
+  border-radius: var(--radius-sm);
   width: 100%;
   opacity: 0;
   transform: translateY(-4px);
-  transition: opacity 200ms ease, transform 200ms ease;
+  --gravity-x: 0px; --gravity-y: 0px;
+  transition: opacity 200ms ease,
+              transform 200ms cubic-bezier(0.23, 1, 0.32, 1),
+              background-color 150ms ease;
 }
-.alert-visible { opacity: 1; transform: none; }
+.alert-visible { opacity: 1; transform: translate(var(--gravity-x), var(--gravity-y)); }
 .alert-exiting { opacity: 0; transform: translateY(-4px); transition: opacity 150ms ease, transform 150ms ease; }
 @media (prefers-reduced-motion: reduce) {
   .alert, .alert-visible, .alert-exiting { transition: none; transform: none; }
@@ -1489,6 +1501,18 @@ html.cursor--focused .cursor { opacity: 0; }
 .alert-warning { border-left-color: var(--color-status-warning); }
 .alert-error   { border-left-color: var(--color-status-error); }
 .alert-info    { border-left-color: var(--color-status-info); }
+/* Hover: tint bg with indicator accent at 10% */
+.alert-default:hover { background-color: color-mix(in srgb, var(--color-text-primary)    10%, var(--color-fill-primary)); }
+.alert-success:hover { background-color: color-mix(in srgb, var(--color-status-success)  10%, var(--color-fill-primary)); }
+.alert-warning:hover { background-color: color-mix(in srgb, var(--color-status-warning)  10%, var(--color-fill-primary)); }
+.alert-error:hover   { background-color: color-mix(in srgb, var(--color-status-error)    10%, var(--color-fill-primary)); }
+.alert-info:hover    { background-color: color-mix(in srgb, var(--color-status-info)     10%, var(--color-fill-primary)); }
+/* Urgent — full accent fill, inverted text. No hover tint needed. */
+.alert-urgent {
+  border-left-color: var(--color-status-error);
+  background-color: var(--color-status-error);
+  color: var(--color-fill-base);
+}
 .alert-body { flex: 1; display: flex; flex-direction: column; gap: var(--space-1); }
 .alert-title { font-size: 1rem; letter-spacing: var(--tracking-n015); font-weight: var(--fw-medium); }
 .alert-content { font-size: 1rem; letter-spacing: var(--tracking-n010); opacity: var(--opacity-80); }
@@ -1574,7 +1598,7 @@ html.cursor--focused .cursor { opacity: 0; }
 /* Scrim — blur + darken behind the dialog. The dialog::backdrop sits between
    the page and the dialog, so backdrop-filter blurs the page underneath. */
 .dialog::backdrop {
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: var(--color-scrim);
   backdrop-filter: blur(var(--blur-xs));
   -webkit-backdrop-filter: blur(var(--blur-xs));
 }
@@ -1587,6 +1611,14 @@ html.cursor--focused .cursor { opacity: 0; }
   flex-direction: column;
   gap: var(--space-6);
   position: relative;
+  animation: dialog-slide-up 220ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+@keyframes dialog-slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dialog-content { animation: none; }
 }
 .dialog-header { display: flex; flex-direction: column; gap: var(--space-2); }
 .dialog-title { font-size: 1.5rem; letter-spacing: var(--tracking-n030); line-height: var(--leading-heading); }
@@ -1607,11 +1639,11 @@ html.cursor--focused .cursor { opacity: 0; }
 .sheet-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: var(--color-scrim);
   backdrop-filter: blur(var(--blur-xs));
   -webkit-backdrop-filter: blur(var(--blur-xs));
   opacity: 0;
-  z-index: 998;
+  z-index: 1000;
   transition: opacity 250ms ease;
   pointer-events: none;
 }
@@ -1621,7 +1653,7 @@ html.cursor--focused .cursor { opacity: 0; }
 }
 .sheet-content {
   position: fixed;
-  z-index: 999;
+  z-index: 1001;
   background-color: var(--color-fill-base);
   border: var(--border-sm) solid var(--color-transparent-weak);
   border-radius: var(--radius-sm);
@@ -1677,7 +1709,8 @@ html.cursor--focused .cursor { opacity: 0; }
   background-color: var(--color-fill-base);
   border: var(--border-sm) solid var(--color-transparent-weak);
   border-radius: var(--radius-sm);
-  padding: var(--space-1) 0;
+  /* 4px interior padding so items sit inset from edges and show border-radius */
+  padding: var(--space-1);
   min-width: 160px;
   opacity: 1;
   transition: opacity 150ms ease;
@@ -1688,7 +1721,8 @@ html.cursor--focused .cursor { opacity: 0; }
   align-items: center;
   gap: var(--space-2);
   width: 100%;
-  padding: var(--space-2) var(--space-4);
+  /* More generous padding makes items feel like menu objects */
+  padding: var(--space-2) var(--space-3);
   font: inherit;
   font-size: 1rem;
   letter-spacing: var(--tracking-n015);
@@ -1697,6 +1731,7 @@ html.cursor--focused .cursor { opacity: 0; }
   border: none;
   text-align: left;
   cursor: none;
+  border-radius: var(--radius-sm);
   transition: background-color 100ms ease;
 }
 .dropdown-item:hover { background-color: var(--color-transparent-weak); }
@@ -1707,12 +1742,17 @@ html.cursor--focused .cursor { opacity: 0; }
   opacity: var(--opacity-divider);
   margin: var(--space-1) 0;
 }
+/* Dropdown label — same layout/padding as items but not interactive */
 .dropdown-label {
-  padding: var(--space-2) var(--space-4);
-  font-size: 0.75rem;
-  letter-spacing: var(--tracking-n010);
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  font: inherit;
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n015);
   opacity: var(--opacity-40);
-  text-transform: uppercase;
+  border-radius: var(--radius-sm);
 }
 
 /* ─── SWITCH ─────────────────────────────────────────────────────────────── */
@@ -1720,13 +1760,33 @@ html.cursor--focused .cursor { opacity: 0; }
   display: inline-flex;
   align-items: center;
   gap: var(--space-3);
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
 }
+/* Size variants — font-size on root; switch uses em so track and thumb scale. */
+.switch-root-size-heading-xl  { font-size: 2.5rem; }
+.switch-root-size-heading-lg  { font-size: 2rem; }
+.switch-root-size-heading-md  { font-size: 1.5rem; }
+.switch-root-size-heading-sm  { font-size: 1.25rem; }
+.switch-root-size-heading-xs  { font-size: 1rem; }
+.switch-root-size-heading-2xs { font-size: 0.875rem; }
+.switch-root-size-subheading-lg { font-size: 3rem; }
+.switch-root-size-subheading-md { font-size: 2rem; }
+.switch-root-size-subheading-sm { font-size: 1.5rem; }
+.switch-root-size-body-xl  { font-size: 1.5rem; }
+.switch-root-size-body-lg  { font-size: 1.375rem; }
+.switch-root-size-body-md  { font-size: 1.25rem; }
+.switch-root-size-body-sm  { font-size: 1.125rem; }
+.switch-root-size-body-xs  { font-size: 1rem; }
+.switch-root-size-body-2xs { font-size: 0.875rem; }
 .switch {
   position: relative;
   display: inline-flex;
   align-items: center;
-  width: 2.5rem;
-  height: 1.375rem;
+  /* em units — track scales with font-size of switch-root */
+  width: 2.5em;
+  height: 1.375em;
   border-radius: var(--radius-full);
   background-color: var(--color-fill-secondary);
   border: none;
@@ -1753,20 +1813,59 @@ html.cursor--focused .cursor { opacity: 0; }
 .switch-disabled { opacity: var(--opacity-40); }
 .switch-thumb {
   display: block;
-  width: 1rem;
-  height: 1rem;
+  width: 1em;
+  height: 1em;
   border-radius: var(--radius-full);
   background-color: var(--color-fill-base);
   position: absolute;
-  left: var(--space-1);
+  left: 0.25em;
   transform: translateX(0);
   transition: transform 200ms cubic-bezier(0.34, 1.4, 0.64, 1);
+  /* Never intercept cursor context — button should always be the target */
+  pointer-events: none;
 }
-.switch-on .switch-thumb { transform: translateX(calc(2.5rem - 1rem - var(--space-1) * 2)); }
-.switch-label { font-size: 1rem; letter-spacing: var(--tracking-n015); cursor: none; }
+.switch-on .switch-thumb { transform: translateX(calc(2.5em - 1em - 0.25em * 2)); }
+/* Label — inherits root font-size. Spring bg on hover mirrors .btn::before.
+   data-cursor="text" (set on the element) handles custom I-beam via JS. */
+.switch-label {
+  font-size: inherit;
+  letter-spacing: var(--tracking-n015);
+  cursor: none;
+  position: relative;
+  border-radius: var(--radius-xs);
+  padding: 0.1em 0.2em;
+}
+.switch-label::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-xs);
+  background-color: var(--color-transparent-weak);
+  transform: scale(0.8);
+  opacity: 0;
+  transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 150ms ease;
+  pointer-events: none;
+}
+.switch-label:hover::before { transform: scale(1); opacity: 1; }
 
 /* ─── ACCORDION ──────────────────────────────────────────────────────────── */
 .accordion { display: flex; flex-direction: column; width: 100%; }
+/* Size variants — font-size on root; trigger and content inherit. */
+.accordion-size-heading-xl  { font-size: 2.5rem; }
+.accordion-size-heading-lg  { font-size: 2rem; }
+.accordion-size-heading-md  { font-size: 1.5rem; }
+.accordion-size-heading-sm  { font-size: 1.25rem; }
+.accordion-size-heading-xs  { font-size: 1rem; }
+.accordion-size-heading-2xs { font-size: 0.875rem; }
+.accordion-size-subheading-lg { font-size: 3rem; }
+.accordion-size-subheading-md { font-size: 2rem; }
+.accordion-size-subheading-sm { font-size: 1.5rem; }
+.accordion-size-body-xl  { font-size: 1.5rem; }
+.accordion-size-body-lg  { font-size: 1.375rem; }
+.accordion-size-body-md  { font-size: 1.25rem; }
+.accordion-size-body-sm  { font-size: 1.125rem; }
+.accordion-size-body-xs  { font-size: 1rem; }
+.accordion-size-body-2xs { font-size: 0.875rem; }
 .accordion-item {
   border-bottom: var(--border-sm) solid color-mix(in srgb, var(--color-text-primary) 5%, transparent);
 }
@@ -1777,7 +1876,7 @@ html.cursor--focused .cursor { opacity: 0; }
   width: 100%;
   padding: var(--space-4) 0;
   font: inherit;
-  font-size: 1rem;
+  font-size: inherit;
   letter-spacing: var(--tracking-n015);
   color: var(--color-text-primary);
   background: transparent;
@@ -1792,7 +1891,8 @@ html.cursor--focused .cursor { opacity: 0; }
   position: absolute;
   inset: -0.1em;
   border-radius: var(--radius-sm);
-  background-color: var(--color-transparent-core);
+  /* Lighter hover fill — matches button (transparent-weak = 5%) not core (20%) */
+  background-color: var(--color-transparent-weak);
   transform: scale(0.8);
   opacity: 0;
   transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 150ms ease;
@@ -1800,10 +1900,12 @@ html.cursor--focused .cursor { opacity: 0; }
 }
 .accordion-trigger:hover::before { transform: scale(1); opacity: 1; }
 .accordion-trigger:hover { opacity: 1; }
-.accordion-trigger-text { flex: 1; }
+/* Never intercept cursor context — the button should always be the event target */
+.accordion-trigger-text { flex: 1; pointer-events: none; }
 .accordion-chevron {
   flex-shrink: 0;
   transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
 }
 .accordion-chevron-open { transform: rotate(180deg); }
 .accordion-content {
@@ -1812,7 +1914,13 @@ html.cursor--focused .cursor { opacity: 0; }
   transition: max-height 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .accordion-content-open { max-height: 600px; }
-.accordion-content-inner { padding-bottom: var(--space-4); font-size: 1rem; letter-spacing: var(--tracking-n010); opacity: var(--opacity-80); }
+/* More breathing room for the expanded content */
+.accordion-content-inner {
+  padding: var(--space-3) 0 var(--space-6);
+  font-size: inherit;
+  letter-spacing: var(--tracking-n010);
+  opacity: var(--opacity-80);
+}
 @media (prefers-reduced-motion: reduce) {
   .accordion-content { transition: none; }
   .accordion-chevron { transition: none; }
@@ -1844,21 +1952,26 @@ html.cursor--focused .cursor { opacity: 0; }
   caret-color: var(--color-text-primary);
 }
 .command-input::placeholder { color: var(--color-text-tertiary); }
-.command-list { max-height: 320px; overflow-y: auto; padding: var(--space-1) 0; }
+.command-list { max-height: 320px; overflow-y: auto; padding: var(--space-1); }
 .command-empty { padding: var(--space-4); font-size: 0.875rem; letter-spacing: var(--tracking-n010); opacity: var(--opacity-40); text-align: center; }
 .command-group { padding: var(--space-1) 0; }
+/* Group label — same layout as items but not interactive */
 .command-group-label {
-  padding: var(--space-2) var(--space-4);
-  font-size: 0.75rem;
-  letter-spacing: var(--tracking-n010);
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  font: inherit;
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n015);
   opacity: var(--opacity-40);
-  text-transform: uppercase;
+  border-radius: var(--radius-sm);
 }
 .command-item {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-3);
   font: inherit;
   font-size: 1rem;
   letter-spacing: var(--tracking-n015);
@@ -1867,6 +1980,7 @@ html.cursor--focused .cursor { opacity: 0; }
   border: none;
   text-align: left;
   cursor: none;
+  border-radius: var(--radius-sm);
   transition: background-color 100ms ease;
 }
 .command-item:hover,
@@ -1919,7 +2033,10 @@ html.cursor--focused .cursor { opacity: 0; }
 
 /* ─── EDITABLE TABLE ─────────────────────────────────────────────────────── */
 .editable-cell-clickable { cursor: none; }
-.editable-cell-clickable:hover { background-color: var(--color-transparent-weak); }
+.editable-cell-clickable:hover {
+  background-color: var(--color-transparent-weak);
+  border-radius: var(--radius-sm);
+}
 .editable-cell-active { padding: 0; }
 .editable-cell-input {
   display: block;
@@ -2071,10 +2188,9 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
   align-items: center;
   gap: var(--space-4);
   padding: var(--space-3) var(--space-5);
-  background-color: var(--color-fill-secondary);
-  backdrop-filter: blur(var(--blur-md));
-  -webkit-backdrop-filter: blur(var(--blur-md));
-  border: var(--border-sm) solid var(--color-transparent-weak);
+  /* Tooltip-style: always inverted — dark in light mode, light in dark mode */
+  background-color: var(--color-text-primary);
+  color: var(--color-fill-base);
   border-radius: var(--radius-sm);
 }
 .fab-count {
@@ -2083,13 +2199,15 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
   gap: var(--space-2);
   font-size: 0.875rem;
   letter-spacing: var(--tracking-n010);
+  /* Inherit inverted color; opacity maps to 60% of fill-base */
+  color: inherit;
   opacity: var(--opacity-60);
   white-space: nowrap;
 }
-.fab-clear { opacity: var(--opacity-40); transition: opacity 150ms ease; }
+.fab-clear { color: inherit; opacity: var(--opacity-40); transition: opacity 150ms ease; }
 .fab-clear:hover { opacity: 1; }
 .fab-actions { display: flex; align-items: center; gap: var(--space-2); }
-.fab-action { font-size: 0.875rem; letter-spacing: var(--tracking-n010); }
+.fab-action { font-size: 0.875rem; letter-spacing: var(--tracking-n010); color: inherit; }
 .fab-action-destructive { color: var(--color-status-error); }
 .fab-action-icon { display: flex; align-items: center; }
 @media (prefers-reduced-motion: reduce) {
@@ -2110,8 +2228,10 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
 .content-card-interactive { cursor: none; }
 .content-card-interactive:hover { background-color: color-mix(in srgb, var(--color-transparent-weak) 100%, var(--color-fill-primary) 0%); }
 .content-card-body { display: flex; flex-direction: column; gap: var(--space-2); flex: 1; }
-.content-card-title { font-size: 1rem; letter-spacing: var(--tracking-n015); font-weight: var(--fw-medium); }
-.content-card-description { font-size: 0.875rem; letter-spacing: var(--tracking-n010); opacity: var(--opacity-60); }
+/* heading-md as the primary type size for card titles */
+.content-card-title { font-size: 1.5rem; letter-spacing: var(--tracking-n030); line-height: var(--leading-heading); font-weight: var(--fw-normal); }
+/* Same size as title at 40% — hierarchy through opacity, not size change */
+.content-card-description { font-size: 1.5rem; letter-spacing: var(--tracking-n030); line-height: var(--leading-heading); opacity: var(--opacity-40); }
 .content-card-content { font-size: 1rem; letter-spacing: var(--tracking-n010); }
 .content-card-actions {
   display: flex;
@@ -2194,11 +2314,19 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
   text-align: center;
   cursor: none;
   user-select: none;
-  transition: border-color 200ms ease, background-color 200ms ease;
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+  transition: border-color 200ms ease, background-color 200ms ease,
+              transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .dropzone:focus-visible {
   outline: var(--border-sm) solid var(--color-text-primary);
   outline-offset: var(--space-1);
+}
+/* Hover: background tints to secondary to signal interactivity */
+.dropzone:hover:not(.dropzone-disabled) {
+  background-color: var(--color-fill-secondary);
+  border-color: var(--color-text-primary);
 }
 .dropzone-active {
   border-color: var(--color-text-primary);
@@ -2211,11 +2339,15 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
   opacity: var(--opacity-40);
   pointer-events: none;
 }
+/* Children never intercept pointer events — the dropzone div is always the
+   mouseover target so cursor--btn context is reliably detected. */
 .dropzone-icon {
   opacity: var(--opacity-40);
   color: var(--color-text-primary);
   transition: opacity 200ms ease;
+  pointer-events: none;
 }
+.dropzone:hover:not(.dropzone-disabled) .dropzone-icon,
 .dropzone-active .dropzone-icon {
   opacity: var(--opacity-80);
 }
@@ -2223,30 +2355,38 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
   font-size: 1rem;
   letter-spacing: var(--tracking-n010);
   color: var(--color-text-primary);
+  pointer-events: none;
 }
 .dropzone-hint {
   font-size: 0.875rem;
   letter-spacing: var(--tracking-n005);
   opacity: var(--opacity-40);
+  pointer-events: none;
 }
 .dropzone-error-text {
   font-size: 0.875rem;
   letter-spacing: var(--tracking-n005);
   color: var(--color-status-error);
+  pointer-events: none;
 }
 
 /* ─── FILE CHIP ──────────────────────────────────────────────────────────────
-   Compact row representing a queued / uploaded file. Filename truncates with
-   ellipsis; size is fixed-width metadata at 40%. Remove button uses gravity. */
+   Compact row representing a queued / uploaded file. Gravity on the whole chip
+   so the entire row responds to proximity. Filename truncates with ellipsis. */
 .file-chip {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-2);
   background-color: var(--color-fill-primary);
   border: var(--border-sm) solid var(--color-transparent-weak);
   border-radius: var(--radius-sm);
   min-width: 0;
+  /* Gravity lives on the chip root now */
+  --gravity-x: 0px;
+  --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .file-chip-icon {
   flex-shrink: 0;
@@ -2257,8 +2397,9 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
 }
 .file-chip-name {
   flex: 1;
-  font-size: 0.875rem;
-  letter-spacing: var(--tracking-n010);
+  font-size: 1.125rem;
+  letter-spacing: var(--tracking-n015);
+  line-height: 1.3;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2266,8 +2407,8 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
 }
 .file-chip-size {
   flex-shrink: 0;
-  font-size: 0.75rem;
-  letter-spacing: var(--tracking-n005);
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n010);
   opacity: var(--opacity-40);
 }
 .file-chip-remove {
@@ -2276,16 +2417,121 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
   align-items: center;
   justify-content: center;
   padding: var(--space-1);
-  background: none;
+  background: transparent;
   border: none;
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-sm);
   cursor: none;
   opacity: var(--opacity-40);
   color: var(--color-text-primary);
-  transition: opacity 150ms ease;
+  transition: opacity 150ms ease, background-color 100ms ease;
+}
+.file-chip-remove:hover {
+  opacity: var(--opacity-80);
+  background-color: var(--color-transparent-weak);
+}
+
+/* ─── SLIDER ──────────────────────────────────────────────────────────────── */
+.slider {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  user-select: none;
+}
+.slider-disabled {
+  opacity: var(--opacity-40);
+  pointer-events: none;
+}
+
+/* Track area — full-height hit target; holds all pointer/keyboard events. */
+.slider-track-area {
   position: relative;
+  display: flex;
+  align-items: center;
+  height: 2em;
+  cursor: none;
+  outline: none;
+}
+
+/* Visible track — 2px tall, 20% opacity background. */
+.slider-track {
+  position: absolute;
+  left: 0; right: 0;
+  height: var(--border-md);
+  background-color: color-mix(in srgb, var(--color-text-primary) 20%, transparent);
+  border-radius: var(--radius-full);
+}
+
+/* Fill — text-primary from left edge to thumb. */
+.slider-fill {
+  position: absolute;
+  left: 0; top: 0; height: 100%;
+  border-radius: var(--radius-full);
+  background-color: var(--color-text-primary);
+  /* width set inline */
+}
+
+/* Thumb wrapper — positioned at left: X% (set inline); no transform here so
+   the gravity transform on .slider-thumb only moves the visual dot. */
+.slider-thumb-wrap {
+  position: absolute;
+  top: 50%;
+  pointer-events: none;
+}
+
+/* Thumb dot — 20px circle, gravity via CSS vars set by useGravity. */
+.slider-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-text-primary);
   --gravity-x: 0px;
   --gravity-y: 0px;
-  transform: translate(var(--gravity-x), var(--gravity-y));
+  transform: translate(
+    calc(-50% + var(--gravity-x)),
+    calc(-50% + var(--gravity-y))
+  );
+  transition: transform 200ms cubic-bezier(0.34, 1.4, 0.64, 1);
+  pointer-events: none;
 }
-.file-chip-remove:hover { opacity: var(--opacity-80); }
+
+/* Focus ring on the thumb when track-area is keyboard-focused. */
+.slider-track-area:focus-visible .slider-thumb {
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--color-text-primary) 20%, transparent);
+}
+
+/* Tooltip — inverted, above the thumb. Only visible when dragging / focused. */
+.slider-tooltip {
+  position: absolute;
+  /* Align horizontally with thumb center */
+  left: 0;
+  transform: translateX(-50%);
+  /* Sit above the thumb: half thumb height (10px) + 8px gap */
+  bottom: calc(10px + var(--space-2));
+  padding: var(--space-1) var(--space-2);
+  background-color: var(--color-text-primary);
+  color: var(--color-fill-base);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--tracking-n005);
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+.slider-tooltip.is-visible { opacity: 1; }
+
+/* Min/max labels row — below the track, 40% opacity metadata. */
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--tracking-n010);
+  opacity: var(--opacity-40);
+}

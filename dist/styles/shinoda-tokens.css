@@ -248,6 +248,9 @@
   --color-transparent-core:   var(--alpha-20);
   --color-transparent-strong: var(--alpha-60);
 
+  /* ─── SCRIM — static dark overlay for dialogs/sheets (always dark) ─── */
+  --color-scrim: rgba(0, 0, 0, 0.40);
+
   /* ─── STATUS — derived from accents (not in Figma) ─────────────────── */
   --color-status-error:   var(--accent-red);
   --color-status-warning: var(--accent-orange);

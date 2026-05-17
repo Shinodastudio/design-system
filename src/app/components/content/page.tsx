@@ -7,6 +7,7 @@ import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 import { ComponentSection } from '@/components/catalogue/ComponentSection';
 import { ContentCard } from '@/components/content/ContentCard';
 import { DownloadTile } from '@/components/content/DownloadTile';
+import { CodeSnippet } from '@/components/content/CodeSnippet';
 import { Button } from '@/components/primitives/Button';
 
 const SIZES = ['default'] as const;
@@ -97,6 +98,21 @@ export default function ContentPage(): React.ReactElement {
                   fileSize="4.2 MB"
                   onDownload={() => undefined}
                 />
+              </div>
+            )}
+          />
+
+          <ComponentSection
+            name="CodeSnippet"
+            description="Click-to-copy code line. 40% opacity at rest, fills in on hover with a Copy icon, and confirms the write with a CheckCircle + 'Copied to Clipboard' for ~1.6s."
+            code={`<CodeSnippet code="<Button>Label</Button>" />`}
+            sizes={SIZES}
+            states={['default', 'hover', 'active']}
+            render={(): React.ReactNode => (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', width: '100%', maxWidth: 400 }}>
+                <CodeSnippet code="<Button>Label</Button>" />
+                <CodeSnippet code="import { Button } from '@shinoda/ds';" />
+                <CodeSnippet code="bun add @shinoda/ds" />
               </div>
             )}
           />

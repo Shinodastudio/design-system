@@ -42,6 +42,7 @@
   /* ─── FONT FAMILIES ────────────────────────────────────────────────── */
   --font-sans:   "GT America LCG", system-ui, sans-serif;
   --font-serif:  "GT Super Text", Georgia, serif;
+  --font-mono:   "GT America LCG Mono", ui-monospace, monospace;
 
   /* ─── FONT WEIGHTS (full primitive scale) ──────────────────────────── */
   --fw-thin:        100;
