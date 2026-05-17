@@ -21,6 +21,15 @@
   font-display: swap;
 }
 
+/* GT America LCG Mono — Regular only */
+@font-face {
+  font-family: "GT America LCG Mono";
+  src: url("/system/fonts/GT-America-LCGV-Mono-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* GT Super Text — 400 / 450 / 500 only */
 @font-face {
   font-family: "GT Super Text";

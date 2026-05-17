@@ -4,9 +4,9 @@ import { useRef } from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { cn } from '@/lib/cn';
 import { useGravity } from '@/hooks/useGravity';
-import { BUTTON_SIZES, type ButtonSize } from './Button.constants';
+import { BUTTON_SIZES, type ButtonSize, type AccentColor } from './Button.constants';
 
-export { BUTTON_SIZES, type ButtonSize };
+export { BUTTON_SIZES, type ButtonSize, type AccentColor };
 
 interface ButtonProps extends React.ComponentPropsWithoutRef<'button'> {
   readonly asChild?: boolean;
@@ -15,6 +15,12 @@ interface ButtonProps extends React.ComponentPropsWithoutRef<'button'> {
    * Default base is heading-md (1.5rem). Sizes follow the Figma spec.
    */
   readonly size?: ButtonSize;
+  /**
+   * Accent colour variant — tints the button text and background with a
+   * semantic or raw palette colour. Background is 10% tint at rest, 20% on
+   * hover. Applies to text buttons and icon-only (.btn-icon) buttons alike.
+   */
+  readonly accent?: AccentColor;
 }
 
 const SIZE_CLASS: Record<ButtonSize, string> = {
@@ -38,6 +44,7 @@ const SIZE_CLASS: Record<ButtonSize, string> = {
 export function Button({
   asChild = false,
   size,
+  accent,
   className,
   children,
   ...props
@@ -49,7 +56,12 @@ export function Button({
   return (
     <Comp
       ref={ref}
-      className={cn('btn', size != null ? SIZE_CLASS[size] : undefined, className)}
+      className={cn(
+        'btn',
+        size != null ? SIZE_CLASS[size] : undefined,
+        accent != null ? `btn--accent btn--accent-${accent}` : undefined,
+        className,
+      )}
       {...props}
     >
       {children}

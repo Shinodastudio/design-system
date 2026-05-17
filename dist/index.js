@@ -303,11 +303,13 @@ function Button(_a) {
   var _b = _a, {
     asChild = false,
     size,
+    accent,
     className,
     children
   } = _b, props = __objRest(_b, [
     "asChild",
     "size",
+    "accent",
     "className",
     "children"
   ]);
@@ -318,7 +320,12 @@ function Button(_a) {
     Comp,
     __spreadProps(__spreadValues({
       ref,
-      className: cn("btn", size != null ? SIZE_CLASS[size] : void 0, className)
+      className: cn(
+        "btn",
+        size != null ? SIZE_CLASS[size] : void 0,
+        accent != null ? `btn--accent btn--accent-${accent}` : void 0,
+        className
+      )
     }, props), {
       children
     })
@@ -334,7 +341,8 @@ function ShinodaLink({
   className,
   external = false,
   size,
-  disabled = false
+  disabled = false,
+  accent
 }) {
   const ref = react.useRef(null);
   useGravity(ref);
@@ -342,6 +350,7 @@ function ShinodaLink({
     "link",
     size != null ? `btn-size-${size}` : void 0,
     disabled && "is-disabled",
+    accent != null ? `link--accent link--accent-${accent}` : void 0,
     className
   );
   if (external) {
@@ -2839,7 +2848,9 @@ function Tooltip({
   content,
   children,
   side = "top",
-  delay = 400
+  delay = 400,
+  width = "variable",
+  icon = false
 }) {
   const id = react.useId();
   const [visible, setVisible] = react.useState(false);
@@ -2918,16 +2929,24 @@ function Tooltip({
   return /* @__PURE__ */ jsxRuntime.jsxs(TooltipContext.Provider, { value: { id, visible, position, side, triggerRef, show, hide }, children: [
     triggerEl,
     typeof document !== "undefined" && ReactDOM__default.default.createPortal(
-      /* @__PURE__ */ jsxRuntime.jsx(
+      /* @__PURE__ */ jsxRuntime.jsxs(
         "div",
         {
           ref: tooltipRef,
           id,
           role: "tooltip",
-          className: cn("tooltip-content", `tooltip-content-${side}`, !visible && "tooltip-hidden"),
+          className: cn(
+            "tooltip-content",
+            `tooltip-content-${side}`,
+            width === "fixed" && "tooltip-content-fixed",
+            !visible && "tooltip-hidden"
+          ),
           style: { top: position.top, left: position.left },
           "aria-hidden": !visible,
-          children: content
+          children: [
+            content,
+            icon && width !== "fixed" && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "tooltip-icon", children: /* @__PURE__ */ jsxRuntime.jsx(Icon, { name: "CaretDown", size: "2xs" }) })
+          ]
         }
       ),
       document.body
@@ -4495,6 +4514,46 @@ function DownloadTile({
   ] });
 }
 
+// src/components/content/CodeSnippet.tsx
+init_cn();
+var COPIED_FEEDBACK_MS = 1600;
+function CodeSnippet({
+  code,
+  copyLabel = "Copy code",
+  className
+}) {
+  const [copied, setCopied] = react.useState(false);
+  const timeoutRef = react.useRef(null);
+  react.useEffect(() => () => {
+    if (timeoutRef.current != null) clearTimeout(timeoutRef.current);
+  }, []);
+  const handleCopy = react.useCallback(async () => {
+    if (typeof navigator === "undefined" || navigator.clipboard == null) return;
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      if (timeoutRef.current != null) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => setCopied(false), COPIED_FEEDBACK_MS);
+    } catch (err) {
+      console.error("CodeSnippet \u2014 clipboard write failed", err);
+    }
+  }, [code]);
+  return /* @__PURE__ */ jsxRuntime.jsxs(
+    "button",
+    {
+      type: "button",
+      className: cn("code-snippet", copied && "code-snippet-copied", className),
+      onClick: handleCopy,
+      "aria-label": copyLabel,
+      "data-cursor": "btn",
+      children: [
+        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "code-snippet-text", children: copied ? "Copied to Clipboard" : code }),
+        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "code-snippet-action", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntime.jsx(Icon, { name: copied ? "CheckCircle" : "Copy", size: "sm" }) })
+      ]
+    }
+  );
+}
+
 // src/components/map/index.ts
 init_Map();
 
@@ -4710,6 +4769,7 @@ exports.Checkbox = Checkbox;
 exports.Choice = Choice;
 exports.ChoiceLabel = ChoiceLabel;
 exports.ClientShell = ClientShell;
+exports.CodeSnippet = CodeSnippet;
 exports.Command = Command;
 exports.CommandEmpty = CommandEmpty;
 exports.CommandGroup = CommandGroup;

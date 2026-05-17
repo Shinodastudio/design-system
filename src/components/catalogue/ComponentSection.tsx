@@ -37,6 +37,8 @@ interface ComponentSectionProps<S extends string> {
   readonly states?: readonly SectionState[];
   readonly defaultState?: SectionState;
   readonly render: (ctx: RenderContext<S>) => React.ReactNode;
+  /** Optional extra chips rendered after the built-in size + state chips. */
+  readonly extraChips?: React.ReactNode;
 }
 
 const DEFAULT_STATES: readonly SectionState[] = ['default', 'hover', 'active', 'focus', 'disabled'];
@@ -57,6 +59,7 @@ export function ComponentSection<S extends string>({
   states = DEFAULT_STATES,
   defaultState = 'default',
   render,
+  extraChips,
 }: ComponentSectionProps<S>): React.ReactElement {
   const resolvedDefault = defaultSize ?? sizes[0];
   const [size, setSize] = useState<S>(resolvedDefault);
@@ -150,6 +153,7 @@ export function ComponentSection<S extends string>({
                 <span className="section-chip-chevron" aria-hidden="true" />
               </label>
             )}
+            {extraChips}
           </div>
         </div>
         <p className="body-sm op-40">{description}</p>

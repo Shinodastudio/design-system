@@ -378,6 +378,47 @@ button { font: inherit; background: none; border: none; cursor: none; }
 /* Active state — slight opacity drop on press, mirroring buttons */
 .link:active { opacity: var(--opacity-80); }
 
+/* ─── ACCENT BUTTON & LINK VARIANTS ──────────────────────────────────────
+   Semantic / status variants (destructive, warning, success, info) that tint
+   the element with an accent palette colour. Works on text buttons, icon-only
+   buttons (.btn-icon), and text links without any structural changes.
+
+   --btn-accent-color is set per-element by the colour binding classes below.
+   Transparent at rest; hover brings a 20% tint matching the neutral hover fill
+   on standard buttons/links.
+   The spring-zoom ::before on buttons uses the same accent tint on hover. */
+
+.btn--accent {
+  color: var(--btn-accent-color);
+}
+.btn--accent::before {
+  background-color: color-mix(in srgb, var(--btn-accent-color) 20%, transparent);
+}
+.btn--accent:focus-visible {
+  outline-color: var(--btn-accent-color);
+}
+
+.link--accent {
+  color: var(--btn-accent-color);
+  background-color: color-mix(in srgb, var(--btn-accent-color) 10%, transparent);
+}
+.link--accent:hover {
+  background-color: color-mix(in srgb, var(--btn-accent-color) 20%, transparent);
+}
+
+/* Raw palette bindings */
+.btn--accent-red,    .link--accent-red    { --btn-accent-color: var(--accent-red); }
+.btn--accent-orange, .link--accent-orange { --btn-accent-color: var(--accent-orange); }
+.btn--accent-yellow, .link--accent-yellow { --btn-accent-color: var(--accent-yellow); }
+.btn--accent-green,  .link--accent-green  { --btn-accent-color: var(--accent-green); }
+.btn--accent-blue,   .link--accent-blue   { --btn-accent-color: var(--accent-blue); }
+
+/* Semantic aliases — preferred in product UI */
+.btn--accent-error,   .link--accent-error   { --btn-accent-color: var(--color-status-error); }
+.btn--accent-warning, .link--accent-warning { --btn-accent-color: var(--color-status-warning); }
+.btn--accent-success, .link--accent-success { --btn-accent-color: var(--color-status-success); }
+.btn--accent-info,    .link--accent-info    { --btn-accent-color: var(--color-status-info); }
+
 /* ─── CURSOR — single inverted dot, fixed positioning ────────────────── */
 .cursor {
   position: fixed; left: 0; top: 0;
@@ -831,13 +872,68 @@ html.cursor--focused .cursor { opacity: 0; }
   display: block;
   padding: var(--space-2);
   opacity: var(--opacity-40);
-  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 0.875rem;
   letter-spacing: var(--tracking-none);
   white-space: pre;
   overflow-x: auto;
   line-height: 1.4;
 }
+
+/* ─── CODE SNIPPET — click-to-copy ─────────────────────────────────────
+   Three states (Figma parity):
+   - Default — 40% opacity, transparent background, no action affordance
+   - Hover   — fill-secondary background, full opacity, Copy icon visible
+   - Copied  — same background, "Copied to Clipboard" text, CheckCircle icon
+   Whole tile is the click target. */
+.code-snippet {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2);
+  border: none;
+  border-radius: var(--radius-xs);
+  background-color: var(--color-transparent-core);
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  letter-spacing: var(--tracking-n005);
+  text-align: left;
+  opacity: var(--opacity-40);
+  cursor: none;
+  transition: background-color 150ms ease, opacity 150ms ease;
+}
+.code-snippet:hover,
+.code-snippet:focus-visible,
+.code-snippet-copied {
+  background-color: var(--color-fill-secondary);
+  opacity: 1;
+  outline: none;
+}
+.code-snippet-copied { color: var(--color-text-tertiary); }
+.code-snippet-text {
+  flex: 1 0 0;
+  min-width: 0;
+  max-height: 1em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.code-snippet-action {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  color: inherit;
+}
+.code-snippet:hover .code-snippet-action,
+.code-snippet:focus-visible .code-snippet-action,
+.code-snippet-copied .code-snippet-action { display: inline-flex; }
 
 /* ─── LINK PAGE — 50/50 variant grid ─────────────────────────────────── */
 .link-variant-grid {
@@ -971,7 +1067,7 @@ html.cursor--focused .cursor { opacity: 0; }
   gap: var(--space-1);
   padding: var(--space-2);
   border-radius: var(--radius-xs);
-  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 0.875rem;
   line-height: 1.4;
   letter-spacing: var(--tracking-none);
@@ -1024,7 +1120,7 @@ html.cursor--focused .cursor { opacity: 0; }
 }
 /* Hex badge — tertiary text on a subtle background pill */
 .colour-row-hex {
-  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 0.875rem;
   letter-spacing: var(--tracking-none);
   padding: 0.15em 0.4em;
@@ -1405,14 +1501,14 @@ html.cursor--focused .cursor { opacity: 0; }
   font-style: italic;
 }
 .rich-text code {
-  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 0.9em;
   padding: 0.1em 0.3em;
   background: var(--color-transparent-weak);
   border-radius: var(--radius-xs);
 }
 .rich-text pre {
-  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 0.9em;
   padding: var(--space-4);
   background: var(--color-fill-primary);
@@ -1570,17 +1666,35 @@ html.cursor--focused .cursor { opacity: 0; }
 .tooltip-content {
   position: absolute;
   z-index: 1000;
-  padding: var(--space-2) var(--space-3);
+  /* Figma spec: 6px vertical, 8px horizontal */
+  padding: 6px var(--space-2);
   background-color: var(--color-text-primary);
   color: var(--color-fill-base);
-  font-size: 0.875rem;
-  letter-spacing: var(--tracking-n010);
+  font-size: 0.875rem;       /* body-2xs: 14px */
+  line-height: 1.4;
+  letter-spacing: var(--tracking-n005); /* -0.07px at 14px ≈ --tracking-n005 */
   border-radius: var(--radius-sm);
   pointer-events: none;
   opacity: 1;
   transition: opacity 150ms ease;
-  max-width: 280px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+/* Fixed-width variant — 256px, text truncates */
+.tooltip-content-fixed {
+  width: 256px;
+  white-space: normal;
   word-break: break-word;
+}
+/* Icon slot — caret or any 12px icon beside the label */
+.tooltip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: inherit;
 }
 .tooltip-hidden { opacity: 0; pointer-events: none; }
 
@@ -2290,7 +2404,7 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
   padding: var(--space-6);
 }
 .map-placeholder code {
-  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 0.875rem;
   padding: var(--space-2) var(--space-3);
   background-color: var(--color-transparent-weak);

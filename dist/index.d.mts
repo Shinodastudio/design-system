@@ -417,6 +417,8 @@ declare function Text({ variant, opacity, as, className, style, children, }: Tex
  * Previous t-shirt scale (xs/sm/md/lg/xl/2xl) was Webflow-parity shorthand;
  * the Figma source defines buttons by type tier instead.
  */
+declare const ACCENT_COLORS: readonly ["red", "orange", "yellow", "green", "blue", "error", "warning", "success", "info"];
+type AccentColor = typeof ACCENT_COLORS[number];
 declare const BUTTON_SIZES: readonly ["heading-xl", "heading-lg", "heading-md", "heading-sm", "heading-xs", "heading-2xs", "subheading-lg", "subheading-md", "subheading-sm", "body-xl", "body-lg", "body-md", "body-sm", "body-xs", "body-2xs"];
 type ButtonSize = typeof BUTTON_SIZES[number];
 
@@ -427,8 +429,14 @@ interface ButtonProps extends React.ComponentPropsWithoutRef<'button'> {
      * Default base is heading-md (1.5rem). Sizes follow the Figma spec.
      */
     readonly size?: ButtonSize;
+    /**
+     * Accent colour variant — tints the button text and background with a
+     * semantic or raw palette colour. Background is 10% tint at rest, 20% on
+     * hover. Applies to text buttons and icon-only (.btn-icon) buttons alike.
+     */
+    readonly accent?: AccentColor;
 }
-declare function Button({ asChild, size, className, children, ...props }: ButtonProps): React.ReactElement;
+declare function Button({ asChild, size, accent, className, children, ...props }: ButtonProps): React.ReactElement;
 
 /**
  * Link sizes mirror the Button size scale 1:1 — see Button.constants for the
@@ -444,8 +452,14 @@ interface ShinodaLinkProps {
     readonly external?: boolean;
     readonly size?: LinkSize;
     readonly disabled?: boolean;
+    /**
+     * Accent colour variant — tints the link text, underline, and background
+     * with a semantic or raw palette colour. Background is 10% tint at rest,
+     * 20% on hover. Underline inherits via currentColor automatically.
+     */
+    readonly accent?: AccentColor;
 }
-declare function ShinodaLink({ href, children, className, external, size, disabled, }: ShinodaLinkProps): React.ReactElement;
+declare function ShinodaLink({ href, children, className, external, size, disabled, accent, }: ShinodaLinkProps): React.ReactElement;
 
 interface InputProps extends React.ComponentPropsWithoutRef<'input'> {
     readonly hasError?: boolean;
@@ -726,8 +740,18 @@ interface TooltipProps {
     readonly children: React.ReactElement<React.HTMLAttributes<HTMLElement>>;
     readonly side?: TooltipSide;
     readonly delay?: number;
+    /**
+     * `variable` (default) — pill hugs its content, max-width unconstrained.
+     * `fixed` — 256px wide, text wraps. Matches Figma Width=Fixed variant.
+     */
+    readonly width?: 'variable' | 'fixed';
+    /**
+     * Renders a `CaretDown` icon beside the label. Only applies in `variable`
+     * mode; ignored when `width="fixed"`. Matches Figma icon=true variant.
+     */
+    readonly icon?: boolean;
 }
-declare function Tooltip({ content, children, side, delay, }: TooltipProps): React.ReactElement;
+declare function Tooltip({ content, children, side, delay, width, icon, }: TooltipProps): React.ReactElement;
 declare function TooltipRoot({ children, className }: {
     readonly children: React.ReactNode;
     readonly className?: string;
@@ -1090,6 +1114,24 @@ interface DownloadTileProps {
 }
 declare function DownloadTile({ filename, description, fileSize, fileType, onDownload, isDownloading, className, }: DownloadTileProps): React.ReactElement;
 
+interface CodeSnippetProps {
+    /** The code text to display and copy. */
+    readonly code: string;
+    /** Optional aria label for the copy action. Defaults to "Copy code". */
+    readonly copyLabel?: string;
+    readonly className?: string;
+}
+/**
+ * Click-to-copy code snippet. Three states (Figma: Default / Hovered / Active):
+ *   - Default — 40% opacity, no background, no action affordance
+ *   - Hovered — full opacity, fill-secondary background, Copy icon button
+ *   - Active  — same background, "Copied to Clipboard" feedback with CheckCircle
+ *
+ * Whole tile is clickable. After copy, the active state holds for ~1.6s
+ * before returning to hover/default.
+ */
+declare function CodeSnippet({ code, copyLabel, className, }: CodeSnippetProps): React.ReactElement;
+
 interface MapMarker {
     readonly position: readonly [number, number];
     readonly label?: string;
@@ -1134,4 +1176,4 @@ declare function useTheme(): readonly [Theme, () => void];
 
 declare function cn(...inputs: readonly ClassValue[]): string;
 
-export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, type AlertVariant, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, Badge, type BadgeVariant, type BodyVariant, Button, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, ContentCard, Cursor, type CursorRef, DateInput, Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, type EditableColumn, EditableTable, FONT_WEIGHT_TOKENS, FileChip, type FileChipProps, FileDropzone, type FileDropzoneProps, type FloatingAction, FloatingActionBar, Footer, Grid, HEADING_VARIANTS, type HeadingVariant, ICONS, ICONS_BY_ID, Icon, type IconProps, type IconRecord, type IconSize, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, type LinkSize, MainWrapper, Map, type MapMarker, MapNoSSR, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, type OpacityLevel, PADDING_TOKENS, PageWrapper, Popover, PopoverContent, PopoverTrigger, Progress, type ProgressSize, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, SearchDropdown, type SearchOption, SectionTile, Select, type SemanticColor, Sheet, SheetContent, SheetFooter, SheetHeader, type SheetSide, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, type SubheadingVariant, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, type TooltipSide, type TypeVariant, cn, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };
+export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, type AlertVariant, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, Badge, type BadgeVariant, type BodyVariant, Button, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, ContentCard, Cursor, type CursorRef, DateInput, Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, type EditableColumn, EditableTable, FONT_WEIGHT_TOKENS, FileChip, type FileChipProps, FileDropzone, type FileDropzoneProps, type FloatingAction, FloatingActionBar, Footer, Grid, HEADING_VARIANTS, type HeadingVariant, ICONS, ICONS_BY_ID, Icon, type IconProps, type IconRecord, type IconSize, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, type LinkSize, MainWrapper, Map, type MapMarker, MapNoSSR, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, type OpacityLevel, PADDING_TOKENS, PageWrapper, Popover, PopoverContent, PopoverTrigger, Progress, type ProgressSize, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, SearchDropdown, type SearchOption, SectionTile, Select, type SemanticColor, Sheet, SheetContent, SheetFooter, SheetHeader, type SheetSide, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, type SubheadingVariant, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, type TooltipSide, type TypeVariant, cn, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };

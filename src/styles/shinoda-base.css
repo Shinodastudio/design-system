@@ -193,11 +193,11 @@ button { font: inherit; background: none; border: none; cursor: none; }
   letter-spacing: var(--tracking-n015);
   opacity: var(--opacity-80);
 }
-/* Nav buttons get a more generous click footprint — the global -0.1em felt
-   undersized in the nav strip. -0.5em horizontal, -0.3em vertical reads
-   as a comfortable padded chip on hover. */
+/* Nav buttons get a more generous click footprint — -0.8em horizontal gives
+   a proper padded chip on hover; -0.45em vertical adds enough breathing room
+   above and below the 14px label without crowding adjacent items. */
 .nav-link::before {
-  inset: -0.3em -0.5em;
+  inset: -0.45em -0.8em;
   border-radius: var(--radius-sm);
 }
 .nav-link:hover { opacity: 1; }
@@ -377,6 +377,46 @@ button { font: inherit; background: none; border: none; cursor: none; }
 }
 /* Active state — slight opacity drop on press, mirroring buttons */
 .link:active { opacity: var(--opacity-80); }
+
+/* ─── ACCENT BUTTON & LINK VARIANTS ──────────────────────────────────────
+   Semantic / status variants (destructive, warning, success, info) that tint
+   the element with an accent palette colour. Works on text buttons, icon-only
+   buttons (.btn-icon), and text links without any structural changes.
+
+   --btn-accent-color is set per-element by the colour binding classes below.
+   Background is always visible at rest (10% tint); hover brings it to 20%,
+   matching the weight of the neutral hover fill on standard buttons/links.
+   The spring-zoom ::before on buttons uses the same accent tint on hover. */
+
+.btn--accent {
+  color: var(--btn-accent-color);
+}
+.btn--accent::before {
+  background-color: color-mix(in srgb, var(--btn-accent-color) 20%, transparent);
+}
+.btn--accent:focus-visible {
+  outline-color: var(--btn-accent-color);
+}
+
+.link--accent {
+  color: var(--btn-accent-color);
+}
+.link--accent:hover {
+  background-color: color-mix(in srgb, var(--btn-accent-color) 20%, transparent);
+}
+
+/* Raw palette bindings */
+.btn--accent-red,    .link--accent-red    { --btn-accent-color: var(--accent-red); }
+.btn--accent-orange, .link--accent-orange { --btn-accent-color: var(--accent-orange); }
+.btn--accent-yellow, .link--accent-yellow { --btn-accent-color: var(--accent-yellow); }
+.btn--accent-green,  .link--accent-green  { --btn-accent-color: var(--accent-green); }
+.btn--accent-blue,   .link--accent-blue   { --btn-accent-color: var(--accent-blue); }
+
+/* Semantic aliases — preferred in product UI */
+.btn--accent-error,   .link--accent-error   { --btn-accent-color: var(--color-status-error); }
+.btn--accent-warning, .link--accent-warning { --btn-accent-color: var(--color-status-warning); }
+.btn--accent-success, .link--accent-success { --btn-accent-color: var(--color-status-success); }
+.btn--accent-info,    .link--accent-info    { --btn-accent-color: var(--color-status-info); }
 
 /* ─── CURSOR — single inverted dot, fixed positioning ────────────────── */
 .cursor {
