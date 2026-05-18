@@ -193,11 +193,11 @@ button { font: inherit; background: none; border: none; cursor: none; }
   letter-spacing: var(--tracking-n015);
   opacity: var(--opacity-80);
 }
-/* Nav buttons get a more generous click footprint — the global -0.1em felt
-   undersized in the nav strip. -0.5em horizontal, -0.3em vertical reads
-   as a comfortable padded chip on hover. */
+/* Nav buttons get a more generous click footprint — -0.8em horizontal gives
+   a proper padded chip on hover; -0.45em vertical adds enough breathing room
+   above and below the 14px label without crowding adjacent items. */
 .nav-link::before {
-  inset: -0.3em -0.5em;
+  inset: -0.45em -0.8em;
   border-radius: var(--radius-sm);
 }
 .nav-link:hover { opacity: 1; }
@@ -384,8 +384,8 @@ button { font: inherit; background: none; border: none; cursor: none; }
    buttons (.btn-icon), and text links without any structural changes.
 
    --btn-accent-color is set per-element by the colour binding classes below.
-   Transparent at rest; hover brings a 20% tint matching the neutral hover fill
-   on standard buttons/links.
+   Background is always visible at rest (10% tint); hover brings it to 20%,
+   matching the weight of the neutral hover fill on standard buttons/links.
    The spring-zoom ::before on buttons uses the same accent tint on hover. */
 
 .btn--accent {
@@ -400,7 +400,6 @@ button { font: inherit; background: none; border: none; cursor: none; }
 
 .link--accent {
   color: var(--btn-accent-color);
-  background-color: color-mix(in srgb, var(--btn-accent-color) 10%, transparent);
 }
 .link--accent:hover {
   background-color: color-mix(in srgb, var(--btn-accent-color) 20%, transparent);
