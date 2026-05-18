@@ -934,6 +934,98 @@ html.cursor--focused .cursor { opacity: 0; }
 .code-snippet:focus-visible .code-snippet-action,
 .code-snippet-copied .code-snippet-action { display: inline-flex; }
 
+/* ─── COLLAPSIBLE CODE — long-form copy-paste block ─────────────────────
+   Used on /implementation for skill files and prompt sources. Collapsed to
+   8 lines by default with a soft fade at the bottom edge. Mono body, system
+   radius, fill-secondary surface. Footer toggle expands/collapses; header
+   copy button writes the full body to clipboard. */
+.collapsible-code {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-fill-secondary);
+  overflow: hidden;
+}
+.collapsible-code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-outline);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: var(--tracking-n005);
+  color: var(--color-text-primary);
+  opacity: var(--opacity-40);
+}
+.collapsible-code:hover .collapsible-code-header,
+.collapsible-code:focus-within .collapsible-code-header { opacity: 1; }
+.collapsible-code-language {
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+}
+.collapsible-code-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 0.1em;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: none;
+  transition: background-color 150ms ease;
+}
+.collapsible-code-copy:hover,
+.collapsible-code-copy:focus-visible {
+  background-color: var(--color-overlay-core);
+  outline: none;
+}
+.collapsible-code-copy:active { opacity: var(--opacity-40); }
+.collapsible-code-body {
+  position: relative;
+  overflow: hidden;
+  transition: max-height 200ms ease;
+}
+.collapsible-code-pre {
+  margin: 0;
+  padding: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  letter-spacing: var(--tracking-n005);
+  color: var(--color-text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.collapsible-code-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  width: 100%;
+  padding: var(--space-3);
+  border: none;
+  border-top: 1px solid var(--color-outline);
+  background: transparent;
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: var(--tracking-n005);
+  text-transform: uppercase;
+  opacity: var(--opacity-60);
+  cursor: none;
+  transition: background-color 150ms ease, opacity 150ms ease;
+}
+.collapsible-code-toggle:hover,
+.collapsible-code-toggle:focus-visible {
+  background-color: var(--color-overlay-core);
+  opacity: 1;
+  outline: none;
+}
+.collapsible-code-toggle:active { opacity: var(--opacity-40); }
+
 /* ─── LINK PAGE — 50/50 variant grid ─────────────────────────────────── */
 .link-variant-grid {
   display: grid;
