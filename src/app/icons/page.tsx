@@ -51,7 +51,7 @@ export default function IconPage(): React.ReactElement {
           </div>
         </StickyCol>
         <div>
-          <Tabs value={size} onValueChange={(v) => setSize(v as IconSize)}>
+          <Tabs defaultValue={size} value={size} onValueChange={(v) => setSize(v as IconSize)}>
             <TabsList ariaLabel="Icon size">
               {SIZE_OPTIONS.map((s) => (
                 <TabsTrigger key={s} value={s}>{s}</TabsTrigger>
