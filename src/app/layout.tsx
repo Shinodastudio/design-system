@@ -14,7 +14,8 @@ function ThemeScript(): React.ReactElement {
   const script = `
     (function(){
       var s = localStorage.getItem('shinoda-theme');
-      if(s==='dark'||s==='light') document.documentElement.setAttribute('data-theme',s);
+      var t = (s==='dark'||s==='light') ? s : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', t);
     })();
   `.trim();
   // eslint-disable-next-line react/no-danger

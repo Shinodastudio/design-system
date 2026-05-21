@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
+import { CollapsibleCode } from '@/components/content/CollapsibleCode';
 
 /**
  * ComponentSection — one named variant row for component catalogue pages.
@@ -47,8 +48,6 @@ function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-const COPY_RESET_MS = 1500;
-
 export function ComponentSection<S extends string>({
   name,
   description,
@@ -64,7 +63,6 @@ export function ComponentSection<S extends string>({
   const resolvedDefault = defaultSize ?? sizes[0];
   const [size, setSize] = useState<S>(resolvedDefault);
   const [state, setState] = useState<SectionState>(defaultState);
-  const [copied, setCopied] = useState(false);
   const frameRef = useRef<HTMLDivElement>(null);
   const sizeId = useId();
   const stateId = useId();
@@ -83,15 +81,6 @@ export function ComponentSection<S extends string>({
     );
     focusable?.focus();
   }, [state, size]);
-
-  function handleCopy(): void {
-    navigator.clipboard.writeText(code).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), COPY_RESET_MS);
-    }).catch(() => {
-      // Clipboard write can fail in some contexts — fail silently
-    });
-  }
 
   return (
     <div className="component-section">
@@ -170,24 +159,7 @@ export function ComponentSection<S extends string>({
         >
           {render({ state, size })}
         </div>
-        <div style={{ position: 'relative' }}>
-          <code className="component-card-code">{code}</code>
-          <button
-            type="button"
-            className="btn"
-            onClick={handleCopy}
-            aria-label={copied ? 'Code copied' : 'Copy code'}
-            style={{
-              position: 'absolute',
-              top: 'var(--space-2)',
-              right: 'var(--space-2)',
-              fontSize: '0.75rem',
-              opacity: copied ? 1 : 'var(--opacity-40)' as unknown as number,
-            }}
-          >
-            {copied ? 'Copied' : 'Copy'}
-          </button>
-        </div>
+        <CollapsibleCode code={code} language="jsx" />
       </div>
     </div>
   );

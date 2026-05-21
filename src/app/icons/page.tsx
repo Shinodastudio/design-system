@@ -6,7 +6,8 @@ import { Grid } from '@/components/layout/Grid';
 import { StickyCol } from '@/components/layout/StickyCol';
 import { Divider } from '@/components/primitives/Divider';
 import { Text } from '@/components/primitives/Text';
-import { Input, InputField, InputLabel } from '@/components/primitives/Input';
+import { Input, InputField } from '@/components/primitives/Input';
+import { Tabs, TabsList, TabsTrigger } from '@/components/primitives/Tabs';
 import { CopyValue } from '@/components/catalogue/CopyValue';
 import { Icon, ICONS, type IconSize } from '@/components/icons';
 import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
@@ -39,7 +40,6 @@ export default function IconPage(): React.ReactElement {
 
           <div style={{ marginTop: 'var(--space-8)' }}>
             <InputField>
-              <InputLabel htmlFor="icon-search">Search</InputLabel>
               <Input
                 id="icon-search"
                 placeholder="arrow, settings, delete, home..."
@@ -48,31 +48,18 @@ export default function IconPage(): React.ReactElement {
                 autoComplete="off"
               />
             </InputField>
-
-            <div style={{ marginTop: 'var(--space-6)' }}>
-              <Text variant="body-sm" opacity={40} as="p" style={{ marginBottom: 'var(--space-2)' }}>Size</Text>
-              <div className="button-row">
-                {SIZE_OPTIONS.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => setSize(s)}
-                    className="btn"
-                    style={{
-                      fontSize: '0.875rem',
-                      padding: '0.1em 0.5em',
-                      opacity: s === size ? 1 : 'var(--opacity-40)',
-                    }}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         </StickyCol>
         <div>
-          <Text variant="body-sm" opacity={40} as="p" style={{ marginBottom: 'var(--space-4)' }}>
+          <Tabs value={size} onValueChange={(v) => setSize(v as IconSize)}>
+            <TabsList ariaLabel="Icon size">
+              {SIZE_OPTIONS.map((s) => (
+                <TabsTrigger key={s} value={s}>{s}</TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+
+          <Text variant="body-sm" opacity={40} as="p" style={{ marginTop: 'var(--space-4)', marginBottom: 'var(--space-4)' }}>
             {filtered.length.toLocaleString()} of {ICONS.length.toLocaleString()}
           </Text>
           <Divider />

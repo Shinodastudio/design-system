@@ -2642,7 +2642,8 @@ var NAV_ITEMS = [
   { label: "Paddings", href: "/paddings" },
   { label: "Margins", href: "/margins" },
   { label: "Grids", href: "/grids" },
-  { label: "Utility", href: "/utility" }
+  { label: "Utility", href: "/utility" },
+  { label: "Implementation", href: "/implementation" }
 ];
 function Nav() {
   return /* @__PURE__ */ jsxRuntime.jsxs("header", { className: "nav", children: [
@@ -4554,6 +4555,80 @@ function CodeSnippet({
   );
 }
 
+// src/components/content/CollapsibleCode.tsx
+init_cn();
+var COPIED_FEEDBACK_MS2 = 1600;
+var COLLAPSED_LINES = 8;
+function CollapsibleCode({
+  code,
+  language,
+  className
+}) {
+  const [expanded, setExpanded] = react.useState(false);
+  const [copied, setCopied] = react.useState(false);
+  const timeoutRef = react.useRef(null);
+  react.useEffect(() => () => {
+    if (timeoutRef.current != null) clearTimeout(timeoutRef.current);
+  }, []);
+  const handleCopy = react.useCallback(async () => {
+    if (typeof navigator === "undefined" || navigator.clipboard == null) return;
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      if (timeoutRef.current != null) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => setCopied(false), COPIED_FEEDBACK_MS2);
+    } catch (err) {
+      console.error("CollapsibleCode \u2014 clipboard write failed", err);
+    }
+  }, [code]);
+  const handleToggle = react.useCallback(() => {
+    setExpanded((prev) => !prev);
+  }, []);
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: cn("collapsible-code", expanded && "is-expanded", className), children: [
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "collapsible-code-header", children: [
+      language != null && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "collapsible-code-language", children: language }),
+      /* @__PURE__ */ jsxRuntime.jsxs(
+        "button",
+        {
+          type: "button",
+          className: "collapsible-code-copy",
+          onClick: handleCopy,
+          "aria-label": copied ? "Copied" : "Copy to clipboard",
+          "data-cursor": "btn",
+          children: [
+            /* @__PURE__ */ jsxRuntime.jsx("span", { children: copied ? "Copied" : "Copy" }),
+            /* @__PURE__ */ jsxRuntime.jsx(Icon, { name: copied ? "CheckCircle" : "Copy", size: "sm" })
+          ]
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      "div",
+      {
+        className: "collapsible-code-body",
+        style: {
+          maxHeight: expanded ? "none" : `calc(1.5em * ${COLLAPSED_LINES})`
+        },
+        children: /* @__PURE__ */ jsxRuntime.jsx("pre", { className: "collapsible-code-pre", children: code })
+      }
+    ),
+    /* @__PURE__ */ jsxRuntime.jsxs(
+      "button",
+      {
+        type: "button",
+        className: "collapsible-code-toggle",
+        onClick: handleToggle,
+        "aria-expanded": expanded,
+        "data-cursor": "btn",
+        children: [
+          /* @__PURE__ */ jsxRuntime.jsx("span", { children: expanded ? "Collapse" : "Expand" }),
+          /* @__PURE__ */ jsxRuntime.jsx(Icon, { name: expanded ? "CaretUp" : "CaretDown", size: "sm" })
+        ]
+      }
+    )
+  ] });
+}
+
 // src/components/map/index.ts
 init_Map();
 
@@ -4770,6 +4845,7 @@ exports.Choice = Choice;
 exports.ChoiceLabel = ChoiceLabel;
 exports.ClientShell = ClientShell;
 exports.CodeSnippet = CodeSnippet;
+exports.CollapsibleCode = CollapsibleCode;
 exports.Command = Command;
 exports.CommandEmpty = CommandEmpty;
 exports.CommandGroup = CommandGroup;
