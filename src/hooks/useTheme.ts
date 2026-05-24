@@ -15,10 +15,23 @@ export function useTheme(): readonly [Theme, () => void] {
 
   useEffect(() => {
     setTheme(resolveTheme());
+
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+
+    const handleOSChange = (e: MediaQueryListEvent): void => {
+      // Only follow OS changes when the user has not set an explicit preference.
+      if (localStorage.getItem('shinoda-theme') !== null) return;
+      const next: Theme = e.matches ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      setTheme(next);
+    };
+
+    mq.addEventListener('change', handleOSChange);
+    return () => mq.removeEventListener('change', handleOSChange);
   }, []);
 
   const toggleTheme = useCallback(() => {
-    const current = document.documentElement.getAttribute('data-theme');
+    const current = document.documentElement.getAttribute('data-theme') as Theme | null;
     const osDark  = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const next: Theme =
       current === 'dark'  ? 'light' :

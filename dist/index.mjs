@@ -2419,7 +2419,8 @@ var NAV_ITEMS = [
   { label: "Paddings", href: "/paddings" },
   { label: "Margins", href: "/margins" },
   { label: "Grids", href: "/grids" },
-  { label: "Utility", href: "/utility" }
+  { label: "Utility", href: "/utility" },
+  { label: "Implementation", href: "/implementation" }
 ];
 function Nav() {
   return /* @__PURE__ */ jsxs("header", { className: "nav", children: [
@@ -4251,6 +4252,77 @@ function CodeSnippet({
     }
   );
 }
+var COPIED_FEEDBACK_MS2 = 1600;
+var COLLAPSED_LINES = 8;
+function CollapsibleCode({
+  code,
+  language,
+  className
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const timeoutRef = useRef(null);
+  useEffect(() => () => {
+    if (timeoutRef.current != null) clearTimeout(timeoutRef.current);
+  }, []);
+  const handleCopy = useCallback(async () => {
+    if (typeof navigator === "undefined" || navigator.clipboard == null) return;
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      if (timeoutRef.current != null) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => setCopied(false), COPIED_FEEDBACK_MS2);
+    } catch (err) {
+      console.error("CollapsibleCode \u2014 clipboard write failed", err);
+    }
+  }, [code]);
+  const handleToggle = useCallback(() => {
+    setExpanded((prev) => !prev);
+  }, []);
+  return /* @__PURE__ */ jsxs("div", { className: cn("collapsible-code", expanded && "is-expanded", className), children: [
+    /* @__PURE__ */ jsxs("div", { className: "collapsible-code-header", children: [
+      language != null && /* @__PURE__ */ jsx("span", { className: "collapsible-code-language", children: language }),
+      /* @__PURE__ */ jsxs(
+        "button",
+        {
+          type: "button",
+          className: "collapsible-code-copy",
+          onClick: handleCopy,
+          "aria-label": copied ? "Copied" : "Copy to clipboard",
+          "data-cursor": "btn",
+          children: [
+            /* @__PURE__ */ jsx("span", { children: copied ? "Copied" : "Copy" }),
+            /* @__PURE__ */ jsx(Icon, { name: copied ? "CheckCircle" : "Copy", size: "sm" })
+          ]
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsx(
+      "div",
+      {
+        className: "collapsible-code-body",
+        style: {
+          maxHeight: expanded ? "none" : `calc(1.5em * ${COLLAPSED_LINES})`
+        },
+        children: /* @__PURE__ */ jsx("pre", { className: "collapsible-code-pre", children: code })
+      }
+    ),
+    /* @__PURE__ */ jsxs(
+      "button",
+      {
+        type: "button",
+        className: "collapsible-code-toggle",
+        onClick: handleToggle,
+        "aria-expanded": expanded,
+        "data-cursor": "btn",
+        children: [
+          /* @__PURE__ */ jsx("span", { children: expanded ? "Collapse" : "Expand" }),
+          /* @__PURE__ */ jsx(Icon, { name: expanded ? "CaretUp" : "CaretDown", size: "sm" })
+        ]
+      }
+    )
+  ] });
+}
 
 // src/lib/tokens.ts
 var HEADING_VARIANTS = [
@@ -4440,6 +4512,6 @@ var FONT_WEIGHT_TOKENS = [
   { name: "--fw-black", value: "900" }
 ];
 
-export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, Badge, Button, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, ContentCard, Cursor, DateInput, Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EditableTable, FONT_WEIGHT_TOKENS, FileChip, FileDropzone, FloatingActionBar, Footer, Grid, HEADING_VARIANTS, ICONS, ICONS_BY_ID, Icon, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, MainWrapper, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, PADDING_TOKENS, PageWrapper, Popover, PopoverContent, PopoverTrigger, Progress, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, SearchDropdown, SectionTile, Select, Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };
+export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, Badge, Button, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, ContentCard, Cursor, DateInput, Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EditableTable, FONT_WEIGHT_TOKENS, FileChip, FileDropzone, FloatingActionBar, Footer, Grid, HEADING_VARIANTS, ICONS, ICONS_BY_ID, Icon, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, MainWrapper, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, PADDING_TOKENS, PageWrapper, Popover, PopoverContent, PopoverTrigger, Progress, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, SearchDropdown, SectionTile, Select, Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map
