@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { MainWrapper } from '@/components/layout/MainWrapper';
 import { Grid } from '@/components/layout/Grid';
 import { StickyCol } from '@/components/layout/StickyCol';
@@ -16,8 +15,6 @@ const ALERT_VARIANTS = ['default', 'red', 'orange', 'yellow', 'green', 'blue'] a
 const SIZES = ['default'] as const;
 
 export default function FeedbackPage(): React.ReactElement {
-  const [alertVisible, setAlertVisible] = useState(true);
-
   return (
     <MainWrapper>
       <Grid>
@@ -80,32 +77,6 @@ export default function FeedbackPage(): React.ReactElement {
             )}
           />
 
-          <ComponentSection
-            name="Alert with dismiss"
-            description="Pass onDismiss to show a text Dismiss link. Fades out before unmount."
-            code={`<Alert\n  variant="green"\n  title="Saved"\n  onDismiss={() => setVisible(false)}\n/>`}
-            sizes={SIZES}
-            states={['default']}
-            render={(): React.ReactNode => (
-              <div style={{ width: '100%' }}>
-                {alertVisible ? (
-                  <Alert
-                    variant="green"
-                    title="Changes saved"
-                    onDismiss={(): void => setAlertVisible(false)}
-                  />
-                ) : (
-                  <button
-                    type="button"
-                    className="btn"
-                    onClick={(): void => setAlertVisible(true)}
-                  >
-                    Show alert
-                  </button>
-                )}
-              </div>
-            )}
-          />
 
           <ComponentSection
             name="Progress"

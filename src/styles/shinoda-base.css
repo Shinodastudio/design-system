@@ -1757,9 +1757,12 @@ html.cursor--focused .cursor { opacity: 0; }
 .alert {
   --alert-accent: var(--color-text-primary);
   display: flex;
-  align-items: center;
+  /* Align icon, body, and dismiss to the top so a multi-line description
+     pushes downward — the title row stays the visual anchor. */
+  align-items: flex-start;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
+  font-size: 0.875rem;
   background-color: color-mix(in srgb, var(--alert-accent) 10%, transparent);
   color: var(--alert-accent);
   border-radius: var(--radius-md);
@@ -1786,12 +1789,19 @@ html.cursor--focused .cursor { opacity: 0; }
 .alert-green   { --alert-accent: var(--accent-green); }
 .alert-blue    { --alert-accent: var(--accent-blue); }
 
+/* Icon sits inline with the title — its natural baseline matches body-sm,
+   so no extra y-offset is needed when align-items is flex-start. */
 .alert-icon { display: inline-flex; flex-shrink: 0; color: var(--alert-accent); }
 .alert-body { flex: 1; display: flex; flex-direction: column; gap: var(--space-1); }
-.alert-title { font-size: 1rem; letter-spacing: var(--tracking-n015); font-weight: var(--fw-medium); color: var(--alert-accent); }
-.alert-content { font-size: 0.875rem; letter-spacing: var(--tracking-n010); opacity: var(--opacity-80); }
+/* Title and content share body-sm. Hierarchy is colour, not weight. */
+.alert-title { letter-spacing: var(--tracking-n010); color: var(--alert-accent); }
+.alert-content { letter-spacing: var(--tracking-n010); opacity: var(--opacity-60); }
 .alert-dismiss {
   flex-shrink: 0;
+  /* Match body-sm size + tracking. No vertical padding so the dismiss
+     baseline aligns with the title in the multi-line layout. */
+  padding-block: 0;
+  letter-spacing: var(--tracking-n010);
   color: var(--alert-accent);
   opacity: var(--opacity-40);
   transition: opacity 150ms ease;
