@@ -44,23 +44,6 @@ export default function FeedbackPage(): React.ReactElement {
           />
 
           <ComponentSection
-            name="All badge colours"
-            description="The six variants side-by-side. Use the colour that matches the semantic — never raw hex."
-            code={`{(['neutral','red','orange','yellow','green','blue'] as const).map(v => (\n  <Badge key={v} variant={v}>{v}</Badge>\n))}`}
-            sizes={SIZES}
-            states={['default']}
-            render={(): React.ReactNode => (
-              <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
-                {BADGE_VARIANTS.map(v => (
-                  <Badge key={v} variant={v}>
-                    {v.charAt(0).toUpperCase() + v.slice(1)}
-                  </Badge>
-                ))}
-              </div>
-            )}
-          />
-
-          <ComponentSection
             name="Alert"
             description="Block-level feedback. Supports title, body copy, and an optional dismiss action. Fades in on mount."
             code={`<Alert variant="warning" title="Unsaved changes">\n  Leave this page to discard.\n</Alert>`}
