@@ -65,11 +65,11 @@ export default function FeedbackPage(): React.ReactElement {
           <ComponentSection
             name="Alert with description"
             description="Pass children to render a secondary description line beneath the title at 80% opacity."
-            code={`<Alert variant="blue" title="Heads up">\n  Your session expires in 30 minutes.\n</Alert>`}
+            code={`<Alert title="Heads up">\n  Your session expires in 30 minutes.\n</Alert>`}
             sizes={ALERT_VARIANTS}
             sizeLabel={(v): string => v}
             states={['default']}
-            defaultSize="blue"
+            defaultSize="default"
             render={({ size }): React.ReactNode => (
               <Alert variant={size as AlertVariant} title="Heads up">
                 Your session expires in 30 minutes.
