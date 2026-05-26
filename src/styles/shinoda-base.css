@@ -639,8 +639,20 @@ html.cursor--btn .cursor {
 }
 /* Text — I-beam */
 html.cursor--text .cursor { width: 2px; height: 1.5em; border-radius: 1px; }
-/* Image / expand chip */
-html.cursor--chip .cursor { min-width: 3.5em; width: auto; height: 2em; border-radius: var(--radius-full); padding: 0 0.75em; }
+/* Image / expand chip — Figma spec: min 20px square, 4px padding, label
+   centred. Width and height grow to fit the label; the min-* values stop
+   short single-char labels from collapsing to a sliver. */
+html.cursor--chip .cursor {
+  display: flex;
+  width: auto;
+  height: auto;
+  min-width: 20px;
+  min-height: 20px;
+  padding: 4px;
+  border-radius: var(--radius-full);
+  justify-content: center;
+  align-items: center;
+}
 html.cursor--chip .cursor-label { opacity: 1; }
 /* Press — scale down */
 html.cursor--active .cursor { transform: translate(-50%,-50%) scale(0.8); }
