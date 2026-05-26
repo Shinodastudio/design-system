@@ -784,7 +784,7 @@ html.cursor--focused .cursor { opacity: 0; }
   position: relative;
   aspect-ratio: 1 / 1;
   background-color: var(--color-fill-primary);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   outline: var(--border-md) dashed transparent;
   outline-offset: 0;
   transition: outline-color 120ms ease;
@@ -847,8 +847,8 @@ html.cursor--focused .cursor { opacity: 0; }
 }
 
 /* Action button — 24×24 icon button with a coloured pill background.
-   Default variant: transparent at rest, neutral 10% pill on hover.
-   Danger variant: red icon permanently, 10% red pill at rest → 18% on hover. */
+   Default variant: transparent at rest, 20% neutral pill on hover.
+   Danger variant: red icon permanently, 20% red pill at rest and hover. */
 .grid-tile-btn {
   position: relative;
   display: inline-flex;
@@ -874,12 +874,12 @@ html.cursor--focused .cursor { opacity: 0; }
   pointer-events: none;
 }
 .grid-tile-btn .grid-tile-btn-bg { background-color: var(--color-text-primary); }
-.grid-tile-btn:hover .grid-tile-btn-bg { opacity: 0.1; }
+.grid-tile-btn:hover .grid-tile-btn-bg { opacity: var(--opacity-20); }
 .grid-tile-btn:focus-visible { outline: var(--border-md) solid var(--color-text-primary); outline-offset: var(--border-md); }
 
 .grid-tile-btn--danger { color: var(--color-status-error); }
-.grid-tile-btn--danger .grid-tile-btn-bg { background-color: var(--color-status-error); opacity: 0.1; }
-.grid-tile-btn--danger:hover .grid-tile-btn-bg { opacity: 0.18; }
+.grid-tile-btn--danger .grid-tile-btn-bg { background-color: var(--color-status-error); opacity: var(--opacity-20); }
+.grid-tile-btn--danger:hover .grid-tile-btn-bg { opacity: var(--opacity-20); }
 .grid-tile-btn--danger:focus-visible { outline-color: var(--color-status-error); }
 
 /* ─── ICON CATALOG — hover-swap glyph for name ───────────────────────── */
@@ -2019,7 +2019,7 @@ html.cursor--focused .cursor { opacity: 0; }
   font-size: 0.875rem;
   background-color: color-mix(in srgb, var(--alert-accent) 10%, transparent);
   color: var(--alert-accent);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   width: 100%;
   opacity: 0;
   transform: translateY(-4px);
@@ -2268,7 +2268,7 @@ html.cursor--focused .cursor { opacity: 0; }
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  color: white;
+  color: var(--color-fill-base);
   font-family: var(--font-sans);
   font-size: 1.5rem;
   font-weight: var(--fw-normal);
@@ -2399,8 +2399,8 @@ html.cursor--focused .cursor { opacity: 0; }
   transition: opacity 150ms ease, transform 350ms var(--ease-bounce);
   pointer-events: none;
 }
-.dialog-confirm-btn:hover::before { opacity: 0.12; transform: scale(1); }
-.dialog-confirm-btn:active::before { opacity: 0.18; transform: scale(0.97); }
+.dialog-confirm-btn:hover::before { opacity: var(--opacity-20); transform: scale(1); }
+.dialog-confirm-btn:active::before { opacity: var(--opacity-40); transform: scale(0.97); }
 .dialog-confirm-btn--cancel { color: var(--color-text-primary); opacity: var(--opacity-40); }
 .dialog-confirm-btn--cancel:hover { opacity: var(--opacity-80); }
 .dialog-confirm-btn--confirm { color: var(--color-status-error); }
@@ -3002,8 +3002,7 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
   background-size: 100% 100%;
   background-position: center;
   background-repeat: no-repeat;
-  filter: grayscale(1) brightness(1.35) contrast(0.85)
-          drop-shadow(0 4px 8px rgba(0, 0, 0, 0.28));
+  filter: grayscale(1) brightness(1.35) contrast(0.85);
   opacity: 0;
   transition: clip-path var(--peelable-duration) var(--peelable-ease),
               transform   var(--peelable-duration) var(--peelable-ease),

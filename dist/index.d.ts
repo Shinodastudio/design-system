@@ -438,6 +438,25 @@ interface ButtonProps extends React.ComponentPropsWithoutRef<'button'> {
 }
 declare function Button({ asChild, size, accent, className, children, ...props }: ButtonProps): React.ReactElement;
 
+interface ButtonGroupProps {
+    readonly value: string;
+    readonly onValueChange: (next: string) => void;
+    readonly children: React.ReactNode;
+    readonly className?: string;
+    readonly ariaLabel?: string;
+}
+declare function ButtonGroupBase({ value, onValueChange, children, className, ariaLabel, }: ButtonGroupProps): React.ReactElement;
+interface ButtonGroupItemProps {
+    readonly value: string;
+    readonly icon: React.ReactNode;
+    readonly children: React.ReactNode;
+    readonly className?: string;
+}
+declare function ButtonGroupItem({ value: itemValue, icon, children, className, }: ButtonGroupItemProps): React.ReactElement;
+declare const ButtonGroup: typeof ButtonGroupBase & {
+    Item: typeof ButtonGroupItem;
+};
+
 /**
  * Link sizes mirror the Button size scale 1:1 — see Button.constants for the
  * full enum. Visual styling is delegated to .btn-size-* classes so links and
@@ -582,6 +601,17 @@ interface FileDropzoneProps {
 }
 declare function FileDropzone({ accept, multiple, maxSize, label, hint, error, disabled, onFilesAccepted, onFilesRejected, className, }: FileDropzoneProps): React.ReactElement;
 
+interface DownloadTileProps {
+    readonly filename: string;
+    readonly description?: string;
+    readonly fileSize?: string;
+    readonly fileType?: string;
+    readonly onDownload: () => void;
+    readonly isDownloading?: boolean;
+    readonly className?: string;
+}
+declare function DownloadTile({ filename, description, fileSize, fileType, onDownload, isDownloading, className, }: DownloadTileProps): React.ReactElement;
+
 /**
  * AUTO-GENERATED — do not edit by hand.
  * Source: /assets/icons
@@ -632,6 +662,18 @@ declare function NavLinks({ items }: NavLinksProps): React.ReactElement;
 
 declare function ThemeToggle(): React.ReactElement;
 
+/**
+ * Smooth progressive blur rendered below the fixed nav bar.
+ * All visual logic lives in the .progressive-blur CSS class —
+ * three backdrop-filter layers (16 → 8 → 4 px) with overlapping
+ * gradient masks so no seams appear between blur zones.
+ *
+ * Customise via CSS custom properties on the element or a parent:
+ *   --pb-height    (default 80px)
+ *   --pb-blur-a    (default 16px — heaviest, top zone)
+ *   --pb-blur-b    (default  8px — mid zone)
+ *   --pb-blur-c    (default  4px — lightest, bottom zone)
+ */
 declare function NavProgressiveBlur(): React.ReactElement;
 
 interface PageWrapperProps {
@@ -699,24 +741,126 @@ interface SectionTileProps {
 }
 declare function SectionTile({ label, description, href, className, }: SectionTileProps): React.ReactElement;
 
+interface GridTileProps {
+    readonly children: React.ReactNode;
+    /**
+     * Action row revealed on hover, centred over the tile content. Pass an
+     * array of buttons (e.g. delete / download). Buttons should be plain
+     * <button> nodes with the `grid-tile-btn` class — see the catalogue
+     * for the canonical icon-button pattern.
+     */
+    readonly actions?: React.ReactNode;
+    /**
+     * Timestamp or short metadata rendered below the tile, visible only on
+     * hover. Escapes the tile box — sits in the grid gap.
+     */
+    readonly meta?: React.ReactNode;
+    readonly onClick?: () => void;
+    readonly className?: string;
+    readonly ariaLabel?: string;
+}
+/**
+ * Square tile with hover-revealed action row and optional timestamp meta.
+ *
+ * Lineage: Scrapbook LibraryView .lv-tile pattern (l0at-izar worktree,
+ * src/styles/stickerizer.css L884–1040).
+ *
+ * Behavioural notes:
+ * - The container reserves no overflow:hidden so meta and tooltips can
+ *   escape into the grid gap.
+ * - :has() drives the dashed outline whenever an action button inside the
+ *   tile is hovered or focus-visible. No outline at rest.
+ * - Inner content dims to 20% while an action button is hovered, so the
+ *   buttons remain legible without occluding the underlying content.
+ */
+declare function GridTile({ children, actions, meta, onClick, className, ariaLabel, }: GridTileProps): React.ReactElement;
+/**
+ * Canonical icon-button used inside a <GridTile>'s `actions` row. Renders
+ * a 24×24 button with a coloured background pill that follows the
+ * GridTile's action-hover state.
+ *
+ * Use `variant="danger"` for destructive actions (red icon, permanent
+ * 10% red pill). Use `variant="default"` for neutral (transparent at
+ * rest, 10% neutral pill on hover).
+ */
+interface GridTileActionProps {
+    readonly children: React.ReactNode;
+    readonly onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+    readonly ariaLabel: string;
+    readonly variant?: 'default' | 'danger';
+    readonly className?: string;
+}
+declare function GridTileAction({ children, onClick, ariaLabel, variant, className, }: GridTileActionProps): React.ReactElement;
+
+type PeelCorner = 'tl' | 'tr' | 'bl' | 'br' | 'auto';
+interface PeelableImageProps {
+    readonly src: string;
+    readonly alt: string;
+    /**
+     * Which corner peels on hover. 'auto' (default) picks one at mount time
+     * via a memoised random choice — each instance gets its own corner that
+     * persists for the component's lifetime.
+     */
+    readonly corner?: PeelCorner;
+    readonly className?: string;
+    readonly style?: React.CSSProperties;
+}
+/**
+ * PeelableImage — image surface with a CSS-only sticker-peel corner effect.
+ *
+ * On hover, the chosen corner appears to lift off the canvas: the main
+ * image is clip-pathed to remove a corner triangle, and a sibling flap
+ * (a clipped copy of the same image via background-image, tinted with
+ * grayscale/brightness so it reads as the un-printed paper back) takes
+ * its place with a small rotation and drop-shadow.
+ *
+ * Because the flap IS the image (via background-image and a mask), alpha
+ * pixels stay transparent — cutout stickers don't render a grey triangle
+ * floating in empty space.
+ *
+ * Lineage: Scrapbook CanvasView sticker-peel pattern (l0at-izar worktree,
+ * src/styles/stickerizer.css L475–569).
+ */
+declare function PeelableImage({ src, alt, corner, className, style, }: PeelableImageProps): React.ReactElement;
+
 type BadgeVariant = 'neutral' | 'red' | 'orange' | 'yellow' | 'green' | 'blue';
 interface BadgeProps {
     readonly variant?: BadgeVariant;
     readonly className?: string;
     readonly children: React.ReactNode;
     readonly onClick?: () => void;
+    /**
+     * Disables hover/focus affordances and drops the chip to 40% opacity.
+     * On interactive (button) badges, also disables the native control;
+     * on static (span) badges, sets `aria-disabled` so screen readers know.
+     */
+    readonly disabled?: boolean;
 }
-declare function Badge({ variant, className, children, onClick, }: BadgeProps): React.ReactElement;
+declare function Badge({ variant, className, children, onClick, disabled, }: BadgeProps): React.ReactElement;
 
-type AlertVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'urgent';
+/**
+ * Alert variants — accent-coloured pill banners.
+ *
+ * Canonical palette names: default, red, orange, yellow, green, blue.
+ * Semantic aliases (success/warning/error/info/urgent) are kept as
+ * convenience names — they map to a palette colour internally.
+ */
+type AlertVariant = 'default' | 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'success' | 'warning' | 'error' | 'info' | 'urgent';
 interface AlertProps {
     readonly variant?: AlertVariant;
     readonly title?: string;
     readonly children?: React.ReactNode;
     readonly onDismiss?: () => void;
+    /**
+     * Icon name (from the Shinoda icon set) or a fully-formed node.
+     * Pass `null` to render no icon. Defaults to "Warning" triangle.
+     */
+    readonly icon?: string | React.ReactNode | null;
+    /** Dismiss control label. Defaults to "Dismiss". */
+    readonly dismissLabel?: string;
     readonly className?: string;
 }
-declare function Alert({ variant, title, children, onDismiss, className, }: AlertProps): React.ReactElement | null;
+declare function Alert({ variant, title, children, onDismiss, icon, dismissLabel, className, }: AlertProps): React.ReactElement | null;
 
 type ProgressSize = 'sm' | 'md';
 interface ProgressProps {
@@ -768,11 +912,47 @@ interface DialogTriggerProps {
     readonly children: React.ReactElement<React.HTMLAttributes<HTMLElement>>;
 }
 declare function DialogTrigger({ children }: DialogTriggerProps): React.ReactElement;
+type DialogVariant = 'card' | 'bare' | 'drawer';
 interface DialogContentProps {
     readonly children: React.ReactNode;
     readonly className?: string;
+    /**
+     * 'card' (default) wraps children in `.dialog-content` — the legacy
+     * single-card layout. 'bare' and 'drawer' render children directly so
+     * you can compose <DialogTitleRow> + <DialogCard> by hand.
+     */
+    readonly variant?: DialogVariant;
 }
-declare function DialogContent({ children, className }: DialogContentProps): React.ReactElement | null;
+declare function DialogContent({ children, className, variant, }: DialogContentProps): React.ReactElement | null;
+interface DialogPanelProps {
+    readonly children: React.ReactNode;
+    readonly className?: string;
+}
+/**
+ * Drawer-only — wraps the slide-up panel inside a `variant="drawer"` dialog.
+ * Centres horizontally (max-width 896px) and stacks title row + card.
+ */
+declare function DialogPanel({ children, className }: DialogPanelProps): React.ReactElement;
+interface DialogTitleRowProps {
+    readonly children: React.ReactNode;
+    readonly icon?: React.ReactNode;
+    readonly className?: string;
+    /** Hide the close button — only do this when an in-card close exists. */
+    readonly hideClose?: boolean;
+}
+/**
+ * Title row that sits on the scrim above the card. White text, regardless of
+ * theme. Includes an optional leading icon and an auto-rendered close button.
+ */
+declare function DialogTitleRow({ children, icon, className, hideClose, }: DialogTitleRowProps): React.ReactElement;
+interface DialogCardProps {
+    readonly children: React.ReactNode;
+    readonly className?: string;
+    /** 'centered' (default) for bare-variant card; 'drawer' for the
+     * top-rounded card that fills the drawer panel. */
+    readonly variant?: 'centered' | 'drawer';
+}
+declare function DialogCard({ children, className, variant, }: DialogCardProps): React.ReactElement;
 interface DialogHeaderProps {
     readonly children: React.ReactNode;
     readonly className?: string;
@@ -798,6 +978,65 @@ interface DialogCloseProps {
     readonly className?: string;
 }
 declare function DialogClose({ children, className }: DialogCloseProps): React.ReactElement;
+
+type ConfirmDialogIntent = 'default' | 'danger';
+interface ConfirmDialogProps {
+    readonly open: boolean;
+    readonly onOpenChange: (open: boolean) => void;
+    /** Heading-md message shown in the card. */
+    readonly message: string;
+    /** Label on the scrim title row (defaults to the intent's verb). */
+    readonly title?: string;
+    /** Optional icon on the scrim title row. Defaults to the intent's icon. */
+    readonly titleIcon?: React.ReactNode;
+    readonly confirmLabel?: string;
+    readonly cancelLabel?: string;
+    readonly onConfirm: () => void;
+    /**
+     * 'danger' (default-ish destructive) tints the confirm action with
+     * status-error and ships a Trash title icon. 'default' uses primary.
+     */
+    readonly intent?: ConfirmDialogIntent;
+}
+/**
+ * ConfirmDialog — title-on-scrim + card layout, with a message and two text
+ * buttons. Built on the centred bare Dialog variant.
+ *
+ * Lineage: Scrapbook ConfirmDeleteDialog (Figma 75:35340).
+ */
+declare function ConfirmDialog({ open, onOpenChange, message, title, titleIcon, confirmLabel, cancelLabel, onConfirm, intent, }: ConfirmDialogProps): React.ReactElement;
+
+type ScrimBlur = 'none' | 'xs' | 'md';
+interface ScrimProps {
+    /** Controlled visibility. Mount the component once, flip this to animate. */
+    readonly open: boolean;
+    /** Click on the scrim itself (not children passing through). Optional. */
+    readonly onDismiss?: () => void;
+    /** Escape key handler. Pass the same function as onDismiss for consistency. */
+    readonly onEscape?: () => void;
+    /** Backdrop blur intensity. 'xs' is the default Dialog blur, 'md' is the
+     * deeper blur used behind bare/drawer dialogs. 'none' leaves the page sharp. */
+    readonly blur?: ScrimBlur;
+    /** Optional children rendered above the scrim — pointer events pass through
+     * the scrim by default so children remain interactive. */
+    readonly children?: React.ReactNode;
+    readonly className?: string;
+    /** z-index. Defaults to 990 (just under dialogs at 1000). */
+    readonly zIndex?: number;
+}
+/**
+ * Scrim — a portalled dark backdrop with optional blur. Standalone primitive
+ * usable behind custom overlays, tours, lightboxes, or any surface that needs
+ * a focus-darkening layer without bringing in a full Dialog.
+ *
+ * The Dialog component still uses the native <dialog>::backdrop for its scrim;
+ * this primitive is for the cases where <dialog> isn't appropriate — e.g.
+ * non-modal floating layers that still need the page dimmed.
+ *
+ * Visual tokens match the Dialog scrim exactly: --color-scrim fill, --blur-xs
+ * (default) or --blur-md (deeper) backdrop blur. Same 200ms fade in/out.
+ */
+declare function Scrim({ open, onDismiss, onEscape, blur, children, className, zIndex, }: ScrimProps): React.ReactElement | null;
 
 type SheetSide = 'left' | 'right';
 interface SheetProps {
@@ -1078,20 +1317,6 @@ interface SearchDropdownProps {
 }
 declare function SearchDropdown({ options, value, onChange, placeholder, disabled, isLoading, className, }: SearchDropdownProps): React.ReactElement;
 
-interface FloatingAction {
-    readonly label: string;
-    readonly icon?: React.ReactNode;
-    readonly onClick: () => void;
-    readonly variant?: 'default' | 'destructive';
-}
-interface FloatingActionBarProps {
-    readonly selected: number;
-    readonly actions: readonly FloatingAction[];
-    readonly onClearSelection?: () => void;
-    readonly className?: string;
-}
-declare function FloatingActionBar({ selected, actions, onClearSelection, className, }: FloatingActionBarProps): React.ReactElement | null;
-
 interface ContentCardProps {
     readonly title: string;
     readonly description?: string;
@@ -1102,17 +1327,6 @@ interface ContentCardProps {
     readonly className?: string;
 }
 declare function ContentCard({ title, description, children, actions, metadata, onClick, className, }: ContentCardProps): React.ReactElement;
-
-interface DownloadTileProps {
-    readonly filename: string;
-    readonly description?: string;
-    readonly fileSize?: string;
-    readonly fileType?: string;
-    readonly onDownload: () => void;
-    readonly isDownloading?: boolean;
-    readonly className?: string;
-}
-declare function DownloadTile({ filename, description, fileSize, fileType, onDownload, isDownloading, className, }: DownloadTileProps): React.ReactElement;
 
 interface CodeSnippetProps {
     /** The code text to display and copy. */
@@ -1198,4 +1412,4 @@ declare function useTheme(): readonly [Theme, () => void];
 
 declare function cn(...inputs: readonly ClassValue[]): string;
 
-export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, type AlertVariant, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, Badge, type BadgeVariant, type BodyVariant, Button, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, ContentCard, Cursor, type CursorRef, DateInput, Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, type EditableColumn, EditableTable, FONT_WEIGHT_TOKENS, FileChip, type FileChipProps, FileDropzone, type FileDropzoneProps, type FloatingAction, FloatingActionBar, Footer, Grid, HEADING_VARIANTS, type HeadingVariant, ICONS, ICONS_BY_ID, Icon, type IconProps, type IconRecord, type IconSize, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, type LinkSize, MainWrapper, Map, type MapMarker, MapNoSSR, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, type OpacityLevel, PADDING_TOKENS, PageWrapper, Popover, PopoverContent, PopoverTrigger, Progress, type ProgressSize, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, SearchDropdown, type SearchOption, SectionTile, Select, type SemanticColor, Sheet, SheetContent, SheetFooter, SheetHeader, type SheetSide, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, type SubheadingVariant, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, type TooltipSide, type TypeVariant, cn, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };
+export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, type AlertVariant, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, Badge, type BadgeVariant, type BodyVariant, Button, ButtonGroup, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, ConfirmDialog, type ConfirmDialogIntent, ContentCard, Cursor, type CursorRef, DateInput, Dialog, DialogCard, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogPanel, DialogTitle, DialogTitleRow, DialogTrigger, type DialogVariant, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, type EditableColumn, EditableTable, FONT_WEIGHT_TOKENS, FileChip, type FileChipProps, FileDropzone, type FileDropzoneProps, Footer, Grid, GridTile, GridTileAction, HEADING_VARIANTS, type HeadingVariant, ICONS, ICONS_BY_ID, Icon, type IconProps, type IconRecord, type IconSize, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, type LinkSize, MainWrapper, Map, type MapMarker, MapNoSSR, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, type OpacityLevel, PADDING_TOKENS, PageWrapper, type PeelCorner, PeelableImage, Popover, PopoverContent, PopoverTrigger, Progress, type ProgressSize, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, Scrim, type ScrimBlur, SearchDropdown, type SearchOption, SectionTile, Select, type SemanticColor, Sheet, SheetContent, SheetFooter, SheetHeader, type SheetSide, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, type SubheadingVariant, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, type TooltipSide, type TypeVariant, cn, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };

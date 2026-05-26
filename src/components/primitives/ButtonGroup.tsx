@@ -60,7 +60,7 @@ interface ThumbRect {
   readonly top: number;
 }
 
-export function ButtonGroup({
+function ButtonGroupBase({
   value,
   onValueChange,
   children,
@@ -155,7 +155,7 @@ interface ButtonGroupItemProps {
   readonly className?: string;
 }
 
-function ButtonGroupItem({
+export function ButtonGroupItem({
   value: itemValue,
   icon,
   children,
@@ -189,4 +189,4 @@ function ButtonGroupItem({
   return button;
 }
 
-ButtonGroup.Item = ButtonGroupItem;
+export const ButtonGroup = Object.assign(ButtonGroupBase, { Item: ButtonGroupItem });
