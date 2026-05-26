@@ -2886,6 +2886,100 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
   text-align: center;
 }
 
+/* ─── STICKER PEEL — corner-lift on hover ────────────────────────────────────
+   A draggable-image surface whose chosen corner appears to lift off the
+   canvas on hover. The main image is clip-pathed to cut a corner triangle;
+   a sibling .peelable-flap div renders the same image (via background-image
+   from the --peelable-src var the component sets in JSX) clipped to the
+   inverse triangle, tinted as the un-printed paper back, rotated outward
+   off the hinge, and drop-shadowed to sell the lift.
+
+   Because the flap uses the source image as both background and mask,
+   alpha pixels stay transparent — cutout stickers don't render a stray
+   grey triangle on the off-image area. CSS-only, no GSAP / no JS animation.
+
+   Lineage: Scrapbook CanvasView .cv-sticker-* pattern (l0at-izar worktree,
+   src/styles/stickerizer.css L475–569). Generalised here from "sticker" to
+   "any peelable image". */
+.peelable {
+  position: relative;
+  display: inline-block;
+  /* Peel size as % of the image — drives both the main image's corner cut
+     and the flap's clip region. Animates smoothly between rest and hover. */
+  --peelable-peel: 0%;
+  --peelable-ease: var(--ease-soft-spring);
+  --peelable-duration: 360ms;
+}
+.peelable:hover { --peelable-peel: 11%; }
+
+.peelable-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: filter 180ms ease, clip-path var(--peelable-duration) var(--peelable-ease);
+}
+.peelable[data-peel-corner='tl'] .peelable-img {
+  clip-path: polygon(var(--peelable-peel) 0, 100% 0, 100% 100%, 0 100%, 0 var(--peelable-peel));
+}
+.peelable[data-peel-corner='tr'] .peelable-img {
+  clip-path: polygon(0 0, calc(100% - var(--peelable-peel)) 0, 100% var(--peelable-peel), 100% 100%, 0 100%);
+}
+.peelable[data-peel-corner='bl'] .peelable-img {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, var(--peelable-peel) 100%, 0 calc(100% - var(--peelable-peel)));
+}
+.peelable[data-peel-corner='br'] .peelable-img {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--peelable-peel)), calc(100% - var(--peelable-peel)) 100%, 0 100%);
+}
+
+/* The flap — full-area, painted with the image via background-image, clipped
+   to the corner triangle, tinted as paper-back. Transparent pixels remain
+   transparent automatically (the flap IS the image), so alpha sources work.
+   Hidden at rest (peel = 0%) so a zero-area flap doesn't render a hairline. */
+.peelable-flap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background-image: var(--peelable-src);
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: grayscale(1) brightness(1.35) contrast(0.85)
+          drop-shadow(0 4px 8px rgba(0, 0, 0, 0.28));
+  opacity: 0;
+  transition: clip-path var(--peelable-duration) var(--peelable-ease),
+              transform   var(--peelable-duration) var(--peelable-ease),
+              opacity     var(--peelable-duration) var(--peelable-ease);
+}
+.peelable:hover .peelable-flap { opacity: 1; }
+
+.peelable[data-peel-corner='tl'] .peelable-flap {
+  clip-path: polygon(0 0, var(--peelable-peel) 0, 0 var(--peelable-peel));
+  transform-origin: 0 0;
+  transform: rotate(-6deg) translate(-2%, -2%);
+}
+.peelable[data-peel-corner='tr'] .peelable-flap {
+  clip-path: polygon(calc(100% - var(--peelable-peel)) 0, 100% 0, 100% var(--peelable-peel));
+  transform-origin: 100% 0;
+  transform: rotate(6deg) translate(2%, -2%);
+}
+.peelable[data-peel-corner='bl'] .peelable-flap {
+  clip-path: polygon(0 calc(100% - var(--peelable-peel)), var(--peelable-peel) 100%, 0 100%);
+  transform-origin: 0 100%;
+  transform: rotate(6deg) translate(-2%, 2%);
+}
+.peelable[data-peel-corner='br'] .peelable-flap {
+  clip-path: polygon(100% calc(100% - var(--peelable-peel)), 100% 100%, calc(100% - var(--peelable-peel)) 100%);
+  transform-origin: 100% 100%;
+  transform: rotate(-6deg) translate(2%, 2%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .peelable-img, .peelable-flap { transition: none; }
+  .peelable:hover { --peelable-peel: 0%; }
+}
+
 /* ─── CONTENT CARD ───────────────────────────────────────────────────────── */
 .content-card {
   display: flex;
