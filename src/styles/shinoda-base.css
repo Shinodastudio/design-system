@@ -1941,6 +1941,182 @@ html.cursor--focused .cursor { opacity: 0; }
 }
 .dialog-close:hover { opacity: 1; }
 
+/* ─── DIALOG — compositional primitives (Figma modal language) ───────────────
+   The legacy .dialog + .dialog-content above is a single-card centered modal.
+   The classes below add two new layouts both built on the same <dialog> base:
+
+   1) Centred with title-on-scrim (`.dialog--bare` + `.dialog-title-row` +
+      `.dialog-card`). Title sits in white on the scrim above a white card.
+      Used by ConfirmDialog and any export-style modal.
+   2) Drawer-bottom (`.dialog--drawer`). Dialog fills the viewport, scrim
+      blurs the page, an inner panel slides up from below carrying a title
+      row (on scrim) and a top-rounded white card that extends to the
+      viewport bottom. Used for large bottom-anchored task surfaces. */
+
+/* Bare variant — strips the card surface so the dialog is a positioning
+   frame only. Children (title row + card) compose the visible chrome. */
+.dialog.dialog--bare {
+  background: transparent;
+  border: none;
+  padding: 0;
+  width: min(calc(100vw - var(--space-12)), 384px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  animation: dialog-card-in var(--motion-modal-card-in) both;
+}
+.dialog.dialog--bare::backdrop {
+  background-color: color-mix(in srgb, var(--alpha-strong, var(--color-text-primary)) 55%, transparent);
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
+}
+@keyframes dialog-card-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Title row — sits on the scrim above the card. White, regardless of theme,
+   so it reads against the dark scrim in both light and dark mode. */
+.dialog-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: white;
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--tracking-n035);
+  line-height: var(--leading-title);
+}
+.dialog-title-icon { display: inline-flex; align-items: center; flex-shrink: 0; }
+.dialog-title-label { flex: 1; min-width: 0; margin: 0; color: inherit; font: inherit; letter-spacing: inherit; }
+.dialog-close-on-scrim {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 2px;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: none;
+  opacity: var(--opacity-80);
+  flex-shrink: 0;
+  transition: opacity 120ms ease;
+}
+.dialog-close-on-scrim:hover { opacity: 1; }
+
+/* Card surface — used inside .dialog--bare or .dialog--drawer. */
+.dialog-card {
+  background-color: var(--color-fill-base);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+}
+
+/* Drawer variant — full-viewport overlay, slide-up panel with top-rounded
+   card extending to viewport bottom. */
+.dialog.dialog--drawer {
+  inset: 0;
+  width: 100vw;
+  max-width: none;
+  height: 100vh;
+  max-height: none;
+  margin: 0;
+  padding: var(--space-16) var(--space-16) 0;
+  background: transparent;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+}
+.dialog.dialog--drawer::backdrop {
+  background-color: color-mix(in srgb, var(--alpha-strong, var(--color-text-primary)) 55%, transparent);
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
+}
+.dialog--drawer .dialog-panel {
+  position: relative;
+  width: 100%;
+  max-width: 896px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: var(--space-8);
+  animation: dialog-drawer-in var(--motion-modal-in) both;
+}
+@keyframes dialog-drawer-in {
+  from { opacity: 0; transform: translateY(100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.dialog--drawer .dialog-card--drawer {
+  flex: 1;
+  min-height: 0;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog.dialog--bare,
+  .dialog--drawer .dialog-panel { animation: none; }
+}
+
+/* ─── CONFIRM DIALOG — message + action row composed on dialog-card ───────────
+   Heading-md message sits above two transparent text buttons (cancel +
+   confirm). The spring-zoom ::before background follows the canonical DS
+   pattern from .btn. Confirm uses status-error for the destructive case. */
+.dialog-confirm-card { display: flex; flex-direction: column; gap: var(--space-3); }
+.dialog-confirm-message {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--tracking-n035);
+  line-height: var(--leading-title);
+  color: var(--color-text-primary);
+}
+.dialog-confirm-actions { display: flex; gap: var(--space-2); align-items: center; }
+.dialog-confirm-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: transparent;
+  border: none;
+  cursor: none;
+  padding: 2px;
+  max-height: 24px;
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--tracking-n035);
+  line-height: var(--leading-title);
+  border-radius: var(--radius-sm);
+  transition: opacity 120ms ease;
+}
+.dialog-confirm-btn > span { white-space: nowrap; }
+.dialog-confirm-btn::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  background-color: currentColor;
+  border-radius: var(--radius-sm);
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 150ms ease, transform 350ms var(--ease-bounce);
+  pointer-events: none;
+}
+.dialog-confirm-btn:hover::before { opacity: 0.12; transform: scale(1); }
+.dialog-confirm-btn:active::before { opacity: 0.18; transform: scale(0.97); }
+.dialog-confirm-btn--cancel { color: var(--color-text-primary); opacity: var(--opacity-40); }
+.dialog-confirm-btn--cancel:hover { opacity: var(--opacity-80); }
+.dialog-confirm-btn--confirm { color: var(--color-status-error); }
+.dialog-confirm-btn--confirm.dialog-confirm-btn--default { color: var(--color-text-primary); }
+
 /* ─── SHEET — left/right only, inset 8px to become a floating card ──────────
    Scrim uses the same blur + darken treatment as Dialog. The sheet panel is
    inset 8px from every edge and carries --radius-sm to read as a card. */

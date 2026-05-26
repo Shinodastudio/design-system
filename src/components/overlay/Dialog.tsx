@@ -11,6 +11,21 @@ import {
 } from 'react';
 import { cn } from '@/lib/cn';
 
+/**
+ * Dialog — three composable layouts on a single native <dialog>:
+ *
+ *   variant="card"   (default — legacy)  Single centred card. Title/desc/
+ *                                        footer compose inside <DialogContent>.
+ *   variant="bare"                       Centred frame. Compose <DialogTitleRow>
+ *                                        on the scrim + <DialogCard> below.
+ *   variant="drawer"                     Full-viewport drawer that slides up
+ *                                        from below. Wrap children in
+ *                                        <DialogPanel> + <DialogCard variant="drawer">.
+ *
+ * Motion durations come from --motion-modal-in (drawer) and
+ * --motion-modal-card-in (centred bare).
+ */
+
 interface DialogContextValue {
   readonly open: boolean;
   readonly titleId: string;
@@ -44,19 +59,18 @@ export function Dialog({
   const titleId = useId();
   const descriptionId = useId();
 
-  const close = useCallback(() => {
+  const close = useCallback((): void => {
     if (controlledOpen == null) setInternalOpen(false);
     onOpenChange?.(false);
   }, [controlledOpen, onOpenChange]);
 
-  const openDialog = useCallback(() => {
+  const openDialog = useCallback((): void => {
     if (controlledOpen == null) setInternalOpen(true);
     onOpenChange?.(true);
   }, [controlledOpen, onOpenChange]);
 
   return (
     <DialogContext.Provider value={{ open, titleId, descriptionId, close }}>
-      {/* Inject openDialog into trigger children via context pattern */}
       <DialogInternalContext.Provider value={{ openDialog }}>
         {children}
       </DialogInternalContext.Provider>
@@ -98,12 +112,24 @@ export function DialogTrigger({ children }: DialogTriggerProps): React.ReactElem
   );
 }
 
+export type DialogVariant = 'card' | 'bare' | 'drawer';
+
 interface DialogContentProps {
   readonly children: React.ReactNode;
   readonly className?: string;
+  /**
+   * 'card' (default) wraps children in `.dialog-content` — the legacy
+   * single-card layout. 'bare' and 'drawer' render children directly so
+   * you can compose <DialogTitleRow> + <DialogCard> by hand.
+   */
+  readonly variant?: DialogVariant;
 }
 
-export function DialogContent({ children, className }: DialogContentProps): React.ReactElement | null {
+export function DialogContent({
+  children,
+  className,
+  variant = 'card',
+}: DialogContentProps): React.ReactElement | null {
   const { open, close, titleId, descriptionId } = useDialogContext();
   const dialogRef = useRef<HTMLDialogElement | null>(null);
 
@@ -120,12 +146,12 @@ export function DialogContent({ children, className }: DialogContentProps): Reac
   useEffect(() => {
     const el = dialogRef.current;
     if (el == null) return;
-    const onCancel = (e: Event) => {
+    const onCancel = (e: Event): void => {
       e.preventDefault();
       close();
     };
     el.addEventListener('cancel', onCancel);
-    return () => el.removeEventListener('cancel', onCancel);
+    return (): void => el.removeEventListener('cancel', onCancel);
   }, [close]);
 
   const handleBackdropClick = useCallback(
@@ -135,20 +161,105 @@ export function DialogContent({ children, className }: DialogContentProps): Reac
     [close],
   );
 
+  const variantClass =
+    variant === 'bare' ? 'dialog--bare' : variant === 'drawer' ? 'dialog--drawer' : null;
+
   return (
     <dialog
       ref={dialogRef}
-      className={cn('dialog', className)}
+      className={cn('dialog', variantClass, className)}
       aria-labelledby={titleId}
       aria-describedby={descriptionId}
       onClick={handleBackdropClick}
     >
-      <div className="dialog-content">
-        {children}
-      </div>
+      {variant === 'card' ? (
+        <div className="dialog-content">
+          {children}
+        </div>
+      ) : (
+        children
+      )}
     </dialog>
   );
 }
+
+/* ─── Composable primitives (used with variant="bare" or "drawer") ──────── */
+
+interface DialogPanelProps {
+  readonly children: React.ReactNode;
+  readonly className?: string;
+}
+
+/**
+ * Drawer-only — wraps the slide-up panel inside a `variant="drawer"` dialog.
+ * Centres horizontally (max-width 896px) and stacks title row + card.
+ */
+export function DialogPanel({ children, className }: DialogPanelProps): React.ReactElement {
+  return <div className={cn('dialog-panel', className)}>{children}</div>;
+}
+
+interface DialogTitleRowProps {
+  readonly children: React.ReactNode;
+  readonly icon?: React.ReactNode;
+  readonly className?: string;
+  /** Hide the close button — only do this when an in-card close exists. */
+  readonly hideClose?: boolean;
+}
+
+/**
+ * Title row that sits on the scrim above the card. White text, regardless of
+ * theme. Includes an optional leading icon and an auto-rendered close button.
+ */
+export function DialogTitleRow({
+  children,
+  icon,
+  className,
+  hideClose = false,
+}: DialogTitleRowProps): React.ReactElement {
+  const { titleId, close } = useDialogContext();
+  return (
+    <div className={cn('dialog-title-row', className)}>
+      {icon != null && <span className="dialog-title-icon" aria-hidden="true">{icon}</span>}
+      <h2 id={titleId} className="dialog-title-label">{children}</h2>
+      {!hideClose && (
+        <button
+          type="button"
+          className="dialog-close-on-scrim"
+          aria-label="Close"
+          onClick={close}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M3 3L13 13M13 3L3 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </button>
+      )}
+    </div>
+  );
+}
+
+interface DialogCardProps {
+  readonly children: React.ReactNode;
+  readonly className?: string;
+  /** 'centered' (default) for bare-variant card; 'drawer' for the
+   * top-rounded card that fills the drawer panel. */
+  readonly variant?: 'centered' | 'drawer';
+}
+
+export function DialogCard({
+  children,
+  className,
+  variant = 'centered',
+}: DialogCardProps): React.ReactElement {
+  return (
+    <div
+      className={cn('dialog-card', variant === 'drawer' && 'dialog-card--drawer', className)}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* ─── Legacy single-card primitives (variant="card") ────────────────────── */
 
 interface DialogHeaderProps {
   readonly children: React.ReactNode;
