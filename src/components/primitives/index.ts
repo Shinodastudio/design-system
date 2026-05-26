@@ -11,3 +11,4 @@ export { Tabs, TabsList, TabsTrigger, TabsPanel } from './Tabs';
 export { RichText }    from './RichText';
 export { FileDropzone, FileChip, formatFileSize } from './FileDropzone';
 export type { FileDropzoneProps, FileChipProps } from './FileDropzone';
+export { DownloadTile } from './DownloadTile';

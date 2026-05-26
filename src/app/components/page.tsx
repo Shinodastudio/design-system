@@ -32,9 +32,9 @@ const COMPONENTS = [
   { label: 'Calendar',    href: '/components/calendar',   description: 'Inline calendar picker and date text input.' },
   { label: 'Card',        href: '/components/card',       description: 'Square tiles with hover-revealed actions and timestamp meta.' },
   { label: 'Sticker',     href: '/components/sticker',    description: 'Peelable image surface — corner lifts on hover, alpha-respecting.' },
-  { label: 'Content',     href: '/components/content',    description: 'ContentCard and DownloadTile for structured content.' },
+  { label: 'Content',     href: '/components/content',    description: 'ContentCard and CodeSnippet for structured copy.' },
   { label: 'Map',         href: '/components/map',        description: 'Interactive Leaflet map — requires optional peer dependency.' },
-  { label: 'Upload',      href: '/components/upload',     description: 'File dropzone with drag-and-drop and queued file chips.' },
+  { label: 'Upload',      href: '/components/upload',     description: 'File dropzone, file chips, and download tiles.' },
 ] as const;
 
 interface ComponentTileProps {

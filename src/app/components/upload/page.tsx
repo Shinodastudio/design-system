@@ -5,6 +5,7 @@ import { MainWrapper } from '@/components/layout/MainWrapper';
 import { Grid } from '@/components/layout/Grid';
 import { StickyCol } from '@/components/layout/StickyCol';
 import { FileDropzone, FileChip } from '@/components/primitives/FileDropzone';
+import { DownloadTile } from '@/components/primitives/DownloadTile';
 import { ComponentSection } from '@/components/catalogue/ComponentSection';
 import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 
@@ -67,7 +68,7 @@ export default function UploadPage(): React.ReactElement {
         <StickyCol>
           <CatalogueIntro
             title="Upload"
-            description="Drag-and-drop zone with file chip list. No borders on filled state — only the dashed outline convention."
+            description="Drag-and-drop zone, file chip list, and download tile for queued or completed assets."
           />
         </StickyCol>
         <div>
@@ -115,6 +116,55 @@ export default function UploadPage(): React.ReactElement {
                 <FileChip file={DEMO_FILE_PDF} onRemove={() => undefined} />
                 <FileChip file={DEMO_FILE_PNG} onRemove={() => undefined} />
               </div>
+            )}
+          />
+
+          <ComponentSection<DropzoneSize>
+            name="DownloadTile"
+            description="File asset row with icon, filename, type/size metadata, and a download action. Pairs with the dropzone — what goes up can come back down."
+            code={`<DownloadTile\n  filename="shinoda-tokens.css"\n  fileType="CSS"\n  fileSize="12 KB"\n  onDownload={fn}\n/>`}
+            sizes={DROPZONE_SIZES}
+            states={['default']}
+            render={(): React.ReactNode => (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', width: '100%' }}>
+                <DownloadTile
+                  filename="shinoda-tokens.css"
+                  fileType="CSS"
+                  fileSize="12 KB"
+                  description="All design tokens as CSS custom properties"
+                  onDownload={() => undefined}
+                />
+                <DownloadTile
+                  filename="shinoda-base.css"
+                  fileType="CSS"
+                  fileSize="8 KB"
+                  description="Reset, typography, layout shell"
+                  onDownload={() => undefined}
+                />
+                <DownloadTile
+                  filename="brand-guidelines.pdf"
+                  fileType="PDF"
+                  fileSize="4.2 MB"
+                  onDownload={() => undefined}
+                />
+              </div>
+            )}
+          />
+
+          <ComponentSection<DropzoneSize>
+            name="DownloadTile — loading state"
+            description="Pass isDownloading to replace the button with a Skeleton placeholder during async download."
+            code={`<DownloadTile\n  filename="export.zip"\n  onDownload={fn}\n  isDownloading\n/>`}
+            sizes={DROPZONE_SIZES}
+            states={['default']}
+            render={(): React.ReactNode => (
+              <DownloadTile
+                filename="export.zip"
+                fileType="ZIP"
+                fileSize="56 MB"
+                onDownload={() => undefined}
+                isDownloading
+              />
             )}
           />
 
