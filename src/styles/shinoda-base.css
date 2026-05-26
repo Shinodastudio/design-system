@@ -482,6 +482,7 @@ button { font: inherit; background: none; border: none; cursor: none; }
    from "tabs" to "single-select button group" — same pattern, different
    semantics. */
 .button-group {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 2px;
@@ -490,8 +491,29 @@ button { font: inherit; background: none; border: none; cursor: none; }
   border: var(--border-sm) solid var(--color-transparent-weak);
   border-radius: var(--radius-md);
 }
+
+/* The thumb is a single absolutely-positioned pill that slides between
+   active items. JS measures the active item's box and writes transform +
+   width as inline styles; CSS owns the curve and the fill so the slide
+   stays in lockstep with the label-column expansion (same 280ms easing). */
+.button-group-thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: var(--radius-md);
+  background-color: var(--color-text-primary);
+  pointer-events: none;
+  transition:
+    transform 280ms var(--ease-in-out-quint),
+    width 280ms var(--ease-in-out-quint),
+    height 280ms var(--ease-in-out-quint);
+  will-change: transform, width;
+}
+.button-group-thumb.is-initial { transition: none; }
+
 .button-group-item {
   position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   gap: 0;
@@ -504,8 +526,8 @@ button { font: inherit; background: none; border: none; cursor: none; }
   white-space: nowrap;
   flex-shrink: 0;
   outline: none;
-  transition: background-color 150ms ease,
-              padding 280ms var(--ease-in-out-quint);
+  transition: padding 280ms var(--ease-in-out-quint),
+              color 280ms var(--ease-in-out-quint);
 }
 .button-group-item-icon {
   display: flex;
@@ -519,15 +541,17 @@ button { font: inherit; background: none; border: none; cursor: none; }
   transition: opacity 150ms ease, transform 80ms ease;
 }
 
-/* Inactive: hover lifts the icon to 60% and pulls in a soft fill-primary pill. */
-.button-group-item:not(.is-active):hover { background-color: var(--color-fill-primary); }
+/* Inactive: hover lifts the icon to 60%. No background — the thumb owns
+   the pill fill, and adding a second pill behind inactive items would
+   double-paint as the thumb slides over them. */
 .button-group-item:not(.is-active):hover .button-group-item-icon { opacity: var(--opacity-60); }
 .button-group-item:not(.is-active):active { transform: scale(0.94); }
 
-/* Active: inverted — text-primary fill, fill-base text. Padding grows on
-   the right of the label (Figma node 52:15637 — 6px around icon, 8px right). */
+/* Active: inverted text colour. The thumb behind the item provides the
+   fill; the item just inverts to fill-base so it reads on top. Padding
+   grows on the right of the label (Figma node 52:15637 — 6px around
+   icon, 8px right). */
 .button-group-item.is-active {
-  background-color: var(--color-text-primary);
   color: var(--color-fill-base);
   padding: 6px 8px 6px 6px;
 }
@@ -535,20 +559,6 @@ button { font: inherit; background: none; border: none; cursor: none; }
   opacity: 1;
   color: var(--color-fill-base);
 }
-/* A 12% white overlay on hover so the active state lightens slightly in
-   both themes without changing the underlying fill. */
-.button-group-item.is-active::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius-md);
-  background-color: var(--color-fill-base);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 150ms ease;
-}
-.button-group-item.is-active:hover::after { opacity: 0.12; }
-.button-group-item.is-active:active::after { opacity: 0.18; }
 .button-group-item.is-active:active { transform: scale(0.97); }
 
 /* Focus + click ring — 2px dashed in fill-secondary, 4px offset. Modern
