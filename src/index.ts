@@ -35,9 +35,6 @@ export * from './components/calendar';
 // Search
 export * from './components/search';
 
-// Actions
-export * from './components/actions';
-
 // Content
 export * from './components/content';
 
