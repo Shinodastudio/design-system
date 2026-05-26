@@ -628,6 +628,123 @@ html.cursor--focused .cursor { opacity: 0; }
 .section-tile-title { margin: 0; }
 .section-tile-desc  { margin: 0; }
 
+/* ─── GRID TILE — square card with hover-revealed actions + meta ────────────
+   Used for content libraries / asset grids where each tile carries one
+   visual + optional row of icon actions + optional timestamp underneath.
+
+   Anatomy:
+     ┌──────────────┐
+     │              │   ← .grid-tile (1:1 aspect, no overflow:hidden)
+     │   content    │       .grid-tile-inner (padded, dims on hover-action)
+     │              │
+     │   [⌫] [⬇]   │   ← .grid-tile-actions (centred, fades in on hover)
+     └──────────────┘
+          12:34 PM        ← .grid-tile-meta (sits in the grid gap)
+
+   :has() drives the dashed outline whenever any action button is hovered
+   or keyboard-focused — keeps the affordance contextual. */
+.grid-tile {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background-color: var(--color-fill-primary);
+  border-radius: var(--radius-md);
+  outline: var(--border-md) dashed transparent;
+  outline-offset: 0;
+  transition: outline-color 120ms ease;
+}
+.grid-tile:has(.grid-tile-btn:hover),
+.grid-tile:has(.grid-tile-btn:focus-visible),
+.grid-tile:focus-visible {
+  outline-color: var(--color-outline);
+}
+
+.grid-tile-inner {
+  width: 100%;
+  height: 100%;
+  padding: var(--space-8);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  transition: opacity 220ms var(--ease-soft-spring);
+}
+.grid-tile:has(.grid-tile-btn:hover) .grid-tile-inner {
+  opacity: var(--opacity-20);
+}
+
+.grid-tile-actions {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+.grid-tile:hover .grid-tile-actions,
+.grid-tile:focus-within .grid-tile-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.grid-tile-meta {
+  position: absolute;
+  bottom: calc(-1 * var(--space-7));
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n005);
+  color: var(--color-text-tertiary);
+  opacity: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+.grid-tile:hover .grid-tile-meta,
+.grid-tile:focus-within .grid-tile-meta {
+  opacity: 1;
+}
+
+/* Action button — 24×24 icon button with a coloured pill background.
+   Default variant: transparent at rest, neutral 10% pill on hover.
+   Danger variant: red icon permanently, 10% red pill at rest → 18% on hover. */
+.grid-tile-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+  color: var(--color-text-primary);
+  cursor: none;
+  border-radius: var(--radius-sm);
+  padding: 0;
+  z-index: 1;
+}
+.grid-tile-btn-bg {
+  position: absolute;
+  inset: -3px;
+  border-radius: var(--radius-sm);
+  opacity: 0;
+  transition: opacity 120ms ease;
+  z-index: -1;
+  pointer-events: none;
+}
+.grid-tile-btn .grid-tile-btn-bg { background-color: var(--color-text-primary); }
+.grid-tile-btn:hover .grid-tile-btn-bg { opacity: 0.1; }
+.grid-tile-btn:focus-visible { outline: var(--border-md) solid var(--color-text-primary); outline-offset: var(--border-md); }
+
+.grid-tile-btn--danger { color: var(--color-status-error); }
+.grid-tile-btn--danger .grid-tile-btn-bg { background-color: var(--color-status-error); opacity: 0.1; }
+.grid-tile-btn--danger:hover .grid-tile-btn-bg { opacity: 0.18; }
+.grid-tile-btn--danger:focus-visible { outline-color: var(--color-status-error); }
+
 /* ─── ICON CATALOG — hover-swap glyph for name ───────────────────────── */
 .icon-grid {
   display: grid;

@@ -15,6 +15,7 @@ export * from './components/cursor';
 
 // Cards
 export { SectionTile } from './components/cards/SectionTile';
+export { GridTile, GridTileAction } from './components/cards/GridTile';
 
 // Feedback
 export * from './components/feedback';
