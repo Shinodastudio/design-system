@@ -471,6 +471,121 @@ button { font: inherit; background: none; border: none; cursor: none; }
 .btn--accent-success, .link--accent-success { --btn-accent-color: var(--color-status-success); }
 .btn--accent-info,    .link--accent-info    { --btn-accent-color: var(--color-status-info); }
 
+/* ─── BUTTON GROUP — single-select pill with fluid label expansion ──────────
+   Inactive items show icon only; the selected item grows to icon + label
+   inline. The label sits in a 0fr→1fr grid column wrapper so the pill width
+   animates as a single GPU-friendly easeInOutQuint transition (280ms), with
+   the icon→label margin animating alongside so the gap appears/disappears
+   smoothly.
+
+   Lineage: Scrapbook TabSwitcher (l0at-izar, .ts-* rules). Generalised here
+   from "tabs" to "single-select button group" — same pattern, different
+   semantics. */
+.button-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background-color: var(--color-fill-base);
+  border: var(--border-sm) solid var(--color-transparent-weak);
+  border-radius: var(--radius-md);
+}
+.button-group-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  padding: 6px;
+  border: none;
+  background: none;
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  cursor: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  outline: none;
+  transition: background-color 150ms ease,
+              padding 280ms var(--ease-in-out-quint);
+}
+.button-group-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 2px;
+  flex-shrink: 0;
+  opacity: var(--opacity-20);
+  transition: opacity 150ms ease, transform 80ms ease;
+}
+
+/* Inactive: hover lifts the icon to 60% and pulls in a soft fill-primary pill. */
+.button-group-item:not(.is-active):hover { background-color: var(--color-fill-primary); }
+.button-group-item:not(.is-active):hover .button-group-item-icon { opacity: var(--opacity-60); }
+.button-group-item:not(.is-active):active { transform: scale(0.94); }
+
+/* Active: inverted — text-primary fill, fill-base text. Padding grows on
+   the right of the label (Figma node 52:15637 — 6px around icon, 8px right). */
+.button-group-item.is-active {
+  background-color: var(--color-text-primary);
+  color: var(--color-fill-base);
+  padding: 6px 8px 6px 6px;
+}
+.button-group-item.is-active .button-group-item-icon {
+  opacity: 1;
+  color: var(--color-fill-base);
+}
+/* A 12% white overlay on hover so the active state lightens slightly in
+   both themes without changing the underlying fill. */
+.button-group-item.is-active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-md);
+  background-color: var(--color-fill-base);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease;
+}
+.button-group-item.is-active:hover::after { opacity: 0.12; }
+.button-group-item.is-active:active::after { opacity: 0.18; }
+.button-group-item.is-active:active { transform: scale(0.97); }
+
+/* Focus + click ring — 2px dashed in fill-secondary, 4px offset. Modern
+   browsers curve the outline to the radius (12 + 4 = 16). */
+.button-group-item:focus-visible,
+.button-group-item:active {
+  outline: var(--border-md) dashed var(--color-fill-secondary);
+  outline-offset: 4px;
+}
+
+/* Label — collapses to a 0fr column when inactive, expands to 1fr when
+   active. margin-left animates 0 → 4px so the icon→label gap appears only
+   when the label has width. */
+.button-group-item-label-wrap {
+  display: inline-grid;
+  grid-template-columns: 0fr;
+  overflow: hidden;
+  margin-left: 0;
+  transition: grid-template-columns 280ms var(--ease-in-out-quint),
+              margin-left 280ms var(--ease-in-out-quint);
+}
+.button-group-item.is-active .button-group-item-label-wrap {
+  grid-template-columns: 1fr;
+  margin-left: 4px;
+}
+.button-group-item-label {
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  letter-spacing: var(--tracking-n035);
+  line-height: var(--leading-title);
+  font-weight: var(--fw-normal);
+  white-space: nowrap;
+  color: inherit;
+}
+
 /* ─── CURSOR — single inverted dot, fixed positioning ────────────────── */
 .cursor {
   position: fixed; left: 0; top: 0;

@@ -1,6 +1,7 @@
 export { Divider }     from './Divider';
 export { Text }        from './Text';
 export { Button }      from './Button';
+export { ButtonGroup } from './ButtonGroup';
 export { ShinodaLink, LINK_SIZES } from './ShinodaLink';
 export type { LinkSize } from './ShinodaLink';
 export { Input, Textarea, InputLabel, InputHelp, InputError, InputField } from './Input';
