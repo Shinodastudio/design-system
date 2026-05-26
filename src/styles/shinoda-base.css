@@ -2154,6 +2154,28 @@ html.cursor--focused .cursor { opacity: 0; }
      via auto margins, but reassert in case author overrides exist. */
   margin: auto;
 }
+/* ─── SCRIM — standalone backdrop primitive ─────────────────────────────────
+   Same visual language as .dialog::backdrop (which is the scrim native to
+   <dialog>), but as a real DOM node so consumers can use it behind any
+   floating surface — tour layers, custom popovers, lightboxes — without
+   committing to a full Dialog. 200ms fade matches dialog enter/exit. */
+.scrim {
+  position: fixed;
+  inset: 0;
+  background-color: var(--color-scrim);
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.scrim-visible { opacity: 1; }
+.scrim-blur-xs {
+  backdrop-filter: blur(var(--blur-xs));
+  -webkit-backdrop-filter: blur(var(--blur-xs));
+}
+.scrim-blur-md {
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
+}
+
 /* Scrim — blur + darken behind the dialog. The dialog::backdrop sits between
    the page and the dialog, so backdrop-filter blurs the page underneath. */
 .dialog::backdrop {

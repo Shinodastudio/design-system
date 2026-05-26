@@ -23,6 +23,7 @@ import {
   DialogCard,
 } from '@/components/overlay/Dialog';
 import { ConfirmDialog } from '@/components/overlay/ConfirmDialog';
+import { Scrim } from '@/components/overlay/Scrim';
 import {
   Sheet,
   SheetTrigger,
@@ -44,6 +45,7 @@ const SIZES = ['default'] as const;
 
 export default function OverlayPage(): React.ReactElement {
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [scrimOpen, setScrimOpen] = useState(false);
 
   return (
     <MainWrapper>
@@ -174,6 +176,27 @@ export default function OverlayPage(): React.ReactElement {
                   message="Are you sure? You can't bring this back once deleted."
                   onConfirm={(): void => {}}
                   intent="danger"
+                />
+              </>
+            )}
+          />
+
+          <ComponentSection
+            name="Scrim"
+            description="Standalone backdrop primitive — dark fill with optional blur, portalled to body. Use behind custom overlays (tour layers, lightboxes, non-modal floating panels) when a full Dialog isn't appropriate. Click the scrim or press Escape to dismiss."
+            code={`<Scrim\n  open={open}\n  onDismiss={() => setOpen(false)}\n  onEscape={() => setOpen(false)}\n  blur="xs"\n/>`}
+            sizes={SIZES}
+            states={['default']}
+            render={(): React.ReactNode => (
+              <>
+                <Button size="heading-sm" onClick={(): void => setScrimOpen(true)}>
+                  Show scrim
+                </Button>
+                <Scrim
+                  open={scrimOpen}
+                  onDismiss={(): void => setScrimOpen(false)}
+                  onEscape={(): void => setScrimOpen(false)}
+                  blur="xs"
                 />
               </>
             )}
