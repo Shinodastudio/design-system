@@ -1957,8 +1957,8 @@ html.cursor--focused .cursor { opacity: 0; }
   line-height: var(--leading-body-xs);
   /* Symmetric horizontal padding so the label sits visually centred. */
   padding: 4px 6px;
-  /* Figma outer clip = 4px (radius-xs) */
-  border-radius: var(--radius-xs);
+  /* Figma outer clip = 8px (radius-sm) */
+  border-radius: var(--radius-sm);
   white-space: nowrap;
   cursor: none;
   --gravity-x: 0px; --gravity-y: 0px;
