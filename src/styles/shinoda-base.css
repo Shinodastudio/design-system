@@ -2035,15 +2035,24 @@ html.cursor--focused .cursor { opacity: 0; }
    so no extra y-offset is needed when align-items is flex-start. */
 .alert-icon { display: inline-flex; flex-shrink: 0; color: var(--alert-accent); }
 .alert-body { flex: 1; display: flex; flex-direction: column; gap: var(--space-1); }
-/* Title and content share body-sm. Hierarchy is colour, not weight. */
-.alert-title { letter-spacing: var(--tracking-n010); color: var(--alert-accent); }
-.alert-content { letter-spacing: var(--tracking-n010); opacity: var(--opacity-60); }
+/* Title, content, and dismiss all share body-sm (1.125rem). Hierarchy is
+   colour, not weight or scale — title at 100% accent, body at 60%, dismiss
+   at 40% (lifts to 100% on hover). */
+.alert-title,
+.alert-content,
+.alert-dismiss {
+  font-size: 1.125rem;
+  line-height: var(--leading-body-md);
+  letter-spacing: var(--tracking-n010);
+  font-weight: var(--fw-normal);
+}
+.alert-title { color: var(--alert-accent); }
+.alert-content { opacity: var(--opacity-60); }
 .alert-dismiss {
   flex-shrink: 0;
-  /* Match body-sm size + tracking. No vertical padding so the dismiss
-     baseline aligns with the title in the multi-line layout. */
+  /* No vertical padding so the dismiss baseline aligns with the title in
+     the multi-line layout. */
   padding-block: 0;
-  letter-spacing: var(--tracking-n010);
   color: var(--alert-accent);
   opacity: var(--opacity-40);
   transition: opacity 150ms ease;
