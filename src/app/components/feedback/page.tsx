@@ -7,11 +7,12 @@ import { StickyCol } from '@/components/layout/StickyCol';
 import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 import { ComponentSection } from '@/components/catalogue/ComponentSection';
 import { Badge, type BadgeVariant } from '@/components/feedback/Badge';
-import { Alert } from '@/components/feedback/Alert';
+import { Alert, type AlertVariant } from '@/components/feedback/Alert';
 import { Progress } from '@/components/feedback/Progress';
 import { Skeleton } from '@/components/feedback/Skeleton';
 
 const BADGE_VARIANTS = ['neutral', 'red', 'orange', 'yellow', 'green', 'blue'] as const;
+const ALERT_VARIANTS = ['default', 'red', 'orange', 'yellow', 'green', 'blue'] as const;
 const SIZES = ['default'] as const;
 
 export default function FeedbackPage(): React.ReactElement {
@@ -49,46 +50,55 @@ export default function FeedbackPage(): React.ReactElement {
 
           <ComponentSection
             name="Alert"
-            description="Block-level feedback. Supports title, body copy, and an optional dismiss action. Fades in on mount."
-            code={`<Alert variant="warning" title="Unsaved changes">\n  Leave this page to discard.\n</Alert>`}
-            sizes={SIZES}
+            description="Pill banner with accent fill, leading icon, title, and optional text dismiss link. Six colour variants — semantic aliases (success/warning/error/info) resolve to the matching colour."
+            code={`<Alert variant="red" title="Submission failed" />\n<Alert variant="orange" title="Unsaved changes" onDismiss={fn} />\n<Alert variant="error" title="Same as 'red'" />`}
+            sizes={ALERT_VARIANTS}
+            sizeLabel={(v): string => v}
             states={['default']}
-            render={(): React.ReactNode => (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', width: '100%' }}>
-                <Alert variant="info" title="Information">
-                  Your session expires in 30 minutes.
-                </Alert>
-                <Alert variant="warning" title="Unsaved changes">
-                  Leave this page to discard edits.
-                </Alert>
-                <Alert variant="error" title="Submission failed">
-                  Check required fields and try again.
-                </Alert>
-              </div>
+            defaultSize="default"
+            render={({ size }): React.ReactNode => (
+              <Alert
+                variant={size as AlertVariant}
+                title="Alert Title"
+                onDismiss={(): void => {}}
+              />
+            )}
+          />
+
+          <ComponentSection
+            name="Alert with description"
+            description="Pass children to render a secondary description line beneath the title at 80% opacity."
+            code={`<Alert variant="blue" title="Heads up">\n  Your session expires in 30 minutes.\n</Alert>`}
+            sizes={ALERT_VARIANTS}
+            sizeLabel={(v): string => v}
+            states={['default']}
+            defaultSize="blue"
+            render={({ size }): React.ReactNode => (
+              <Alert variant={size as AlertVariant} title="Heads up">
+                Your session expires in 30 minutes.
+              </Alert>
             )}
           />
 
           <ComponentSection
             name="Alert with dismiss"
-            description="Pass onDismiss to show an × button. Fades out before unmount."
-            code={`<Alert\n  variant="success"\n  title="Saved"\n  onDismiss={() => setVisible(false)}\n/>`}
+            description="Pass onDismiss to show a text Dismiss link. Fades out before unmount."
+            code={`<Alert\n  variant="green"\n  title="Saved"\n  onDismiss={() => setVisible(false)}\n/>`}
             sizes={SIZES}
             states={['default']}
             render={(): React.ReactNode => (
               <div style={{ width: '100%' }}>
                 {alertVisible ? (
                   <Alert
-                    variant="success"
+                    variant="green"
                     title="Changes saved"
-                    onDismiss={() => setAlertVisible(false)}
-                  >
-                    Your profile has been updated.
-                  </Alert>
+                    onDismiss={(): void => setAlertVisible(false)}
+                  />
                 ) : (
                   <button
                     type="button"
                     className="btn"
-                    onClick={() => setAlertVisible(true)}
+                    onClick={(): void => setAlertVisible(true)}
                   >
                     Show alert
                   </button>
