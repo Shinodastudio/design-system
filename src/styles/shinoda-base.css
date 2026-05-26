@@ -490,9 +490,11 @@ button { font: inherit; background: none; border: none; cursor: none; }
               opacity 200ms ease;
   display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
+/* Chip-cursor label. Always 12px regular, sentence case, body-2xs tracking.
+   Hierarchy comes from the chip's mix-blend-mode contrast, not from caps. */
 .cursor-label {
-  font-family: var(--font-sans); font-size: 0.5rem;
-  font-weight: var(--fw-medium); letter-spacing: 0.05em; text-transform: uppercase;
+  font-family: var(--font-sans); font-size: 0.75rem;
+  font-weight: var(--fw-medium); letter-spacing: var(--tracking-n005);
   color: var(--color-fill-base); white-space: nowrap;
   opacity: 0; transition: opacity 100ms ease;
   mix-blend-mode: difference; pointer-events: none;
@@ -513,7 +515,7 @@ html.cursor--btn .cursor {
 /* Text — I-beam */
 html.cursor--text .cursor { width: 2px; height: 1.5em; border-radius: 1px; }
 /* Image / expand chip */
-html.cursor--chip .cursor { min-width: 3.5em; width: auto; height: 1.75em; border-radius: var(--radius-full); padding: 0 0.5em; }
+html.cursor--chip .cursor { min-width: 3.5em; width: auto; height: 2em; border-radius: var(--radius-full); padding: 0 0.75em; }
 html.cursor--chip .cursor-label { opacity: 1; }
 /* Press — scale down */
 html.cursor--active .cursor { transform: translate(-50%,-50%) scale(0.8); }
