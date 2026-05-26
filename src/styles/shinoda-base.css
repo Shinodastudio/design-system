@@ -1725,12 +1725,30 @@ html.cursor--focused .cursor { opacity: 0; }
 }
 .badge:hover { opacity: var(--opacity-40); }
 
-.badge-neutral { background-color: color-mix(in srgb, var(--color-text-tertiary) 10%, transparent); color: var(--color-text-tertiary); }
-.badge-red     { background-color: color-mix(in srgb, var(--accent-red)    10%, transparent); color: var(--accent-red); }
-.badge-orange  { background-color: color-mix(in srgb, var(--accent-orange) 10%, transparent); color: var(--accent-orange); }
-.badge-yellow  { background-color: color-mix(in srgb, var(--accent-yellow) 10%, transparent); color: var(--accent-yellow); }
-.badge-green   { background-color: color-mix(in srgb, var(--accent-green)  10%, transparent); color: var(--accent-green); }
-.badge-blue    { background-color: color-mix(in srgb, var(--accent-blue)   10%, transparent); color: var(--accent-blue); }
+/* Focus follows the canonical DS outline: 2px solid, offset by 2px, in the
+   badge's own accent colour. --badge-accent is bound per variant below. */
+.badge:focus-visible {
+  outline: var(--border-md) solid var(--badge-accent, var(--color-text-primary));
+  outline-offset: var(--border-md);
+}
+
+/* Disabled — applies to <button> badges with the disabled attribute and to
+   any badge with aria-disabled="true" (covers span usage). Drops emphasis
+   to opacity-40 and disables hover/focus affordances. */
+.badge:disabled,
+.badge[aria-disabled='true'] {
+  opacity: var(--opacity-40);
+  pointer-events: none;
+}
+.badge:disabled:hover,
+.badge[aria-disabled='true']:hover { opacity: var(--opacity-40); }
+
+.badge-neutral { --badge-accent: var(--color-text-tertiary); background-color: color-mix(in srgb, var(--color-text-tertiary) 10%, transparent); color: var(--color-text-tertiary); }
+.badge-red     { --badge-accent: var(--accent-red);    background-color: color-mix(in srgb, var(--accent-red)    10%, transparent); color: var(--accent-red); }
+.badge-orange  { --badge-accent: var(--accent-orange); background-color: color-mix(in srgb, var(--accent-orange) 10%, transparent); color: var(--accent-orange); }
+.badge-yellow  { --badge-accent: var(--accent-yellow); background-color: color-mix(in srgb, var(--accent-yellow) 10%, transparent); color: var(--accent-yellow); }
+.badge-green   { --badge-accent: var(--accent-green);  background-color: color-mix(in srgb, var(--accent-green)  10%, transparent); color: var(--accent-green); }
+.badge-blue    { --badge-accent: var(--accent-blue);   background-color: color-mix(in srgb, var(--accent-blue)   10%, transparent); color: var(--accent-blue); }
 
 /* ─── ALERT ──────────────────────────────────────────────────────────────── */
 .alert {

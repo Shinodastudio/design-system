@@ -30,14 +30,18 @@ export default function FeedbackPage(): React.ReactElement {
 
           <ComponentSection
             name="Badge"
-            description="Single canonical size — body-2xs, 10% accent tint. Six colour variants. Hover drops to 40% opacity."
-            code={`<Badge variant="green">Published</Badge>`}
+            description="Single canonical size — body-2xs, 10% accent tint. Six colour variants. Hover drops to 40% opacity. Focus outlines in the variant's accent colour; disabled drops the chip to 40% and removes interactivity."
+            code={`<Badge variant="green">Published</Badge>\n<Badge variant="red" disabled>Archived</Badge>\n<Badge variant="blue" onClick={fn}>Clickable</Badge>`}
             sizes={BADGE_VARIANTS}
             sizeLabel={(v): string => v}
-            states={['default', 'hover']}
+            states={['default', 'hover', 'focus', 'disabled']}
             defaultSize="neutral"
-            render={({ size }): React.ReactNode => (
-              <Badge variant={size as BadgeVariant}>
+            render={({ size, state }): React.ReactNode => (
+              <Badge
+                variant={size as BadgeVariant}
+                disabled={state === 'disabled'}
+                onClick={state === 'disabled' ? undefined : (): void => {}}
+              >
                 {size.charAt(0).toUpperCase() + size.slice(1)}
               </Badge>
             )}
