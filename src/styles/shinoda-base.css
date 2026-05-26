@@ -3038,14 +3038,14 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  padding: var(--space-5);
-  background-color: var(--color-fill-primary);
+  padding: var(--padding-card);
+  background-color: var(--color-fill-base);
   border-radius: var(--radius-md);
   border: var(--border-sm) solid var(--color-transparent-weak);
   transition: background-color 150ms ease;
 }
 .content-card-interactive { cursor: none; }
-.content-card-interactive:hover { background-color: color-mix(in srgb, var(--color-transparent-weak) 100%, var(--color-fill-primary) 0%); }
+.content-card-interactive:hover { background-color: var(--color-fill-primary); }
 .content-card-body { display: flex; flex-direction: column; gap: var(--space-2); flex: 1; }
 /* heading-md as the primary type size for card titles */
 .content-card-title { font-size: 1.5rem; letter-spacing: var(--tracking-n030); line-height: var(--leading-heading); font-weight: var(--fw-normal); }
