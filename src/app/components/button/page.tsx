@@ -5,6 +5,7 @@ import { MainWrapper } from '@/components/layout/MainWrapper';
 import { Grid } from '@/components/layout/Grid';
 import { StickyCol } from '@/components/layout/StickyCol';
 import { Button } from '@/components/primitives/Button';
+import { ButtonGroup } from '@/components/primitives/ButtonGroup';
 import { BUTTON_SIZES, type ButtonSize, ACCENT_COLORS, type AccentColor } from '@/components/primitives/Button.constants';
 import { ComponentSection } from '@/components/catalogue/ComponentSection';
 import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
@@ -37,6 +38,7 @@ function capitalize(str: string): string {
 export default function ButtonPage(): React.ReactElement {
   const [accent, setAccent] = useState<AccentColor | undefined>(undefined);
   const accentSelectId = useId();
+  const [groupValue, setGroupValue] = useState<string>('cursor');
 
   const accentCode = accent != null
     ? `<Button size="heading-md" accent="${accent}">Label</Button>`
@@ -170,6 +172,31 @@ export default function ButtonPage(): React.ReactElement {
               <Button className="btn-icon" size={size}>
                 <Icon name="ArrowRight" size="em" />
               </Button>
+            )}
+          />
+
+          <ComponentSection
+            name="ButtonGroup"
+            description="Single-select pill. Each item shows its icon; the selected item also reveals its label inline. The label sits in a 0fr→1fr grid column so the pill resizes fluidly (280ms easeInOutQuint). Inactive items expose their label via Tooltip on hover."
+            code={`<ButtonGroup value={tool} onValueChange={setTool}>\n  <ButtonGroup.Item value="cursor" icon={<Icon name="ArrowsOut" size="em"/>}>Cursor</ButtonGroup.Item>\n  <ButtonGroup.Item value="pen"    icon={<Icon name="PencilSimple" size="em"/>}>Pen</ButtonGroup.Item>\n  <ButtonGroup.Item value="text"   icon={<Icon name="TextT" size="em"/>}>Text</ButtonGroup.Item>\n</ButtonGroup>`}
+            sizes={['default']}
+            states={['default']}
+            render={(): React.ReactNode => (
+              <ButtonGroup
+                value={groupValue}
+                onValueChange={setGroupValue}
+                ariaLabel="Tool"
+              >
+                <ButtonGroup.Item value="cursor" icon={<Icon name="ArrowsOut" size="em" />}>
+                  Cursor
+                </ButtonGroup.Item>
+                <ButtonGroup.Item value="pen" icon={<Icon name="PencilSimple" size="em" />}>
+                  Pen
+                </ButtonGroup.Item>
+                <ButtonGroup.Item value="text" icon={<Icon name="TextT" size="em" />}>
+                  Text
+                </ButtonGroup.Item>
+              </ButtonGroup>
             )}
           />
 

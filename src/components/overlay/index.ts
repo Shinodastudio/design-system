@@ -10,7 +10,17 @@ export {
   DialogDescription,
   DialogFooter,
   DialogClose,
+  DialogPanel,
+  DialogTitleRow,
+  DialogCard,
 } from './Dialog';
+export type { DialogVariant } from './Dialog';
+
+export { ConfirmDialog } from './ConfirmDialog';
+export type { ConfirmDialogIntent } from './ConfirmDialog';
+
+export { Scrim } from './Scrim';
+export type { ScrimBlur } from './Scrim';
 
 export {
   Sheet,

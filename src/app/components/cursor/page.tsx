@@ -43,6 +43,9 @@ export default function CursorPage(): React.ReactElement {
                 <Text variant="body-md" opacity={40} as="p">Hover — chip</Text>
               </div>
             </div>
+            <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
+              Chip label: 12px GT America regular, sentence case, <code>--tracking-n005</code>. Never uppercase. The chip stands at <code>2em</code> tall with <code>0.75em</code> horizontal padding so the label can breathe.
+            </Text>
           </div>
           <Divider />
           <div style={{ paddingBlock: 'var(--space-8)' }}>

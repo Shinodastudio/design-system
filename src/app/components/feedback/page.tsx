@@ -1,22 +1,20 @@
 'use client';
 
-import { useState } from 'react';
 import { MainWrapper } from '@/components/layout/MainWrapper';
 import { Grid } from '@/components/layout/Grid';
 import { StickyCol } from '@/components/layout/StickyCol';
 import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 import { ComponentSection } from '@/components/catalogue/ComponentSection';
 import { Badge, type BadgeVariant } from '@/components/feedback/Badge';
-import { Alert } from '@/components/feedback/Alert';
+import { Alert, type AlertVariant } from '@/components/feedback/Alert';
 import { Progress } from '@/components/feedback/Progress';
 import { Skeleton } from '@/components/feedback/Skeleton';
 
 const BADGE_VARIANTS = ['neutral', 'red', 'orange', 'yellow', 'green', 'blue'] as const;
+const ALERT_VARIANTS = ['default', 'red', 'orange', 'yellow', 'green', 'blue'] as const;
 const SIZES = ['default'] as const;
 
 export default function FeedbackPage(): React.ReactElement {
-  const [alertVisible, setAlertVisible] = useState(true);
-
   return (
     <MainWrapper>
       <Grid>
@@ -30,85 +28,55 @@ export default function FeedbackPage(): React.ReactElement {
 
           <ComponentSection
             name="Badge"
-            description="Single canonical size — body-2xs, 10% accent tint. Six colour variants. Hover drops to 40% opacity."
-            code={`<Badge variant="green">Published</Badge>`}
+            description="Single canonical size — body-2xs, 10% accent tint. Six colour variants. Hover drops to 40% opacity. Focus outlines in the variant's accent colour; disabled drops the chip to 40% and removes interactivity."
+            code={`<Badge variant="green">Published</Badge>\n<Badge variant="red" disabled>Archived</Badge>\n<Badge variant="blue" onClick={fn}>Clickable</Badge>`}
             sizes={BADGE_VARIANTS}
             sizeLabel={(v): string => v}
-            states={['default', 'hover']}
+            states={['default', 'hover', 'focus', 'disabled']}
             defaultSize="neutral"
-            render={({ size }): React.ReactNode => (
-              <Badge variant={size as BadgeVariant}>
+            render={({ size, state }): React.ReactNode => (
+              <Badge
+                variant={size as BadgeVariant}
+                disabled={state === 'disabled'}
+                onClick={state === 'disabled' ? undefined : (): void => {}}
+              >
                 {size.charAt(0).toUpperCase() + size.slice(1)}
               </Badge>
             )}
           />
 
           <ComponentSection
-            name="All badge colours"
-            description="The six variants side-by-side. Use the colour that matches the semantic — never raw hex."
-            code={`{(['neutral','red','orange','yellow','green','blue'] as const).map(v => (\n  <Badge key={v} variant={v}>{v}</Badge>\n))}`}
-            sizes={SIZES}
-            states={['default']}
-            render={(): React.ReactNode => (
-              <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
-                {BADGE_VARIANTS.map(v => (
-                  <Badge key={v} variant={v}>
-                    {v.charAt(0).toUpperCase() + v.slice(1)}
-                  </Badge>
-                ))}
-              </div>
-            )}
-          />
-
-          <ComponentSection
             name="Alert"
-            description="Block-level feedback. Supports title, body copy, and an optional dismiss action. Fades in on mount."
-            code={`<Alert variant="warning" title="Unsaved changes">\n  Leave this page to discard.\n</Alert>`}
-            sizes={SIZES}
+            description="Pill banner with accent fill, leading icon, title, and optional text dismiss link. Six colour variants — semantic aliases (success/warning/error/info) resolve to the matching colour."
+            code={`<Alert variant="red" title="Submission failed" />\n<Alert variant="orange" title="Unsaved changes" onDismiss={fn} />\n<Alert variant="error" title="Same as 'red'" />`}
+            sizes={ALERT_VARIANTS}
+            sizeLabel={(v): string => v}
             states={['default']}
-            render={(): React.ReactNode => (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', width: '100%' }}>
-                <Alert variant="info" title="Information">
-                  Your session expires in 30 minutes.
-                </Alert>
-                <Alert variant="warning" title="Unsaved changes">
-                  Leave this page to discard edits.
-                </Alert>
-                <Alert variant="error" title="Submission failed">
-                  Check required fields and try again.
-                </Alert>
-              </div>
+            defaultSize="default"
+            render={({ size }): React.ReactNode => (
+              <Alert
+                variant={size as AlertVariant}
+                title="Alert Title"
+                onDismiss={(): void => {}}
+              />
             )}
           />
 
           <ComponentSection
-            name="Alert with dismiss"
-            description="Pass onDismiss to show an × button. Fades out before unmount."
-            code={`<Alert\n  variant="success"\n  title="Saved"\n  onDismiss={() => setVisible(false)}\n/>`}
-            sizes={SIZES}
+            name="Alert with description"
+            description="Pass children to render a secondary description line beneath the title at 80% opacity."
+            code={`<Alert title="Heads up">\n  Your session expires in 30 minutes.\n</Alert>`}
+            sizes={ALERT_VARIANTS}
+            sizeLabel={(v): string => v}
             states={['default']}
-            render={(): React.ReactNode => (
-              <div style={{ width: '100%' }}>
-                {alertVisible ? (
-                  <Alert
-                    variant="success"
-                    title="Changes saved"
-                    onDismiss={() => setAlertVisible(false)}
-                  >
-                    Your profile has been updated.
-                  </Alert>
-                ) : (
-                  <button
-                    type="button"
-                    className="btn"
-                    onClick={() => setAlertVisible(true)}
-                  >
-                    Show alert
-                  </button>
-                )}
-              </div>
+            defaultSize="default"
+            render={({ size }): React.ReactNode => (
+              <Alert variant={size as AlertVariant} title="Heads up">
+                Your session expires in 30 minutes.
+              </Alert>
             )}
           />
+
 
           <ComponentSection
             name="Progress"

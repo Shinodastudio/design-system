@@ -1,11 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import { MainWrapper } from '@/components/layout/MainWrapper';
 import { Grid } from '@/components/layout/Grid';
 import { StickyCol } from '@/components/layout/StickyCol';
 import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 import { ComponentSection } from '@/components/catalogue/ComponentSection';
 import { Button } from '@/components/primitives/Button';
+import { Icon } from '@/components/icons/Icon';
 import { Tooltip } from '@/components/overlay/Tooltip';
 import {
   Dialog,
@@ -16,7 +18,12 @@ import {
   DialogDescription,
   DialogFooter,
   DialogClose,
+  DialogPanel,
+  DialogTitleRow,
+  DialogCard,
 } from '@/components/overlay/Dialog';
+import { ConfirmDialog } from '@/components/overlay/ConfirmDialog';
+import { Scrim } from '@/components/overlay/Scrim';
 import {
   Sheet,
   SheetTrigger,
@@ -37,6 +44,9 @@ import {
 const SIZES = ['default'] as const;
 
 export default function OverlayPage(): React.ReactElement {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [scrimOpen, setScrimOpen] = useState(false);
+
   return (
     <MainWrapper>
       <Grid>
@@ -96,6 +106,99 @@ export default function OverlayPage(): React.ReactElement {
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
+            )}
+          />
+
+          <ComponentSection
+            name="Dialog — centred with title-on-scrim"
+            description="`variant='bare'` lets you compose a title row on the dark scrim above a white card. Use for export-style or modal task surfaces."
+            code={`<Dialog>\n  <DialogTrigger><Button>Open</Button></DialogTrigger>\n  <DialogContent variant="bare">\n    <DialogTitleRow icon={<Icon name="Trash" size="em"/>}>Delete</DialogTitleRow>\n    <DialogCard>{/* body */}</DialogCard>\n  </DialogContent>\n</Dialog>`}
+            sizes={SIZES}
+            states={['default']}
+            render={(): React.ReactNode => (
+              <Dialog>
+                <DialogTrigger>
+                  <Button size="heading-sm">Open centred dialog</Button>
+                </DialogTrigger>
+                <DialogContent variant="bare">
+                  <DialogTitleRow icon={<Icon name="DownloadSimple" size="em" />}>
+                    Export
+                  </DialogTitleRow>
+                  <DialogCard>
+                    <p className="body-sm op-60">
+                      Pick a size and format. The card extends below the title row on the scrim.
+                    </p>
+                  </DialogCard>
+                </DialogContent>
+              </Dialog>
+            )}
+          />
+
+          <ComponentSection
+            name="Dialog — bottom drawer"
+            description="`variant='drawer'` fills the viewport, blurs the page, and slides a panel up from below carrying a title row + top-rounded card to the viewport bottom."
+            code={`<Dialog>\n  <DialogTrigger><Button>Open</Button></DialogTrigger>\n  <DialogContent variant="drawer">\n    <DialogPanel>\n      <DialogTitleRow>Library</DialogTitleRow>\n      <DialogCard variant="drawer">{/* body */}</DialogCard>\n    </DialogPanel>\n  </DialogContent>\n</Dialog>`}
+            sizes={SIZES}
+            states={['default']}
+            render={(): React.ReactNode => (
+              <Dialog>
+                <DialogTrigger>
+                  <Button size="heading-sm">Open drawer</Button>
+                </DialogTrigger>
+                <DialogContent variant="drawer">
+                  <DialogPanel>
+                    <DialogTitleRow>Library</DialogTitleRow>
+                    <DialogCard variant="drawer">
+                      <p className="body-sm op-60">
+                        Drawer panels slide up over the page and stretch to the viewport bottom.
+                      </p>
+                    </DialogCard>
+                  </DialogPanel>
+                </DialogContent>
+              </Dialog>
+            )}
+          />
+
+          <ComponentSection
+            name="ConfirmDialog"
+            description="Composed on the centred bare dialog. Pass `intent='danger'` for destructive confirms (red Delete button); `intent='default'` for non-destructive."
+            code={`<ConfirmDialog\n  open={open}\n  onOpenChange={setOpen}\n  message="Are you sure?"\n  onConfirm={fn}\n  intent="danger"\n/>`}
+            sizes={SIZES}
+            states={['default']}
+            render={(): React.ReactNode => (
+              <>
+                <Button size="heading-sm" onClick={(): void => setConfirmOpen(true)}>
+                  Open confirm dialog
+                </Button>
+                <ConfirmDialog
+                  open={confirmOpen}
+                  onOpenChange={setConfirmOpen}
+                  message="Are you sure? You can't bring this back once deleted."
+                  onConfirm={(): void => {}}
+                  intent="danger"
+                />
+              </>
+            )}
+          />
+
+          <ComponentSection
+            name="Scrim"
+            description="Standalone backdrop primitive — dark fill with optional blur, portalled to body. Use behind custom overlays (tour layers, lightboxes, non-modal floating panels) when a full Dialog isn't appropriate. Click the scrim or press Escape to dismiss."
+            code={`<Scrim\n  open={open}\n  onDismiss={() => setOpen(false)}\n  onEscape={() => setOpen(false)}\n  blur="xs"\n/>`}
+            sizes={SIZES}
+            states={['default']}
+            render={(): React.ReactNode => (
+              <>
+                <Button size="heading-sm" onClick={(): void => setScrimOpen(true)}>
+                  Show scrim
+                </Button>
+                <Scrim
+                  open={scrimOpen}
+                  onDismiss={(): void => setScrimOpen(false)}
+                  onEscape={(): void => setScrimOpen(false)}
+                  blur="xs"
+                />
+              </>
             )}
           />
 

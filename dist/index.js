@@ -5,14 +5,14 @@ var tailwindMerge = require('tailwind-merge');
 var react = require('react');
 var jsxRuntime = require('react/jsx-runtime');
 var reactSlot = require('@radix-ui/react-slot');
+var ReactDOM = require('react-dom');
 var NextLink = require('next/link');
 var navigation = require('next/navigation');
-var ReactDOM = require('react-dom');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
 
-var NextLink__default = /*#__PURE__*/_interopDefault(NextLink);
 var ReactDOM__default = /*#__PURE__*/_interopDefault(ReactDOM);
+var NextLink__default = /*#__PURE__*/_interopDefault(NextLink);
 
 var __defProp = Object.defineProperty;
 var __defProps = Object.defineProperties;
@@ -332,475 +332,11 @@ function Button(_a) {
   );
 }
 
-// src/components/primitives/ShinodaLink.tsx
+// src/components/primitives/ButtonGroup.tsx
 init_cn();
-var LINK_SIZES = BUTTON_SIZES;
-function ShinodaLink({
-  href,
-  children,
-  className,
-  external = false,
-  size,
-  disabled = false,
-  accent
-}) {
-  const ref = react.useRef(null);
-  useGravity(ref);
-  const classes = cn(
-    "link",
-    size != null ? `btn-size-${size}` : void 0,
-    disabled && "is-disabled",
-    accent != null ? `link--accent link--accent-${accent}` : void 0,
-    className
-  );
-  if (external) {
-    return /* @__PURE__ */ jsxRuntime.jsx(
-      "a",
-      {
-        ref,
-        href: disabled ? void 0 : href,
-        className: classes,
-        target: "_blank",
-        rel: "noopener noreferrer",
-        "aria-disabled": disabled || void 0,
-        children
-      }
-    );
-  }
-  if (disabled) {
-    return /* @__PURE__ */ jsxRuntime.jsx("a", { ref, className: classes, "aria-disabled": "true", children });
-  }
-  return /* @__PURE__ */ jsxRuntime.jsx(NextLink__default.default, { ref, href, className: classes, children });
-}
 
-// src/components/primitives/Input.tsx
+// src/components/overlay/Tooltip.tsx
 init_cn();
-var Input = react.forwardRef(
-  function Input2(_a, ref) {
-    var _b = _a, { className, hasError = false, type = "text" } = _b, props = __objRest(_b, ["className", "hasError", "type"]);
-    const localRef = react.useRef(null);
-    useGravity(localRef);
-    const mergedRef = react.useCallback(
-      (node) => {
-        localRef.current = node;
-        if (typeof ref === "function") ref(node);
-        else if (ref != null) ref.current = node;
-      },
-      [ref]
-    );
-    return /* @__PURE__ */ jsxRuntime.jsx(
-      "input",
-      __spreadValues({
-        ref: mergedRef,
-        type,
-        className: cn("input", hasError && "is-error", className)
-      }, props)
-    );
-  }
-);
-var Textarea = react.forwardRef(
-  function Textarea2(_a, ref) {
-    var _b = _a, { className, hasError = false, rows = 4 } = _b, props = __objRest(_b, ["className", "hasError", "rows"]);
-    const localRef = react.useRef(null);
-    useGravity(localRef);
-    const mergedRef = react.useCallback(
-      (node) => {
-        localRef.current = node;
-        if (typeof ref === "function") ref(node);
-        else if (ref != null) ref.current = node;
-      },
-      [ref]
-    );
-    return /* @__PURE__ */ jsxRuntime.jsx(
-      "textarea",
-      __spreadValues({
-        ref: mergedRef,
-        rows,
-        className: cn("textarea", hasError && "is-error", className)
-      }, props)
-    );
-  }
-);
-function InputLabel(_a) {
-  var _b = _a, { className, children } = _b, props = __objRest(_b, ["className", "children"]);
-  return /* @__PURE__ */ jsxRuntime.jsx("label", __spreadProps(__spreadValues({ className: cn("input-label", className) }, props), { children }));
-}
-function InputHelp({ children, className }) {
-  return /* @__PURE__ */ jsxRuntime.jsx("p", { className: cn("input-help", className), children });
-}
-function InputError({ children, className }) {
-  return /* @__PURE__ */ jsxRuntime.jsx("p", { className: cn("input-error", className), role: "alert", children });
-}
-function InputField({ children, className, style }) {
-  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn(className), style: __spreadValues({ display: "flex", flexDirection: "column" }, style), children });
-}
-
-// src/components/primitives/Select.tsx
-init_cn();
-var Select = react.forwardRef(
-  function Select2(_a, ref) {
-    var _b = _a, { className, hasError = false, children } = _b, props = __objRest(_b, ["className", "hasError", "children"]);
-    const localRef = react.useRef(null);
-    useGravity(localRef);
-    const mergedRef = react.useCallback(
-      (node) => {
-        localRef.current = node;
-        if (typeof ref === "function") ref(node);
-        else if (ref != null) ref.current = node;
-      },
-      [ref]
-    );
-    return /* @__PURE__ */ jsxRuntime.jsx("div", { className: "select", children: /* @__PURE__ */ jsxRuntime.jsx(
-      "select",
-      __spreadProps(__spreadValues({
-        ref: mergedRef,
-        className: cn("select-native", hasError && "is-error", className)
-      }, props), {
-        children
-      })
-    ) });
-  }
-);
-
-// src/components/primitives/Choice.tsx
-init_cn();
-var Checkbox = react.forwardRef(
-  function Checkbox2(_a, ref) {
-    var _b = _a, { className } = _b, props = __objRest(_b, ["className"]);
-    return /* @__PURE__ */ jsxRuntime.jsx(
-      "input",
-      __spreadValues({
-        ref,
-        type: "checkbox",
-        className: cn("checkbox", className)
-      }, props)
-    );
-  }
-);
-var Radio = react.forwardRef(
-  function Radio2(_a, ref) {
-    var _b = _a, { className } = _b, props = __objRest(_b, ["className"]);
-    return /* @__PURE__ */ jsxRuntime.jsx(
-      "input",
-      __spreadValues({
-        ref,
-        type: "radio",
-        className: cn("radio", className)
-      }, props)
-    );
-  }
-);
-function Choice({ children, className }) {
-  const ref = react.useRef(null);
-  useGravity(ref);
-  return /* @__PURE__ */ jsxRuntime.jsx("label", { ref, className: cn("choice", className), "data-cursor": "btn", children });
-}
-function ChoiceLabel({ children, className }) {
-  return /* @__PURE__ */ jsxRuntime.jsx("span", { className: cn("choice-label", className), children });
-}
-init_cn();
-var TabsContext = react.createContext(null);
-function useTabsContext() {
-  const ctx = react.useContext(TabsContext);
-  if (ctx == null) throw new Error("Tabs subcomponents must be used inside <Tabs>");
-  return ctx;
-}
-function Tabs({
-  defaultValue,
-  value,
-  onValueChange,
-  children,
-  className
-}) {
-  const [internal, setInternal] = react.useState(defaultValue);
-  const active = value != null ? value : internal;
-  const setActive = react.useCallback(
-    (next) => {
-      if (value == null) setInternal(next);
-      onValueChange == null ? void 0 : onValueChange(next);
-    },
-    [value, onValueChange]
-  );
-  return /* @__PURE__ */ jsxRuntime.jsx(TabsContext.Provider, { value: { active, setActive }, children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("tabs", className), children }) });
-}
-function TabsList({ children, className, ariaLabel }) {
-  const listRef = react.useRef(null);
-  const [indicator, setIndicator] = react.useState(
-    { left: 0, width: 0, ready: false }
-  );
-  const { active } = useTabsContext();
-  react.useLayoutEffect(() => {
-    const list = listRef.current;
-    if (list == null) return;
-    const node = list.querySelector(`[data-tab-value="${CSS.escape(active)}"]`);
-    if (node == null) return;
-    const listRect = list.getBoundingClientRect();
-    const nodeRect = node.getBoundingClientRect();
-    setIndicator({
-      left: nodeRect.left - listRect.left,
-      width: nodeRect.width,
-      ready: true
-    });
-  }, [active]);
-  react.useEffect(() => {
-    const list = listRef.current;
-    if (list == null) return;
-    const observer = new ResizeObserver(() => {
-      const node = list.querySelector(`[data-tab-value="${CSS.escape(active)}"]`);
-      if (node == null) return;
-      const listRect = list.getBoundingClientRect();
-      const nodeRect = node.getBoundingClientRect();
-      setIndicator({
-        left: nodeRect.left - listRect.left,
-        width: nodeRect.width,
-        ready: true
-      });
-    });
-    observer.observe(list);
-    return () => observer.disconnect();
-  }, [active]);
-  return /* @__PURE__ */ jsxRuntime.jsxs(
-    "div",
-    {
-      ref: listRef,
-      className: cn("tabs-list", className),
-      role: "tablist",
-      "aria-label": ariaLabel,
-      children: [
-        children,
-        /* @__PURE__ */ jsxRuntime.jsx(
-          "span",
-          {
-            className: "tabs-indicator",
-            "aria-hidden": "true",
-            "data-ready": indicator.ready,
-            style: {
-              transform: `translateX(${indicator.left}px)`,
-              width: `${indicator.width}px`
-            }
-          }
-        )
-      ]
-    }
-  );
-}
-function TabsTrigger({ value, children, className }) {
-  const { active, setActive } = useTabsContext();
-  const isActive = active === value;
-  const ref = react.useRef(null);
-  useGravity(ref);
-  return /* @__PURE__ */ jsxRuntime.jsx(
-    "button",
-    {
-      ref,
-      type: "button",
-      role: "tab",
-      "aria-selected": isActive,
-      "data-active": isActive,
-      "data-tab-value": value,
-      className: cn("tabs-trigger", className),
-      onClick: () => setActive(value),
-      children
-    }
-  );
-}
-function TabsPanel({ value, children, className }) {
-  const { active } = useTabsContext();
-  if (active !== value) return null;
-  return /* @__PURE__ */ jsxRuntime.jsx("div", { role: "tabpanel", className: cn("tabs-panel", className), children }, value);
-}
-
-// src/components/primitives/RichText.tsx
-init_cn();
-var SIZE_CLASS2 = {
-  sm: "rich-text-sm",
-  md: "rich-text-md",
-  lg: "rich-text-lg"
-};
-function RichText({ children, className, size = "md" }) {
-  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("rich-text", SIZE_CLASS2[size], className), children });
-}
-
-// src/components/primitives/FileDropzone.tsx
-init_cn();
-function formatFileSize(bytes) {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1048576) return `${Math.round(bytes / 1024)} KB`;
-  if (bytes < 1073741824) return `${(bytes / 1048576).toFixed(1)} MB`;
-  return `${(bytes / 1073741824).toFixed(1)} GB`;
-}
-function FileIcon() {
-  return /* @__PURE__ */ jsxRuntime.jsxs("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true", children: [
-    /* @__PURE__ */ jsxRuntime.jsx("rect", { x: "2.5", y: "1.5", width: "11", height: "13", rx: "1.5", stroke: "currentColor", strokeWidth: "1.25" }),
-    /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M5 6.5h6M5 9.5h4", stroke: "currentColor", strokeWidth: "1.25", strokeLinecap: "round" })
-  ] });
-}
-function UploadIcon() {
-  return /* @__PURE__ */ jsxRuntime.jsxs("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", "aria-hidden": "true", children: [
-    /* @__PURE__ */ jsxRuntime.jsx(
-      "path",
-      {
-        d: "M12 15V7M12 7L9 10M12 7l3 3",
-        stroke: "currentColor",
-        strokeWidth: "1.5",
-        strokeLinecap: "round",
-        strokeLinejoin: "round"
-      }
-    ),
-    /* @__PURE__ */ jsxRuntime.jsx(
-      "path",
-      {
-        d: "M5 17v1.5A1.5 1.5 0 006.5 20h11a1.5 1.5 0 001.5-1.5V17",
-        stroke: "currentColor",
-        strokeWidth: "1.5",
-        strokeLinecap: "round"
-      }
-    )
-  ] });
-}
-function FileChip({ file, onRemove, className }) {
-  const chipRef = react.useRef(null);
-  useGravity(chipRef);
-  return /* @__PURE__ */ jsxRuntime.jsxs("div", { ref: chipRef, className: cn("file-chip", className), children: [
-    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "file-chip-icon", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntime.jsx(FileIcon, {}) }),
-    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "file-chip-name", title: file.name, children: file.name }),
-    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "file-chip-size", children: formatFileSize(file.size) }),
-    /* @__PURE__ */ jsxRuntime.jsx(
-      "button",
-      {
-        type: "button",
-        className: "file-chip-remove",
-        onClick: onRemove,
-        "aria-label": `Remove ${file.name}`,
-        children: /* @__PURE__ */ jsxRuntime.jsx("svg", { width: "10", height: "10", viewBox: "0 0 10 10", fill: "none", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntime.jsx(
-          "path",
-          {
-            d: "M1 1l8 8M9 1L1 9",
-            stroke: "currentColor",
-            strokeWidth: "1.5",
-            strokeLinecap: "round"
-          }
-        ) })
-      }
-    )
-  ] });
-}
-function FileDropzone({
-  accept,
-  multiple = false,
-  maxSize,
-  label = "Drop files here, or browse",
-  hint,
-  error,
-  disabled = false,
-  onFilesAccepted,
-  onFilesRejected,
-  className
-}) {
-  const [isDragOver, setIsDragOver] = react.useState(false);
-  const inputRef = react.useRef(null);
-  const dropzoneRef = react.useRef(null);
-  useGravity(dropzoneRef);
-  const processFiles = react.useCallback(
-    (fileList) => {
-      const all = Array.from(fileList);
-      if (maxSize == null) {
-        onFilesAccepted(all);
-        return;
-      }
-      const accepted = all.filter((f) => f.size <= maxSize);
-      const rejected = all.filter((f) => f.size > maxSize);
-      if (accepted.length > 0) onFilesAccepted(accepted);
-      if (rejected.length > 0) onFilesRejected == null ? void 0 : onFilesRejected(rejected);
-    },
-    [maxSize, onFilesAccepted, onFilesRejected]
-  );
-  const handleDragOver = react.useCallback(
-    (e) => {
-      e.preventDefault();
-      if (!disabled) setIsDragOver(true);
-    },
-    [disabled]
-  );
-  const handleDragLeave = react.useCallback((e) => {
-    if (!e.currentTarget.contains(e.relatedTarget)) {
-      setIsDragOver(false);
-    }
-  }, []);
-  const handleDrop = react.useCallback(
-    (e) => {
-      e.preventDefault();
-      setIsDragOver(false);
-      if (disabled || e.dataTransfer.files.length === 0) return;
-      processFiles(e.dataTransfer.files);
-    },
-    [disabled, processFiles]
-  );
-  const handleChange = react.useCallback(
-    (e) => {
-      if (e.target.files == null || e.target.files.length === 0) return;
-      processFiles(e.target.files);
-      e.target.value = "";
-    },
-    [processFiles]
-  );
-  const handleClick = react.useCallback(() => {
-    var _a;
-    if (!disabled) (_a = inputRef.current) == null ? void 0 : _a.click();
-  }, [disabled]);
-  const handleKeyDown = react.useCallback(
-    (e) => {
-      var _a;
-      if ((e.key === "Enter" || e.key === " ") && !disabled) {
-        e.preventDefault();
-        (_a = inputRef.current) == null ? void 0 : _a.click();
-      }
-    },
-    [disabled]
-  );
-  return /* @__PURE__ */ jsxRuntime.jsxs(
-    "div",
-    {
-      ref: dropzoneRef,
-      role: "button",
-      tabIndex: disabled ? -1 : 0,
-      "aria-disabled": disabled,
-      "aria-label": label,
-      className: cn(
-        "dropzone",
-        isDragOver && "dropzone-active",
-        error != null && "dropzone-error",
-        disabled && "dropzone-disabled",
-        className
-      ),
-      onDragOver: handleDragOver,
-      onDragLeave: handleDragLeave,
-      onDrop: handleDrop,
-      onClick: handleClick,
-      onKeyDown: handleKeyDown,
-      children: [
-        /* @__PURE__ */ jsxRuntime.jsx(
-          "input",
-          {
-            ref: inputRef,
-            type: "file",
-            accept,
-            multiple,
-            disabled,
-            onChange: handleChange,
-            "aria-hidden": "true",
-            tabIndex: -1,
-            style: { display: "none" }
-          }
-        ),
-        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "dropzone-icon", children: /* @__PURE__ */ jsxRuntime.jsx(UploadIcon, {}) }),
-        /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dropzone-label", children: isDragOver ? "Release to upload" : label }),
-        hint != null && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dropzone-hint", children: hint }),
-        error != null && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dropzone-error-text", role: "alert", children: error })
-      ]
-    }
-  );
-}
 
 // src/components/icons/Icon.tsx
 init_cn();
@@ -2333,7 +1869,7 @@ var ICONS = [
 var ICONS_BY_ID = new Map(
   ICONS.map((icon) => [icon.id, icon])
 );
-var SIZE_CLASS3 = {
+var SIZE_CLASS2 = {
   "2xs": "icon-2xs",
   xs: "icon-xs",
   sm: "icon-sm",
@@ -2369,12 +1905,756 @@ function Icon(_a) {
       "aria-hidden": title === void 0 ? true : void 0,
       role: title === void 0 ? void 0 : "img",
       focusable: "false",
-      className: cn("icon", SIZE_CLASS3[size], className),
+      className: cn("icon", SIZE_CLASS2[size], className),
       dangerouslySetInnerHTML: {
         __html: title === void 0 ? record.body : `<title>${title}</title>${record.body}`
       }
     }, props)
   );
+}
+var TooltipContext = react.createContext(null);
+function Tooltip({
+  content,
+  children,
+  side = "top",
+  delay = 400,
+  width = "variable",
+  icon = false
+}) {
+  const id = react.useId();
+  const [visible, setVisible] = react.useState(false);
+  const [position, setPosition] = react.useState({ top: 0, left: 0 });
+  const triggerRef = react.useRef(null);
+  const tooltipRef = react.useRef(null);
+  const timerRef = react.useRef(null);
+  const computePosition = react.useCallback(() => {
+    var _a, _b;
+    const trigger = triggerRef.current;
+    const tooltip = tooltipRef.current;
+    if (trigger == null) return;
+    const triggerRect = trigger.getBoundingClientRect();
+    const tooltipWidth = (_a = tooltip == null ? void 0 : tooltip.offsetWidth) != null ? _a : 120;
+    const tooltipHeight = (_b = tooltip == null ? void 0 : tooltip.offsetHeight) != null ? _b : 32;
+    const OFFSET = 8;
+    let top = 0;
+    let left = 0;
+    if (side === "top") {
+      top = triggerRect.top + window.scrollY - tooltipHeight - OFFSET;
+      left = triggerRect.left + window.scrollX + triggerRect.width / 2 - tooltipWidth / 2;
+    } else if (side === "bottom") {
+      top = triggerRect.bottom + window.scrollY + OFFSET;
+      left = triggerRect.left + window.scrollX + triggerRect.width / 2 - tooltipWidth / 2;
+    } else if (side === "left") {
+      top = triggerRect.top + window.scrollY + triggerRect.height / 2 - tooltipHeight / 2;
+      left = triggerRect.left + window.scrollX - tooltipWidth - OFFSET;
+    } else {
+      top = triggerRect.top + window.scrollY + triggerRect.height / 2 - tooltipHeight / 2;
+      left = triggerRect.right + window.scrollX + OFFSET;
+    }
+    setPosition({ top, left });
+  }, [side]);
+  const show = react.useCallback(() => {
+    timerRef.current = setTimeout(() => {
+      computePosition();
+      setVisible(true);
+    }, delay);
+  }, [delay, computePosition]);
+  const hide = react.useCallback(() => {
+    if (timerRef.current != null) clearTimeout(timerRef.current);
+    setVisible(false);
+  }, []);
+  react.useEffect(() => {
+    return () => {
+      if (timerRef.current != null) clearTimeout(timerRef.current);
+    };
+  }, []);
+  react.useEffect(() => {
+    if (visible) computePosition();
+  }, [visible, computePosition]);
+  const triggerEl = react.cloneElement(children, {
+    ref: triggerRef,
+    "aria-describedby": visible ? id : void 0,
+    onMouseEnter: (e) => {
+      var _a, _b;
+      show();
+      (_b = (_a = children.props).onMouseEnter) == null ? void 0 : _b.call(_a, e);
+    },
+    onMouseLeave: (e) => {
+      var _a, _b;
+      hide();
+      (_b = (_a = children.props).onMouseLeave) == null ? void 0 : _b.call(_a, e);
+    },
+    onFocus: (e) => {
+      var _a, _b;
+      show();
+      (_b = (_a = children.props).onFocus) == null ? void 0 : _b.call(_a, e);
+    },
+    onBlur: (e) => {
+      var _a, _b;
+      hide();
+      (_b = (_a = children.props).onBlur) == null ? void 0 : _b.call(_a, e);
+    }
+  });
+  return /* @__PURE__ */ jsxRuntime.jsxs(TooltipContext.Provider, { value: { id, visible, position, side, triggerRef, show, hide }, children: [
+    triggerEl,
+    typeof document !== "undefined" && ReactDOM__default.default.createPortal(
+      /* @__PURE__ */ jsxRuntime.jsxs(
+        "div",
+        {
+          ref: tooltipRef,
+          id,
+          role: "tooltip",
+          className: cn(
+            "tooltip-content",
+            `tooltip-content-${side}`,
+            width === "fixed" && "tooltip-content-fixed",
+            !visible && "tooltip-hidden"
+          ),
+          style: { top: position.top, left: position.left },
+          "aria-hidden": !visible,
+          children: [
+            content,
+            icon && width !== "fixed" && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "tooltip-icon", children: /* @__PURE__ */ jsxRuntime.jsx(Icon, { name: "CaretDown", size: "2xs" }) })
+          ]
+        }
+      ),
+      document.body
+    )
+  ] });
+}
+function TooltipRoot({ children, className }) {
+  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("tooltip-root", className), children });
+}
+var ButtonGroupContext = react.createContext(null);
+function useButtonGroupContext() {
+  const ctx = react.useContext(ButtonGroupContext);
+  if (ctx == null) throw new Error("<ButtonGroup.Item> must be inside <ButtonGroup>");
+  return ctx;
+}
+function ButtonGroupBase({
+  value,
+  onValueChange,
+  children,
+  className,
+  ariaLabel
+}) {
+  const groupRef = react.useRef(null);
+  const itemsRef = react.useRef(/* @__PURE__ */ new Map());
+  const [thumb, setThumb] = react.useState(null);
+  const [hasMeasured, setHasMeasured] = react.useState(false);
+  const registerItem = react.useCallback((itemValue, el) => {
+    if (el == null) {
+      itemsRef.current.delete(itemValue);
+    } else {
+      itemsRef.current.set(itemValue, el);
+    }
+  }, []);
+  const measure = react.useCallback(() => {
+    const group = groupRef.current;
+    const item = itemsRef.current.get(value);
+    if (group == null || item == null) return;
+    const groupBox = group.getBoundingClientRect();
+    const itemBox = item.getBoundingClientRect();
+    setThumb({
+      left: itemBox.left - groupBox.left,
+      top: itemBox.top - groupBox.top,
+      width: itemBox.width,
+      height: itemBox.height
+    });
+  }, [value]);
+  react.useLayoutEffect(() => {
+    let raf = 0;
+    const start = performance.now();
+    const tick = (now) => {
+      measure();
+      if (now - start < 320) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        setHasMeasured(true);
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value, measure]);
+  react.useEffect(() => {
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => measure());
+    if (groupRef.current != null) ro.observe(groupRef.current);
+    itemsRef.current.forEach((el) => ro.observe(el));
+    return () => ro.disconnect();
+  }, [measure, children]);
+  return /* @__PURE__ */ jsxRuntime.jsx(ButtonGroupContext.Provider, { value: { value, onValueChange, registerItem }, children: /* @__PURE__ */ jsxRuntime.jsxs(
+    "div",
+    {
+      ref: groupRef,
+      className: cn("button-group", className),
+      role: "radiogroup",
+      "aria-label": ariaLabel,
+      children: [
+        thumb != null && /* @__PURE__ */ jsxRuntime.jsx(
+          "span",
+          {
+            className: cn("button-group-thumb", !hasMeasured && "is-initial"),
+            "aria-hidden": "true",
+            style: {
+              transform: `translate(${thumb.left}px, ${thumb.top}px)`,
+              width: thumb.width,
+              height: thumb.height
+            }
+          }
+        ),
+        children
+      ]
+    }
+  ) });
+}
+function ButtonGroupItem({
+  value: itemValue,
+  icon,
+  children,
+  className
+}) {
+  const { value, onValueChange, registerItem } = useButtonGroupContext();
+  const isActive = value === itemValue;
+  const labelText = typeof children === "string" ? children : void 0;
+  const button = /* @__PURE__ */ jsxRuntime.jsxs(
+    "button",
+    {
+      ref: (el) => registerItem(itemValue, el),
+      type: "button",
+      role: "radio",
+      "aria-checked": isActive,
+      className: cn("button-group-item", isActive && "is-active", className),
+      onClick: () => onValueChange(itemValue),
+      children: [
+        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "button-group-item-icon", "aria-hidden": "true", children: icon }),
+        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "button-group-item-label-wrap", children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: "button-group-item-label", children }) })
+      ]
+    }
+  );
+  if (!isActive && labelText != null) {
+    return /* @__PURE__ */ jsxRuntime.jsx(Tooltip, { content: labelText, side: "top", children: button });
+  }
+  return button;
+}
+var ButtonGroup = Object.assign(ButtonGroupBase, { Item: ButtonGroupItem });
+
+// src/components/primitives/ShinodaLink.tsx
+init_cn();
+var LINK_SIZES = BUTTON_SIZES;
+function ShinodaLink({
+  href,
+  children,
+  className,
+  external = false,
+  size,
+  disabled = false,
+  accent
+}) {
+  const ref = react.useRef(null);
+  useGravity(ref);
+  const classes = cn(
+    "link",
+    size != null ? `btn-size-${size}` : void 0,
+    disabled && "is-disabled",
+    accent != null ? `link--accent link--accent-${accent}` : void 0,
+    className
+  );
+  if (external) {
+    return /* @__PURE__ */ jsxRuntime.jsx(
+      "a",
+      {
+        ref,
+        href: disabled ? void 0 : href,
+        className: classes,
+        target: "_blank",
+        rel: "noopener noreferrer",
+        "aria-disabled": disabled || void 0,
+        children
+      }
+    );
+  }
+  if (disabled) {
+    return /* @__PURE__ */ jsxRuntime.jsx("a", { ref, className: classes, "aria-disabled": "true", children });
+  }
+  return /* @__PURE__ */ jsxRuntime.jsx(NextLink__default.default, { ref, href, className: classes, children });
+}
+
+// src/components/primitives/Input.tsx
+init_cn();
+var Input = react.forwardRef(
+  function Input2(_a, ref) {
+    var _b = _a, { className, hasError = false, type = "text" } = _b, props = __objRest(_b, ["className", "hasError", "type"]);
+    const localRef = react.useRef(null);
+    useGravity(localRef);
+    const mergedRef = react.useCallback(
+      (node) => {
+        localRef.current = node;
+        if (typeof ref === "function") ref(node);
+        else if (ref != null) ref.current = node;
+      },
+      [ref]
+    );
+    return /* @__PURE__ */ jsxRuntime.jsx(
+      "input",
+      __spreadValues({
+        ref: mergedRef,
+        type,
+        className: cn("input", hasError && "is-error", className)
+      }, props)
+    );
+  }
+);
+var Textarea = react.forwardRef(
+  function Textarea2(_a, ref) {
+    var _b = _a, { className, hasError = false, rows = 4 } = _b, props = __objRest(_b, ["className", "hasError", "rows"]);
+    const localRef = react.useRef(null);
+    useGravity(localRef);
+    const mergedRef = react.useCallback(
+      (node) => {
+        localRef.current = node;
+        if (typeof ref === "function") ref(node);
+        else if (ref != null) ref.current = node;
+      },
+      [ref]
+    );
+    return /* @__PURE__ */ jsxRuntime.jsx(
+      "textarea",
+      __spreadValues({
+        ref: mergedRef,
+        rows,
+        className: cn("textarea", hasError && "is-error", className)
+      }, props)
+    );
+  }
+);
+function InputLabel(_a) {
+  var _b = _a, { className, children } = _b, props = __objRest(_b, ["className", "children"]);
+  return /* @__PURE__ */ jsxRuntime.jsx("label", __spreadProps(__spreadValues({ className: cn("input-label", className) }, props), { children }));
+}
+function InputHelp({ children, className }) {
+  return /* @__PURE__ */ jsxRuntime.jsx("p", { className: cn("input-help", className), children });
+}
+function InputError({ children, className }) {
+  return /* @__PURE__ */ jsxRuntime.jsx("p", { className: cn("input-error", className), role: "alert", children });
+}
+function InputField({ children, className, style }) {
+  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn(className), style: __spreadValues({ display: "flex", flexDirection: "column" }, style), children });
+}
+
+// src/components/primitives/Select.tsx
+init_cn();
+var Select = react.forwardRef(
+  function Select2(_a, ref) {
+    var _b = _a, { className, hasError = false, children } = _b, props = __objRest(_b, ["className", "hasError", "children"]);
+    const localRef = react.useRef(null);
+    useGravity(localRef);
+    const mergedRef = react.useCallback(
+      (node) => {
+        localRef.current = node;
+        if (typeof ref === "function") ref(node);
+        else if (ref != null) ref.current = node;
+      },
+      [ref]
+    );
+    return /* @__PURE__ */ jsxRuntime.jsx("div", { className: "select", children: /* @__PURE__ */ jsxRuntime.jsx(
+      "select",
+      __spreadProps(__spreadValues({
+        ref: mergedRef,
+        className: cn("select-native", hasError && "is-error", className)
+      }, props), {
+        children
+      })
+    ) });
+  }
+);
+
+// src/components/primitives/Choice.tsx
+init_cn();
+var Checkbox = react.forwardRef(
+  function Checkbox2(_a, ref) {
+    var _b = _a, { className } = _b, props = __objRest(_b, ["className"]);
+    return /* @__PURE__ */ jsxRuntime.jsx(
+      "input",
+      __spreadValues({
+        ref,
+        type: "checkbox",
+        className: cn("checkbox", className)
+      }, props)
+    );
+  }
+);
+var Radio = react.forwardRef(
+  function Radio2(_a, ref) {
+    var _b = _a, { className } = _b, props = __objRest(_b, ["className"]);
+    return /* @__PURE__ */ jsxRuntime.jsx(
+      "input",
+      __spreadValues({
+        ref,
+        type: "radio",
+        className: cn("radio", className)
+      }, props)
+    );
+  }
+);
+function Choice({ children, className }) {
+  const ref = react.useRef(null);
+  useGravity(ref);
+  return /* @__PURE__ */ jsxRuntime.jsx("label", { ref, className: cn("choice", className), "data-cursor": "btn", children });
+}
+function ChoiceLabel({ children, className }) {
+  return /* @__PURE__ */ jsxRuntime.jsx("span", { className: cn("choice-label", className), children });
+}
+init_cn();
+var TabsContext = react.createContext(null);
+function useTabsContext() {
+  const ctx = react.useContext(TabsContext);
+  if (ctx == null) throw new Error("Tabs subcomponents must be used inside <Tabs>");
+  return ctx;
+}
+function Tabs({
+  defaultValue,
+  value,
+  onValueChange,
+  children,
+  className
+}) {
+  const [internal, setInternal] = react.useState(defaultValue);
+  const active = value != null ? value : internal;
+  const setActive = react.useCallback(
+    (next) => {
+      if (value == null) setInternal(next);
+      onValueChange == null ? void 0 : onValueChange(next);
+    },
+    [value, onValueChange]
+  );
+  return /* @__PURE__ */ jsxRuntime.jsx(TabsContext.Provider, { value: { active, setActive }, children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("tabs", className), children }) });
+}
+function TabsList({ children, className, ariaLabel }) {
+  const listRef = react.useRef(null);
+  const [indicator, setIndicator] = react.useState(
+    { left: 0, width: 0, ready: false }
+  );
+  const { active } = useTabsContext();
+  react.useLayoutEffect(() => {
+    const list = listRef.current;
+    if (list == null) return;
+    const node = list.querySelector(`[data-tab-value="${CSS.escape(active)}"]`);
+    if (node == null) return;
+    const listRect = list.getBoundingClientRect();
+    const nodeRect = node.getBoundingClientRect();
+    setIndicator({
+      left: nodeRect.left - listRect.left,
+      width: nodeRect.width,
+      ready: true
+    });
+  }, [active]);
+  react.useEffect(() => {
+    const list = listRef.current;
+    if (list == null) return;
+    const observer = new ResizeObserver(() => {
+      const node = list.querySelector(`[data-tab-value="${CSS.escape(active)}"]`);
+      if (node == null) return;
+      const listRect = list.getBoundingClientRect();
+      const nodeRect = node.getBoundingClientRect();
+      setIndicator({
+        left: nodeRect.left - listRect.left,
+        width: nodeRect.width,
+        ready: true
+      });
+    });
+    observer.observe(list);
+    return () => observer.disconnect();
+  }, [active]);
+  return /* @__PURE__ */ jsxRuntime.jsxs(
+    "div",
+    {
+      ref: listRef,
+      className: cn("tabs-list", className),
+      role: "tablist",
+      "aria-label": ariaLabel,
+      children: [
+        children,
+        /* @__PURE__ */ jsxRuntime.jsx(
+          "span",
+          {
+            className: "tabs-indicator",
+            "aria-hidden": "true",
+            "data-ready": indicator.ready,
+            style: {
+              transform: `translateX(${indicator.left}px)`,
+              width: `${indicator.width}px`
+            }
+          }
+        )
+      ]
+    }
+  );
+}
+function TabsTrigger({ value, children, className }) {
+  const { active, setActive } = useTabsContext();
+  const isActive = active === value;
+  const ref = react.useRef(null);
+  useGravity(ref);
+  return /* @__PURE__ */ jsxRuntime.jsx(
+    "button",
+    {
+      ref,
+      type: "button",
+      role: "tab",
+      "aria-selected": isActive,
+      "data-active": isActive,
+      "data-tab-value": value,
+      className: cn("tabs-trigger", className),
+      onClick: () => setActive(value),
+      children
+    }
+  );
+}
+function TabsPanel({ value, children, className }) {
+  const { active } = useTabsContext();
+  if (active !== value) return null;
+  return /* @__PURE__ */ jsxRuntime.jsx("div", { role: "tabpanel", className: cn("tabs-panel", className), children }, value);
+}
+
+// src/components/primitives/RichText.tsx
+init_cn();
+var SIZE_CLASS3 = {
+  sm: "rich-text-sm",
+  md: "rich-text-md",
+  lg: "rich-text-lg"
+};
+function RichText({ children, className, size = "md" }) {
+  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("rich-text", SIZE_CLASS3[size], className), children });
+}
+
+// src/components/primitives/FileDropzone.tsx
+init_cn();
+function formatFileSize(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1048576) return `${Math.round(bytes / 1024)} KB`;
+  if (bytes < 1073741824) return `${(bytes / 1048576).toFixed(1)} MB`;
+  return `${(bytes / 1073741824).toFixed(1)} GB`;
+}
+function FileIcon() {
+  return /* @__PURE__ */ jsxRuntime.jsxs("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true", children: [
+    /* @__PURE__ */ jsxRuntime.jsx("rect", { x: "2.5", y: "1.5", width: "11", height: "13", rx: "1.5", stroke: "currentColor", strokeWidth: "1.25" }),
+    /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M5 6.5h6M5 9.5h4", stroke: "currentColor", strokeWidth: "1.25", strokeLinecap: "round" })
+  ] });
+}
+function UploadIcon() {
+  return /* @__PURE__ */ jsxRuntime.jsxs("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", "aria-hidden": "true", children: [
+    /* @__PURE__ */ jsxRuntime.jsx(
+      "path",
+      {
+        d: "M12 15V7M12 7L9 10M12 7l3 3",
+        stroke: "currentColor",
+        strokeWidth: "1.5",
+        strokeLinecap: "round",
+        strokeLinejoin: "round"
+      }
+    ),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      "path",
+      {
+        d: "M5 17v1.5A1.5 1.5 0 006.5 20h11a1.5 1.5 0 001.5-1.5V17",
+        stroke: "currentColor",
+        strokeWidth: "1.5",
+        strokeLinecap: "round"
+      }
+    )
+  ] });
+}
+function FileChip({ file, onRemove, className }) {
+  const chipRef = react.useRef(null);
+  useGravity(chipRef);
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { ref: chipRef, className: cn("file-chip", className), children: [
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "file-chip-icon", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntime.jsx(FileIcon, {}) }),
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "file-chip-name", title: file.name, children: file.name }),
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "file-chip-size", children: formatFileSize(file.size) }),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      "button",
+      {
+        type: "button",
+        className: "file-chip-remove",
+        onClick: onRemove,
+        "aria-label": `Remove ${file.name}`,
+        children: /* @__PURE__ */ jsxRuntime.jsx("svg", { width: "10", height: "10", viewBox: "0 0 10 10", fill: "none", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntime.jsx(
+          "path",
+          {
+            d: "M1 1l8 8M9 1L1 9",
+            stroke: "currentColor",
+            strokeWidth: "1.5",
+            strokeLinecap: "round"
+          }
+        ) })
+      }
+    )
+  ] });
+}
+function FileDropzone({
+  accept,
+  multiple = false,
+  maxSize,
+  label = "Drop files here, or browse",
+  hint,
+  error,
+  disabled = false,
+  onFilesAccepted,
+  onFilesRejected,
+  className
+}) {
+  const [isDragOver, setIsDragOver] = react.useState(false);
+  const inputRef = react.useRef(null);
+  const dropzoneRef = react.useRef(null);
+  useGravity(dropzoneRef);
+  const processFiles = react.useCallback(
+    (fileList) => {
+      const all = Array.from(fileList);
+      if (maxSize == null) {
+        onFilesAccepted(all);
+        return;
+      }
+      const accepted = all.filter((f) => f.size <= maxSize);
+      const rejected = all.filter((f) => f.size > maxSize);
+      if (accepted.length > 0) onFilesAccepted(accepted);
+      if (rejected.length > 0) onFilesRejected == null ? void 0 : onFilesRejected(rejected);
+    },
+    [maxSize, onFilesAccepted, onFilesRejected]
+  );
+  const handleDragOver = react.useCallback(
+    (e) => {
+      e.preventDefault();
+      if (!disabled) setIsDragOver(true);
+    },
+    [disabled]
+  );
+  const handleDragLeave = react.useCallback((e) => {
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setIsDragOver(false);
+    }
+  }, []);
+  const handleDrop = react.useCallback(
+    (e) => {
+      e.preventDefault();
+      setIsDragOver(false);
+      if (disabled || e.dataTransfer.files.length === 0) return;
+      processFiles(e.dataTransfer.files);
+    },
+    [disabled, processFiles]
+  );
+  const handleChange = react.useCallback(
+    (e) => {
+      if (e.target.files == null || e.target.files.length === 0) return;
+      processFiles(e.target.files);
+      e.target.value = "";
+    },
+    [processFiles]
+  );
+  const handleClick = react.useCallback(() => {
+    var _a;
+    if (!disabled) (_a = inputRef.current) == null ? void 0 : _a.click();
+  }, [disabled]);
+  const handleKeyDown = react.useCallback(
+    (e) => {
+      var _a;
+      if ((e.key === "Enter" || e.key === " ") && !disabled) {
+        e.preventDefault();
+        (_a = inputRef.current) == null ? void 0 : _a.click();
+      }
+    },
+    [disabled]
+  );
+  return /* @__PURE__ */ jsxRuntime.jsxs(
+    "div",
+    {
+      ref: dropzoneRef,
+      role: "button",
+      tabIndex: disabled ? -1 : 0,
+      "aria-disabled": disabled,
+      "aria-label": label,
+      className: cn(
+        "dropzone",
+        isDragOver && "dropzone-active",
+        error != null && "dropzone-error",
+        disabled && "dropzone-disabled",
+        className
+      ),
+      onDragOver: handleDragOver,
+      onDragLeave: handleDragLeave,
+      onDrop: handleDrop,
+      onClick: handleClick,
+      onKeyDown: handleKeyDown,
+      children: [
+        /* @__PURE__ */ jsxRuntime.jsx(
+          "input",
+          {
+            ref: inputRef,
+            type: "file",
+            accept,
+            multiple,
+            disabled,
+            onChange: handleChange,
+            "aria-hidden": "true",
+            tabIndex: -1,
+            style: { display: "none" }
+          }
+        ),
+        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "dropzone-icon", children: /* @__PURE__ */ jsxRuntime.jsx(UploadIcon, {}) }),
+        /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dropzone-label", children: isDragOver ? "Release to upload" : label }),
+        hint != null && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dropzone-hint", children: hint }),
+        error != null && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dropzone-error-text", role: "alert", children: error })
+      ]
+    }
+  );
+}
+
+// src/components/primitives/DownloadTile.tsx
+init_cn();
+
+// src/components/feedback/Skeleton.tsx
+init_cn();
+function Skeleton({
+  width,
+  height,
+  className
+}) {
+  const style = {};
+  if (width != null) style.width = typeof width === "number" ? `${width}px` : width;
+  if (height != null) style.height = typeof height === "number" ? `${height}px` : height;
+  return /* @__PURE__ */ jsxRuntime.jsx(
+    "div",
+    {
+      className: cn("skeleton", className),
+      style,
+      "aria-hidden": "true"
+    }
+  );
+}
+function DownloadTile({
+  filename,
+  description,
+  fileSize,
+  fileType,
+  onDownload,
+  isDownloading = false,
+  className
+}) {
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: cn("download-tile", className), children: [
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "download-tile-icon", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntime.jsxs("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("rect", { x: "4", y: "2", width: "16", height: "20", rx: "2", stroke: "currentColor", strokeWidth: "1.5" }),
+      /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M8 12h8M8 16h5", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" })
+    ] }) }),
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "download-tile-body", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "download-tile-filename", children: filename }),
+      (description != null || fileSize != null || fileType != null) && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "download-tile-meta", children: [
+        fileType != null && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "download-tile-type", children: fileType }),
+        fileSize != null && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "download-tile-size", children: fileSize }),
+        description != null && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "download-tile-description", children: description })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "download-tile-action", children: isDownloading ? /* @__PURE__ */ jsxRuntime.jsx(Skeleton, { width: 80, height: 28 }) : /* @__PURE__ */ jsxRuntime.jsx(Button, { size: "heading-xs", onClick: onDownload, "aria-label": `Download ${filename}`, children: "Download" }) })
+  ] });
 }
 init_cn();
 function NavLinks({ items }) {
@@ -2532,6 +2812,15 @@ function useTheme() {
   const [theme, setTheme] = react.useState("light");
   react.useEffect(() => {
     setTheme(resolveTheme());
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleOSChange = (e) => {
+      if (localStorage.getItem("shinoda-theme") !== null) return;
+      const next = e.matches ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", next);
+      setTheme(next);
+    };
+    mq.addEventListener("change", handleOSChange);
+    return () => mq.removeEventListener("change", handleOSChange);
   }, []);
   const toggleTheme = react.useCallback(() => {
     const current = document.documentElement.getAttribute("data-theme");
@@ -2590,43 +2879,13 @@ function ThemeToggle() {
     }
   );
 }
-var BLUR_BASE = 3;
-var RATIO = 1.9;
-var LAYERS = 8;
-var LAYER_H = 14;
-var BLUR_LAYERS = Array.from({ length: LAYERS }, (_, i) => ({
-  blur: (BLUR_BASE / Math.pow(RATIO, i + 1)).toFixed(3),
-  top: i * LAYER_H
-}));
 function NavProgressiveBlur() {
   return /* @__PURE__ */ jsxRuntime.jsx(
     "div",
     {
       "aria-hidden": "true",
-      style: {
-        position: "absolute",
-        top: "100%",
-        left: 0,
-        right: 0,
-        height: `${LAYERS * LAYER_H}px`,
-        pointerEvents: "none",
-        zIndex: 0
-      },
-      children: BLUR_LAYERS.map((layer, i) => /* @__PURE__ */ jsxRuntime.jsx(
-        "div",
-        {
-          style: {
-            position: "absolute",
-            top: `${layer.top}px`,
-            left: 0,
-            right: 0,
-            height: `${LAYER_H}px`,
-            backdropFilter: `blur(${layer.blur}rem)`,
-            WebkitBackdropFilter: `blur(${layer.blur}rem)`
-          }
-        },
-        i
-      ))
+      className: "progressive-blur",
+      style: { top: 0, zIndex: 0 }
     }
   );
 }
@@ -2697,25 +2956,126 @@ function SectionTile({
   ] });
 }
 
+// src/components/cards/GridTile.tsx
+init_cn();
+function GridTile({
+  children,
+  actions,
+  meta,
+  onClick,
+  className,
+  ariaLabel
+}) {
+  const interactive = onClick != null;
+  return /* @__PURE__ */ jsxRuntime.jsxs(
+    "div",
+    {
+      className: cn("grid-tile", className),
+      role: interactive ? "button" : void 0,
+      tabIndex: interactive ? 0 : void 0,
+      "aria-label": ariaLabel,
+      onClick,
+      onKeyDown: interactive ? (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick == null ? void 0 : onClick();
+        }
+      } : void 0,
+      children: [
+        /* @__PURE__ */ jsxRuntime.jsx("div", { className: "grid-tile-inner", children }),
+        actions != null && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "grid-tile-actions", children: actions }),
+        meta != null && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "grid-tile-meta", children: meta })
+      ]
+    }
+  );
+}
+function GridTileAction({
+  children,
+  onClick,
+  ariaLabel,
+  variant = "default",
+  className
+}) {
+  return /* @__PURE__ */ jsxRuntime.jsxs(
+    "button",
+    {
+      type: "button",
+      className: cn(
+        "grid-tile-btn",
+        variant === "danger" && "grid-tile-btn--danger",
+        className
+      ),
+      "aria-label": ariaLabel,
+      onClick: (e) => {
+        e.stopPropagation();
+        onClick == null ? void 0 : onClick(e);
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "grid-tile-btn-bg", "aria-hidden": "true" }),
+        children
+      ]
+    }
+  );
+}
+
+// src/components/sticker/PeelableImage.tsx
+init_cn();
+var CORNERS = ["tl", "tr", "bl", "br"];
+function randomCorner() {
+  return CORNERS[Math.floor(Math.random() * CORNERS.length)];
+}
+function PeelableImage({
+  src,
+  alt,
+  corner = "auto",
+  className,
+  style
+}) {
+  const resolvedCorner = react.useMemo(
+    () => corner === "auto" ? randomCorner() : corner,
+    [corner]
+  );
+  return /* @__PURE__ */ jsxRuntime.jsxs(
+    "div",
+    {
+      className: cn("peelable", className),
+      "data-peel-corner": resolvedCorner,
+      style: __spreadProps(__spreadValues({}, style), {
+        // Both the main image and the flap consume this var so the flap stays
+        // pixel-aligned with the image — including for cutout (alpha) sources.
+        ["--peelable-src"]: `url("${src}")`
+      }),
+      children: [
+        /* @__PURE__ */ jsxRuntime.jsx("img", { className: "peelable-img", src, alt }),
+        /* @__PURE__ */ jsxRuntime.jsx("div", { className: "peelable-flap", "aria-hidden": "true" })
+      ]
+    }
+  );
+}
+
 // src/components/feedback/Badge.tsx
 init_cn();
 function Badge({
   variant = "neutral",
   className,
   children,
-  onClick
+  onClick,
+  disabled = false
 }) {
   const ref = react.useRef(null);
   useGravity(ref);
-  const Tag = onClick != null ? "button" : "span";
+  const isButton = onClick != null;
+  const Tag = isButton ? "button" : "span";
   return /* @__PURE__ */ jsxRuntime.jsx(
     Tag,
     {
       ref,
-      type: onClick != null ? "button" : void 0,
+      type: isButton ? "button" : void 0,
       className: cn("badge", `badge-${variant}`, className),
-      "data-cursor": "btn",
-      onClick,
+      "data-cursor": isButton && !disabled ? "btn" : void 0,
+      onClick: disabled ? void 0 : onClick,
+      disabled: isButton ? disabled : void 0,
+      "aria-disabled": !isButton && disabled ? true : void 0,
       children
     }
   );
@@ -2724,11 +3084,32 @@ function Badge({
 // src/components/feedback/Alert.tsx
 init_cn();
 var DISMISS_ANIMATION_MS = 200;
+var VARIANT_ALIAS = {
+  default: "default",
+  red: "red",
+  orange: "orange",
+  yellow: "yellow",
+  green: "green",
+  blue: "blue",
+  success: "green",
+  warning: "orange",
+  error: "red",
+  info: "blue",
+  urgent: "red"
+};
+function renderIcon(icon) {
+  if (icon === null) return null;
+  if (icon === void 0) return /* @__PURE__ */ jsxRuntime.jsx(Icon, { name: "Warning", size: "sm" });
+  if (typeof icon === "string") return /* @__PURE__ */ jsxRuntime.jsx(Icon, { name: icon, size: "sm" });
+  return icon;
+}
 function Alert({
   variant = "default",
   title,
   children,
   onDismiss,
+  icon,
+  dismissLabel = "Dismiss",
   className
 }) {
   const [isMounted, setIsMounted] = react.useState(false);
@@ -2752,6 +3133,7 @@ function Alert({
     setIsExiting(true);
     dismissTimerRef.current = window.setTimeout(() => onDismiss(), DISMISS_ANIMATION_MS);
   }
+  const resolvedVariant = VARIANT_ALIAS[variant];
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
     {
@@ -2759,12 +3141,13 @@ function Alert({
       role: "alert",
       className: cn(
         "alert",
-        `alert-${variant}`,
+        `alert-${resolvedVariant}`,
         isMounted && !isExiting && "alert-visible",
         isExiting && "alert-exiting",
         className
       ),
       children: [
+        renderIcon(icon) != null && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "alert-icon", "aria-hidden": "true", children: renderIcon(icon) }),
         /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "alert-body", children: [
           title != null && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "alert-title", children: title }),
           children != null && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "alert-content", children })
@@ -2774,9 +3157,8 @@ function Alert({
           {
             type: "button",
             className: "alert-dismiss btn",
-            "aria-label": "Dismiss",
             onClick: handleDismiss,
-            children: /* @__PURE__ */ jsxRuntime.jsx("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M3 3L13 13M13 3L3 13", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }) })
+            children: dismissLabel
           }
         )
       ]
@@ -2820,142 +3202,6 @@ function Progress({
       }
     )
   ] });
-}
-
-// src/components/feedback/Skeleton.tsx
-init_cn();
-function Skeleton({
-  width,
-  height,
-  className
-}) {
-  const style = {};
-  if (width != null) style.width = typeof width === "number" ? `${width}px` : width;
-  if (height != null) style.height = typeof height === "number" ? `${height}px` : height;
-  return /* @__PURE__ */ jsxRuntime.jsx(
-    "div",
-    {
-      className: cn("skeleton", className),
-      style,
-      "aria-hidden": "true"
-    }
-  );
-}
-
-// src/components/overlay/Tooltip.tsx
-init_cn();
-var TooltipContext = react.createContext(null);
-function Tooltip({
-  content,
-  children,
-  side = "top",
-  delay = 400,
-  width = "variable",
-  icon = false
-}) {
-  const id = react.useId();
-  const [visible, setVisible] = react.useState(false);
-  const [position, setPosition] = react.useState({ top: 0, left: 0 });
-  const triggerRef = react.useRef(null);
-  const tooltipRef = react.useRef(null);
-  const timerRef = react.useRef(null);
-  const computePosition = react.useCallback(() => {
-    var _a, _b;
-    const trigger = triggerRef.current;
-    const tooltip = tooltipRef.current;
-    if (trigger == null) return;
-    const triggerRect = trigger.getBoundingClientRect();
-    const tooltipWidth = (_a = tooltip == null ? void 0 : tooltip.offsetWidth) != null ? _a : 120;
-    const tooltipHeight = (_b = tooltip == null ? void 0 : tooltip.offsetHeight) != null ? _b : 32;
-    const OFFSET = 8;
-    let top = 0;
-    let left = 0;
-    if (side === "top") {
-      top = triggerRect.top + window.scrollY - tooltipHeight - OFFSET;
-      left = triggerRect.left + window.scrollX + triggerRect.width / 2 - tooltipWidth / 2;
-    } else if (side === "bottom") {
-      top = triggerRect.bottom + window.scrollY + OFFSET;
-      left = triggerRect.left + window.scrollX + triggerRect.width / 2 - tooltipWidth / 2;
-    } else if (side === "left") {
-      top = triggerRect.top + window.scrollY + triggerRect.height / 2 - tooltipHeight / 2;
-      left = triggerRect.left + window.scrollX - tooltipWidth - OFFSET;
-    } else {
-      top = triggerRect.top + window.scrollY + triggerRect.height / 2 - tooltipHeight / 2;
-      left = triggerRect.right + window.scrollX + OFFSET;
-    }
-    setPosition({ top, left });
-  }, [side]);
-  const show = react.useCallback(() => {
-    timerRef.current = setTimeout(() => {
-      computePosition();
-      setVisible(true);
-    }, delay);
-  }, [delay, computePosition]);
-  const hide = react.useCallback(() => {
-    if (timerRef.current != null) clearTimeout(timerRef.current);
-    setVisible(false);
-  }, []);
-  react.useEffect(() => {
-    return () => {
-      if (timerRef.current != null) clearTimeout(timerRef.current);
-    };
-  }, []);
-  react.useEffect(() => {
-    if (visible) computePosition();
-  }, [visible, computePosition]);
-  const triggerEl = react.cloneElement(children, {
-    ref: triggerRef,
-    "aria-describedby": visible ? id : void 0,
-    onMouseEnter: (e) => {
-      var _a, _b;
-      show();
-      (_b = (_a = children.props).onMouseEnter) == null ? void 0 : _b.call(_a, e);
-    },
-    onMouseLeave: (e) => {
-      var _a, _b;
-      hide();
-      (_b = (_a = children.props).onMouseLeave) == null ? void 0 : _b.call(_a, e);
-    },
-    onFocus: (e) => {
-      var _a, _b;
-      show();
-      (_b = (_a = children.props).onFocus) == null ? void 0 : _b.call(_a, e);
-    },
-    onBlur: (e) => {
-      var _a, _b;
-      hide();
-      (_b = (_a = children.props).onBlur) == null ? void 0 : _b.call(_a, e);
-    }
-  });
-  return /* @__PURE__ */ jsxRuntime.jsxs(TooltipContext.Provider, { value: { id, visible, position, side, triggerRef, show, hide }, children: [
-    triggerEl,
-    typeof document !== "undefined" && ReactDOM__default.default.createPortal(
-      /* @__PURE__ */ jsxRuntime.jsxs(
-        "div",
-        {
-          ref: tooltipRef,
-          id,
-          role: "tooltip",
-          className: cn(
-            "tooltip-content",
-            `tooltip-content-${side}`,
-            width === "fixed" && "tooltip-content-fixed",
-            !visible && "tooltip-hidden"
-          ),
-          style: { top: position.top, left: position.left },
-          "aria-hidden": !visible,
-          children: [
-            content,
-            icon && width !== "fixed" && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "tooltip-icon", children: /* @__PURE__ */ jsxRuntime.jsx(Icon, { name: "CaretDown", size: "2xs" }) })
-          ]
-        }
-      ),
-      document.body
-    )
-  ] });
-}
-function TooltipRoot({ children, className }) {
-  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("tooltip-root", className), children });
 }
 
 // src/components/overlay/Dialog.tsx
@@ -3005,7 +3251,11 @@ function DialogTrigger({ children }) {
     })
   }) });
 }
-function DialogContent({ children, className }) {
+function DialogContent({
+  children,
+  className,
+  variant = "card"
+}) {
   const { open, close, titleId, descriptionId } = useDialogContext();
   const dialogRef = react.useRef(null);
   react.useEffect(() => {
@@ -3033,15 +3283,54 @@ function DialogContent({ children, className }) {
     },
     [close]
   );
+  const variantClass = variant === "bare" ? "dialog--bare" : variant === "drawer" ? "dialog--drawer" : null;
   return /* @__PURE__ */ jsxRuntime.jsx(
     "dialog",
     {
       ref: dialogRef,
-      className: cn("dialog", className),
+      className: cn("dialog", variantClass, className),
       "aria-labelledby": titleId,
       "aria-describedby": descriptionId,
       onClick: handleBackdropClick,
-      children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dialog-content", children })
+      children: variant === "card" ? /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dialog-content", children }) : children
+    }
+  );
+}
+function DialogPanel({ children, className }) {
+  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("dialog-panel", className), children });
+}
+function DialogTitleRow({
+  children,
+  icon,
+  className,
+  hideClose = false
+}) {
+  const { titleId, close } = useDialogContext();
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: cn("dialog-title-row", className), children: [
+    icon != null && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "dialog-title-icon", "aria-hidden": "true", children: icon }),
+    /* @__PURE__ */ jsxRuntime.jsx("h2", { id: titleId, className: "dialog-title-label", children }),
+    !hideClose && /* @__PURE__ */ jsxRuntime.jsx(
+      "button",
+      {
+        type: "button",
+        className: "dialog-close-on-scrim",
+        "aria-label": "Close",
+        onClick: close,
+        children: /* @__PURE__ */ jsxRuntime.jsx("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M3 3L13 13M13 3L3 13", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }) })
+      }
+    )
+  ] });
+}
+function DialogCard({
+  children,
+  className,
+  variant = "centered"
+}) {
+  return /* @__PURE__ */ jsxRuntime.jsx(
+    "div",
+    {
+      className: cn("dialog-card", variant === "drawer" && "dialog-card--drawer", className),
+      children
     }
   );
 }
@@ -3062,6 +3351,123 @@ function DialogFooter({ children, className }) {
 function DialogClose({ children, className }) {
   const { close } = useDialogContext();
   return /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", className: cn("btn dialog-close", className), onClick: close, children: children != null ? children : /* @__PURE__ */ jsxRuntime.jsx("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M3 3L13 13M13 3L3 13", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }) }) });
+}
+
+// src/components/overlay/ConfirmDialog.tsx
+init_cn();
+var INTENT_DEFAULTS = {
+  default: { title: "Confirm", icon: "Question", confirm: "Confirm" },
+  danger: { title: "Delete", icon: "Trash", confirm: "Delete it" }
+};
+function ConfirmDialog({
+  open,
+  onOpenChange,
+  message,
+  title,
+  titleIcon,
+  confirmLabel,
+  cancelLabel = "Nevermind",
+  onConfirm,
+  intent = "danger"
+}) {
+  const defaults = INTENT_DEFAULTS[intent];
+  const resolvedTitle = title != null ? title : defaults.title;
+  const resolvedIcon = titleIcon != null ? titleIcon : /* @__PURE__ */ jsxRuntime.jsx(Icon, { name: defaults.icon, size: "em" });
+  const resolvedConfirm = confirmLabel != null ? confirmLabel : defaults.confirm;
+  return /* @__PURE__ */ jsxRuntime.jsx(Dialog, { open, onOpenChange, children: /* @__PURE__ */ jsxRuntime.jsxs(DialogContent, { variant: "bare", children: [
+    /* @__PURE__ */ jsxRuntime.jsx(DialogTitleRow, { icon: resolvedIcon, children: resolvedTitle }),
+    /* @__PURE__ */ jsxRuntime.jsxs(DialogCard, { className: "dialog-confirm-card", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dialog-confirm-message", children: message }),
+      /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dialog-confirm-actions", children: [
+        /* @__PURE__ */ jsxRuntime.jsxs(
+          "button",
+          {
+            type: "button",
+            className: "dialog-confirm-btn dialog-confirm-btn--cancel",
+            onClick: () => onOpenChange(false),
+            children: [
+              /* @__PURE__ */ jsxRuntime.jsx(Icon, { name: "X", size: "em", "aria-hidden": "true" }),
+              /* @__PURE__ */ jsxRuntime.jsx("span", { children: cancelLabel })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntime.jsxs(
+          "button",
+          {
+            type: "button",
+            className: cn(
+              "dialog-confirm-btn",
+              intent === "danger" ? "dialog-confirm-btn--confirm" : "dialog-confirm-btn--confirm dialog-confirm-btn--default"
+            ),
+            onClick: () => {
+              onConfirm();
+              onOpenChange(false);
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntime.jsx(Icon, { name: "Check", size: "em", "aria-hidden": "true" }),
+              /* @__PURE__ */ jsxRuntime.jsx("span", { children: resolvedConfirm })
+            ]
+          }
+        )
+      ] })
+    ] })
+  ] }) });
+}
+
+// src/components/overlay/Scrim.tsx
+init_cn();
+var ANIMATION_MS = 200;
+function Scrim({
+  open,
+  onDismiss,
+  onEscape,
+  blur = "xs",
+  children,
+  className,
+  zIndex = 990
+}) {
+  const [isMounted, setIsMounted] = react.useState(false);
+  const [isVisible, setIsVisible] = react.useState(false);
+  const exitTimerRef = react.useRef(null);
+  react.useEffect(() => {
+    if (open) {
+      setIsMounted(true);
+      const id = requestAnimationFrame(() => setIsVisible(true));
+      return () => cancelAnimationFrame(id);
+    }
+    setIsVisible(false);
+    exitTimerRef.current = window.setTimeout(() => setIsMounted(false), ANIMATION_MS);
+    return () => {
+      if (exitTimerRef.current != null) window.clearTimeout(exitTimerRef.current);
+    };
+  }, [open]);
+  react.useEffect(() => {
+    if (!open || onEscape == null) return;
+    const handler = (e) => {
+      if (e.key === "Escape") onEscape();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [open, onEscape]);
+  if (!isMounted) return null;
+  if (typeof document === "undefined") return null;
+  const node = /* @__PURE__ */ jsxRuntime.jsx(
+    "div",
+    {
+      className: cn(
+        "scrim",
+        `scrim-blur-${blur}`,
+        isVisible && "scrim-visible",
+        className
+      ),
+      style: { zIndex },
+      onClick: (e) => {
+        if (e.target === e.currentTarget) onDismiss == null ? void 0 : onDismiss();
+      },
+      children
+    }
+  );
+  return ReactDOM.createPortal(node, document.body);
 }
 
 // src/components/overlay/Sheet.tsx
@@ -4402,51 +4808,6 @@ function SearchDropdown({
   ] });
 }
 
-// src/components/actions/FloatingActionBar.tsx
-init_cn();
-function FloatingActionBar({
-  selected,
-  actions,
-  onClearSelection,
-  className
-}) {
-  if (selected <= 0) return null;
-  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("fab", className), role: "toolbar", "aria-label": "Bulk actions", children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "fab-inner", children: [
-    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "fab-count", children: [
-      /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
-        selected,
-        " selected"
-      ] }),
-      onClearSelection != null && /* @__PURE__ */ jsxRuntime.jsx(
-        "button",
-        {
-          type: "button",
-          className: "fab-clear btn",
-          "aria-label": "Clear selection",
-          onClick: onClearSelection,
-          children: /* @__PURE__ */ jsxRuntime.jsx("svg", { width: "14", height: "14", viewBox: "0 0 14 14", fill: "none", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M2 2L12 12M12 2L2 12", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }) })
-        }
-      )
-    ] }),
-    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "fab-actions", children: actions.map((action, idx) => /* @__PURE__ */ jsxRuntime.jsxs(
-      "button",
-      {
-        type: "button",
-        className: cn(
-          "fab-action btn",
-          action.variant === "destructive" && "fab-action-destructive"
-        ),
-        onClick: action.onClick,
-        children: [
-          action.icon != null && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "fab-action-icon", "aria-hidden": "true", children: action.icon }),
-          action.label
-        ]
-      },
-      idx
-    )) })
-  ] }) });
-}
-
 // src/components/content/ContentCard.tsx
 init_cn();
 function ContentCard({
@@ -4485,34 +4846,6 @@ function ContentCard({
       ]
     }
   );
-}
-
-// src/components/content/DownloadTile.tsx
-init_cn();
-function DownloadTile({
-  filename,
-  description,
-  fileSize,
-  fileType,
-  onDownload,
-  isDownloading = false,
-  className
-}) {
-  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: cn("download-tile", className), children: [
-    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "download-tile-icon", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntime.jsxs("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", children: [
-      /* @__PURE__ */ jsxRuntime.jsx("rect", { x: "4", y: "2", width: "16", height: "20", rx: "2", stroke: "currentColor", strokeWidth: "1.5" }),
-      /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M8 12h8M8 16h5", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "download-tile-body", children: [
-      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "download-tile-filename", children: filename }),
-      (description != null || fileSize != null || fileType != null) && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "download-tile-meta", children: [
-        fileType != null && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "download-tile-type", children: fileType }),
-        fileSize != null && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "download-tile-size", children: fileSize }),
-        description != null && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "download-tile-description", children: description })
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "download-tile-action", children: isDownloading ? /* @__PURE__ */ jsxRuntime.jsx(Skeleton, { width: 80, height: 28 }) : /* @__PURE__ */ jsxRuntime.jsx(Button, { size: "heading-xs", onClick: onDownload, "aria-label": `Download ${filename}`, children: "Download" }) })
-  ] });
 }
 
 // src/components/content/CodeSnippet.tsx
@@ -4837,6 +5170,7 @@ exports.BORDER_TOKENS = BORDER_TOKENS;
 exports.BREAKPOINT_TOKENS = BREAKPOINT_TOKENS;
 exports.Badge = Badge;
 exports.Button = Button;
+exports.ButtonGroup = ButtonGroup;
 exports.CONTAINER_MAXWIDTH_TOKEN = CONTAINER_MAXWIDTH_TOKEN;
 exports.CONTAINER_TOKENS = CONTAINER_TOKENS;
 exports.CalendarPicker = CalendarPicker;
@@ -4853,16 +5187,20 @@ exports.CommandInput = CommandInput;
 exports.CommandItem = CommandItem;
 exports.CommandList = CommandList;
 exports.CommandSeparator = CommandSeparator;
+exports.ConfirmDialog = ConfirmDialog;
 exports.ContentCard = ContentCard;
 exports.Cursor = Cursor;
 exports.DateInput = DateInput;
 exports.Dialog = Dialog;
+exports.DialogCard = DialogCard;
 exports.DialogClose = DialogClose;
 exports.DialogContent = DialogContent;
 exports.DialogDescription = DialogDescription;
 exports.DialogFooter = DialogFooter;
 exports.DialogHeader = DialogHeader;
+exports.DialogPanel = DialogPanel;
 exports.DialogTitle = DialogTitle;
+exports.DialogTitleRow = DialogTitleRow;
 exports.DialogTrigger = DialogTrigger;
 exports.Divider = Divider;
 exports.DownloadTile = DownloadTile;
@@ -4876,9 +5214,10 @@ exports.EditableTable = EditableTable;
 exports.FONT_WEIGHT_TOKENS = FONT_WEIGHT_TOKENS;
 exports.FileChip = FileChip;
 exports.FileDropzone = FileDropzone;
-exports.FloatingActionBar = FloatingActionBar;
 exports.Footer = Footer;
 exports.Grid = Grid;
+exports.GridTile = GridTile;
+exports.GridTileAction = GridTileAction;
 exports.HEADING_VARIANTS = HEADING_VARIANTS;
 exports.ICONS = ICONS;
 exports.ICONS_BY_ID = ICONS_BY_ID;
@@ -4899,6 +5238,7 @@ exports.NavProgressiveBlur = NavProgressiveBlur;
 exports.OPACITY_LEVELS = OPACITY_LEVELS;
 exports.PADDING_TOKENS = PADDING_TOKENS;
 exports.PageWrapper = PageWrapper;
+exports.PeelableImage = PeelableImage;
 exports.Popover = Popover;
 exports.PopoverContent = PopoverContent;
 exports.PopoverTrigger = PopoverTrigger;
@@ -4910,6 +5250,7 @@ exports.RouteAttribute = RouteAttribute;
 exports.SEMANTIC_COLORS = SEMANTIC_COLORS;
 exports.SPACING_TOKENS = SPACING_TOKENS;
 exports.SUBHEADING_VARIANTS = SUBHEADING_VARIANTS;
+exports.Scrim = Scrim;
 exports.SearchDropdown = SearchDropdown;
 exports.SectionTile = SectionTile;
 exports.Select = Select;

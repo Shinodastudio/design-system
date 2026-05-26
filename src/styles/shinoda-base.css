@@ -471,6 +471,131 @@ button { font: inherit; background: none; border: none; cursor: none; }
 .btn--accent-success, .link--accent-success { --btn-accent-color: var(--color-status-success); }
 .btn--accent-info,    .link--accent-info    { --btn-accent-color: var(--color-status-info); }
 
+/* ─── BUTTON GROUP — single-select pill with fluid label expansion ──────────
+   Inactive items show icon only; the selected item grows to icon + label
+   inline. The label sits in a 0fr→1fr grid column wrapper so the pill width
+   animates as a single GPU-friendly easeInOutQuint transition (280ms), with
+   the icon→label margin animating alongside so the gap appears/disappears
+   smoothly.
+
+   Lineage: Scrapbook TabSwitcher (l0at-izar, .ts-* rules). Generalised here
+   from "tabs" to "single-select button group" — same pattern, different
+   semantics. */
+.button-group {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background-color: var(--color-fill-base);
+  border: var(--border-sm) solid var(--color-transparent-weak);
+  border-radius: var(--radius-md);
+}
+
+/* The thumb is a single absolutely-positioned pill that slides between
+   active items. JS measures the active item's box and writes transform +
+   width as inline styles; CSS owns the curve and the fill so the slide
+   stays in lockstep with the label-column expansion (same 280ms easing). */
+.button-group-thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: var(--radius-md);
+  background-color: var(--color-text-primary);
+  pointer-events: none;
+  transition:
+    transform 280ms var(--ease-in-out-quint),
+    width 280ms var(--ease-in-out-quint),
+    height 280ms var(--ease-in-out-quint);
+  will-change: transform, width;
+}
+.button-group-thumb.is-initial { transition: none; }
+
+.button-group-item {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  padding: 6px;
+  border: none;
+  background: none;
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  cursor: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  outline: none;
+  transition: padding 280ms var(--ease-in-out-quint),
+              color 280ms var(--ease-in-out-quint);
+}
+.button-group-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 2px;
+  flex-shrink: 0;
+  opacity: var(--opacity-20);
+  transition: opacity 150ms ease, transform 80ms ease;
+}
+
+/* Inactive: hover lifts the icon to 60%. No background — the thumb owns
+   the pill fill, and adding a second pill behind inactive items would
+   double-paint as the thumb slides over them. */
+.button-group-item:not(.is-active):hover .button-group-item-icon { opacity: var(--opacity-60); }
+.button-group-item:not(.is-active):active { transform: scale(0.94); }
+
+/* Active: inverted text colour. The thumb behind the item provides the
+   fill; the item just inverts to fill-base so it reads on top. Padding
+   grows on the right of the label (Figma node 52:15637 — 6px around
+   icon, 8px right). */
+.button-group-item.is-active {
+  color: var(--color-fill-base);
+  padding: 6px 8px 6px 6px;
+}
+.button-group-item.is-active .button-group-item-icon {
+  opacity: 1;
+  color: var(--color-fill-base);
+}
+.button-group-item.is-active:active { transform: scale(0.97); }
+
+/* Focus + click ring — 2px dashed in fill-secondary, 4px offset. Modern
+   browsers curve the outline to the radius (12 + 4 = 16). */
+.button-group-item:focus-visible,
+.button-group-item:active {
+  outline: var(--border-md) dashed var(--color-fill-secondary);
+  outline-offset: 4px;
+}
+
+/* Label — collapses to a 0fr column when inactive, expands to 1fr when
+   active. margin-left animates 0 → 4px so the icon→label gap appears only
+   when the label has width. */
+.button-group-item-label-wrap {
+  display: inline-grid;
+  grid-template-columns: 0fr;
+  overflow: hidden;
+  margin-left: 0;
+  transition: grid-template-columns 280ms var(--ease-in-out-quint),
+              margin-left 280ms var(--ease-in-out-quint);
+}
+.button-group-item.is-active .button-group-item-label-wrap {
+  grid-template-columns: 1fr;
+  margin-left: 4px;
+}
+.button-group-item-label {
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  letter-spacing: var(--tracking-n035);
+  line-height: var(--leading-title);
+  font-weight: var(--fw-normal);
+  white-space: nowrap;
+  color: inherit;
+}
+
 /* ─── CURSOR — single inverted dot, fixed positioning ────────────────── */
 .cursor {
   position: fixed; left: 0; top: 0;
@@ -490,9 +615,11 @@ button { font: inherit; background: none; border: none; cursor: none; }
               opacity 200ms ease;
   display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
+/* Chip-cursor label. Always 12px regular, sentence case, body-2xs tracking.
+   Hierarchy comes from the chip's mix-blend-mode contrast, not from caps. */
 .cursor-label {
-  font-family: var(--font-sans); font-size: 0.5rem;
-  font-weight: var(--fw-medium); letter-spacing: 0.05em; text-transform: uppercase;
+  font-family: var(--font-sans); font-size: 0.75rem;
+  font-weight: var(--fw-medium); letter-spacing: var(--tracking-n005);
   color: var(--color-fill-base); white-space: nowrap;
   opacity: 0; transition: opacity 100ms ease;
   mix-blend-mode: difference; pointer-events: none;
@@ -512,8 +639,20 @@ html.cursor--btn .cursor {
 }
 /* Text — I-beam */
 html.cursor--text .cursor { width: 2px; height: 1.5em; border-radius: 1px; }
-/* Image / expand chip */
-html.cursor--chip .cursor { min-width: 3.5em; width: auto; height: 1.75em; border-radius: var(--radius-full); padding: 0 0.5em; }
+/* Image / expand chip — Figma spec: min 20px square, 4px padding, label
+   centred. Width and height grow to fit the label; the min-* values stop
+   short single-char labels from collapsing to a sliver. */
+html.cursor--chip .cursor {
+  display: flex;
+  width: auto;
+  height: auto;
+  min-width: 20px;
+  min-height: 20px;
+  padding: 4px;
+  border-radius: var(--radius-full);
+  justify-content: center;
+  align-items: center;
+}
 html.cursor--chip .cursor-label { opacity: 1; }
 /* Press — scale down */
 html.cursor--active .cursor { transform: translate(-50%,-50%) scale(0.8); }
@@ -625,6 +764,123 @@ html.cursor--focused .cursor { opacity: 0; }
 .section-tile-body { display: flex; flex-direction: column; gap: var(--space-2); }
 .section-tile-title { margin: 0; }
 .section-tile-desc  { margin: 0; }
+
+/* ─── GRID TILE — square card with hover-revealed actions + meta ────────────
+   Used for content libraries / asset grids where each tile carries one
+   visual + optional row of icon actions + optional timestamp underneath.
+
+   Anatomy:
+     ┌──────────────┐
+     │              │   ← .grid-tile (1:1 aspect, no overflow:hidden)
+     │   content    │       .grid-tile-inner (padded, dims on hover-action)
+     │              │
+     │   [⌫] [⬇]   │   ← .grid-tile-actions (centred, fades in on hover)
+     └──────────────┘
+          12:34 PM        ← .grid-tile-meta (sits in the grid gap)
+
+   :has() drives the dashed outline whenever any action button is hovered
+   or keyboard-focused — keeps the affordance contextual. */
+.grid-tile {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background-color: var(--color-fill-primary);
+  border-radius: var(--radius-sm);
+  outline: var(--border-md) dashed transparent;
+  outline-offset: 0;
+  transition: outline-color 120ms ease;
+}
+.grid-tile:has(.grid-tile-btn:hover),
+.grid-tile:has(.grid-tile-btn:focus-visible),
+.grid-tile:focus-visible {
+  outline-color: var(--color-outline);
+}
+
+.grid-tile-inner {
+  width: 100%;
+  height: 100%;
+  padding: var(--space-8);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  transition: opacity 220ms var(--ease-soft-spring);
+}
+.grid-tile:has(.grid-tile-btn:hover) .grid-tile-inner {
+  opacity: var(--opacity-20);
+}
+
+.grid-tile-actions {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+.grid-tile:hover .grid-tile-actions,
+.grid-tile:focus-within .grid-tile-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.grid-tile-meta {
+  position: absolute;
+  bottom: calc(-1 * var(--space-7));
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n005);
+  color: var(--color-text-tertiary);
+  opacity: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+.grid-tile:hover .grid-tile-meta,
+.grid-tile:focus-within .grid-tile-meta {
+  opacity: 1;
+}
+
+/* Action button — 24×24 icon button with a coloured pill background.
+   Default variant: transparent at rest, 20% neutral pill on hover.
+   Danger variant: red icon permanently, 20% red pill at rest and hover. */
+.grid-tile-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+  color: var(--color-text-primary);
+  cursor: none;
+  border-radius: var(--radius-sm);
+  padding: 0;
+  z-index: 1;
+}
+.grid-tile-btn-bg {
+  position: absolute;
+  inset: -3px;
+  border-radius: var(--radius-sm);
+  opacity: 0;
+  transition: opacity 120ms ease;
+  z-index: -1;
+  pointer-events: none;
+}
+.grid-tile-btn .grid-tile-btn-bg { background-color: var(--color-text-primary); }
+.grid-tile-btn:hover .grid-tile-btn-bg { opacity: var(--opacity-20); }
+.grid-tile-btn:focus-visible { outline: var(--border-md) solid var(--color-text-primary); outline-offset: var(--border-md); }
+
+.grid-tile-btn--danger { color: var(--color-status-error); }
+.grid-tile-btn--danger .grid-tile-btn-bg { background-color: var(--color-status-error); opacity: var(--opacity-20); }
+.grid-tile-btn--danger:hover .grid-tile-btn-bg { opacity: var(--opacity-20); }
+.grid-tile-btn--danger:focus-visible { outline-color: var(--color-status-error); }
 
 /* ─── ICON CATALOG — hover-swap glyph for name ───────────────────────── */
 .icon-grid {
@@ -1711,10 +1967,10 @@ html.cursor--focused .cursor { opacity: 0; }
   font-weight: var(--fw-normal);
   letter-spacing: var(--tracking-n005);
   line-height: var(--leading-body-xs);
-  /* Figma: pl 6px, pr 4px, py 4px */
-  padding: 4px 4px 4px 6px;
-  /* Figma outer clip = 4px (radius-xs) */
-  border-radius: var(--radius-xs);
+  /* Symmetric horizontal padding so the label sits visually centred. */
+  padding: 4px 6px;
+  /* Figma outer clip = 8px (radius-sm) */
+  border-radius: var(--radius-sm);
   white-space: nowrap;
   cursor: none;
   --gravity-x: 0px; --gravity-y: 0px;
@@ -1723,57 +1979,98 @@ html.cursor--focused .cursor { opacity: 0; }
 }
 .badge:hover { opacity: var(--opacity-40); }
 
-.badge-neutral { background-color: color-mix(in srgb, var(--color-text-tertiary) 10%, transparent); color: var(--color-text-tertiary); }
-.badge-red     { background-color: color-mix(in srgb, var(--accent-red)    10%, transparent); color: var(--accent-red); }
-.badge-orange  { background-color: color-mix(in srgb, var(--accent-orange) 10%, transparent); color: var(--accent-orange); }
-.badge-yellow  { background-color: color-mix(in srgb, var(--accent-yellow) 10%, transparent); color: var(--accent-yellow); }
-.badge-green   { background-color: color-mix(in srgb, var(--accent-green)  10%, transparent); color: var(--accent-green); }
-.badge-blue    { background-color: color-mix(in srgb, var(--accent-blue)   10%, transparent); color: var(--accent-blue); }
+/* Focus follows the canonical DS outline: 2px solid, offset by 2px, in the
+   badge's own accent colour. --badge-accent is bound per variant below. */
+.badge:focus-visible {
+  outline: var(--border-md) solid var(--badge-accent, var(--color-text-primary));
+  outline-offset: var(--border-md);
+}
+
+/* Disabled — applies to <button> badges with the disabled attribute and to
+   any badge with aria-disabled="true" (covers span usage). Drops emphasis
+   to opacity-40 and disables hover/focus affordances. */
+.badge:disabled,
+.badge[aria-disabled='true'] {
+  opacity: var(--opacity-40);
+  pointer-events: none;
+}
+.badge:disabled:hover,
+.badge[aria-disabled='true']:hover { opacity: var(--opacity-40); }
+
+.badge-neutral { --badge-accent: var(--color-text-tertiary); background-color: color-mix(in srgb, var(--color-text-tertiary) 10%, transparent); color: var(--color-text-tertiary); }
+.badge-red     { --badge-accent: var(--accent-red);    background-color: color-mix(in srgb, var(--accent-red)    10%, transparent); color: var(--accent-red); }
+.badge-orange  { --badge-accent: var(--accent-orange); background-color: color-mix(in srgb, var(--accent-orange) 10%, transparent); color: var(--accent-orange); }
+.badge-yellow  { --badge-accent: var(--accent-yellow); background-color: color-mix(in srgb, var(--accent-yellow) 10%, transparent); color: var(--accent-yellow); }
+.badge-green   { --badge-accent: var(--accent-green);  background-color: color-mix(in srgb, var(--accent-green)  10%, transparent); color: var(--accent-green); }
+.badge-blue    { --badge-accent: var(--accent-blue);   background-color: color-mix(in srgb, var(--accent-blue)   10%, transparent); color: var(--accent-blue); }
 
 /* ─── ALERT ──────────────────────────────────────────────────────────────── */
+/* Alert — pill banner with optional leading icon and trailing dismiss link.
+   Accent colour is bound per variant via --alert-accent, then consumed by
+   the background tint, the icon, the title, and the dismiss control. */
 .alert {
+  --alert-accent: var(--color-text-primary);
   display: flex;
+  /* Align icon, body, and dismiss to the top so a multi-line description
+     pushes downward — the title row stays the visual anchor. */
   align-items: flex-start;
-  gap: var(--space-4);
-  padding: var(--space-4) var(--space-5);
-  border-left: 3px solid var(--color-text-primary);
-  background-color: var(--color-fill-primary);
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.875rem;
+  background-color: color-mix(in srgb, var(--alert-accent) 10%, transparent);
+  color: var(--alert-accent);
   border-radius: var(--radius-sm);
   width: 100%;
   opacity: 0;
   transform: translateY(-4px);
   --gravity-x: 0px; --gravity-y: 0px;
   transition: opacity 200ms ease,
-              transform 200ms cubic-bezier(0.23, 1, 0.32, 1),
-              background-color 150ms ease;
+              transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .alert-visible { opacity: 1; transform: translate(var(--gravity-x), var(--gravity-y)); }
 .alert-exiting { opacity: 0; transform: translateY(-4px); transition: opacity 150ms ease, transform 150ms ease; }
 @media (prefers-reduced-motion: reduce) {
   .alert, .alert-visible, .alert-exiting { transition: none; transform: none; }
 }
-.alert-default { border-left-color: var(--color-text-primary); }
-.alert-success { border-left-color: var(--color-status-success); }
-.alert-warning { border-left-color: var(--color-status-warning); }
-.alert-error   { border-left-color: var(--color-status-error); }
-.alert-info    { border-left-color: var(--color-status-info); }
-/* Hover: tint bg with indicator accent at 10% */
-.alert-default:hover { background-color: color-mix(in srgb, var(--color-text-primary)    10%, var(--color-fill-primary)); }
-.alert-success:hover { background-color: color-mix(in srgb, var(--color-status-success)  10%, var(--color-fill-primary)); }
-.alert-warning:hover { background-color: color-mix(in srgb, var(--color-status-warning)  10%, var(--color-fill-primary)); }
-.alert-error:hover   { background-color: color-mix(in srgb, var(--color-status-error)    10%, var(--color-fill-primary)); }
-.alert-info:hover    { background-color: color-mix(in srgb, var(--color-status-info)     10%, var(--color-fill-primary)); }
-/* Urgent — full accent fill, inverted text. No hover tint needed. */
-.alert-urgent {
-  border-left-color: var(--color-status-error);
-  background-color: var(--color-status-error);
-  color: var(--color-fill-base);
-}
+
+/* Variant accents — drive bg tint, icon, title, dismiss. The default
+   variant uses the text-primary token (so it inverts cleanly under dark
+   mode) at a lower tint so the chip reads as neutral, not coloured. */
+.alert-default { --alert-accent: var(--color-text-primary); background-color: color-mix(in srgb, var(--color-text-primary) 5%, transparent); }
+.alert-red     { --alert-accent: var(--accent-red); }
+.alert-orange  { --alert-accent: var(--accent-orange); }
+.alert-yellow  { --alert-accent: var(--accent-yellow); }
+.alert-green   { --alert-accent: var(--accent-green); }
+.alert-blue    { --alert-accent: var(--accent-blue); }
+
+/* Icon sits inline with the title — its natural baseline matches body-sm,
+   so no extra y-offset is needed when align-items is flex-start. */
+.alert-icon { display: inline-flex; flex-shrink: 0; color: var(--alert-accent); }
 .alert-body { flex: 1; display: flex; flex-direction: column; gap: var(--space-1); }
-.alert-title { font-size: 1rem; letter-spacing: var(--tracking-n015); font-weight: var(--fw-medium); }
-.alert-content { font-size: 1rem; letter-spacing: var(--tracking-n010); opacity: var(--opacity-80); }
-.alert-dismiss { opacity: var(--opacity-40); flex-shrink: 0; transition: opacity 150ms ease; }
+/* Title, content, and dismiss all share body-sm (1.125rem). Hierarchy is
+   colour, not weight or scale — title at 100% accent, body at 60%, dismiss
+   at 40% (lifts to 100% on hover). */
+.alert-title,
+.alert-content,
+.alert-dismiss {
+  font-size: 1.125rem;
+  line-height: var(--leading-body-md);
+  letter-spacing: var(--tracking-n010);
+  font-weight: var(--fw-normal);
+}
+.alert-title { color: var(--alert-accent); }
+.alert-content { opacity: var(--opacity-60); }
+.alert-dismiss {
+  flex-shrink: 0;
+  /* No vertical padding so the dismiss baseline aligns with the title in
+     the multi-line layout. */
+  padding-block: 0;
+  color: var(--alert-accent);
+  opacity: var(--opacity-40);
+  transition: opacity 150ms ease;
+}
 .alert-dismiss:hover { opacity: 1; }
+.alert-dismiss:focus-visible { outline-color: var(--alert-accent); }
 
 /* ─── PROGRESS ───────────────────────────────────────────────────────────── */
 .progress { display: flex; flex-direction: column; gap: var(--space-2); width: 100%; }
@@ -1869,6 +2166,28 @@ html.cursor--focused .cursor { opacity: 0; }
      via auto margins, but reassert in case author overrides exist. */
   margin: auto;
 }
+/* ─── SCRIM — standalone backdrop primitive ─────────────────────────────────
+   Same visual language as .dialog::backdrop (which is the scrim native to
+   <dialog>), but as a real DOM node so consumers can use it behind any
+   floating surface — tour layers, custom popovers, lightboxes — without
+   committing to a full Dialog. 200ms fade matches dialog enter/exit. */
+.scrim {
+  position: fixed;
+  inset: 0;
+  background-color: var(--color-scrim);
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.scrim-visible { opacity: 1; }
+.scrim-blur-xs {
+  backdrop-filter: blur(var(--blur-xs));
+  -webkit-backdrop-filter: blur(var(--blur-xs));
+}
+.scrim-blur-md {
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
+}
+
 /* Scrim — blur + darken behind the dialog. The dialog::backdrop sits between
    the page and the dialog, so backdrop-filter blurs the page underneath. */
 .dialog::backdrop {
@@ -1906,6 +2225,186 @@ html.cursor--focused .cursor { opacity: 0; }
   transition: opacity 150ms ease;
 }
 .dialog-close:hover { opacity: 1; }
+
+/* ─── DIALOG — compositional primitives (Figma modal language) ───────────────
+   The legacy .dialog + .dialog-content above is a single-card centered modal.
+   The classes below add two new layouts both built on the same <dialog> base:
+
+   1) Centred with title-on-scrim (`.dialog--bare` + `.dialog-title-row` +
+      `.dialog-card`). Title sits in white on the scrim above a white card.
+      Used by ConfirmDialog and any export-style modal.
+   2) Drawer-bottom (`.dialog--drawer`). Dialog fills the viewport, scrim
+      blurs the page, an inner panel slides up from below carrying a title
+      row (on scrim) and a top-rounded white card that extends to the
+      viewport bottom. Used for large bottom-anchored task surfaces. */
+
+/* Bare variant — strips the card surface so the dialog is a positioning
+   frame only. Children (title row + card) compose the visible chrome. */
+.dialog.dialog--bare {
+  background: transparent;
+  border: none;
+  padding: 0;
+  /* Figma 75:35340 modal width ≈ 600px on desktop; clamp for smaller viewports. */
+  width: min(calc(100vw - var(--space-12)), 600px);
+  display: flex;
+  flex-direction: column;
+  /* Title row → card spacing follows the card-padding rhythm (32px on sm). */
+  gap: var(--padding-card);
+  animation: dialog-card-in var(--motion-modal-card-in) both;
+}
+.dialog.dialog--bare::backdrop {
+  background-color: color-mix(in srgb, var(--alpha-strong, var(--color-text-primary)) 55%, transparent);
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
+}
+@keyframes dialog-card-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Title row — sits on the scrim above the card. White, regardless of theme,
+   so it reads against the dark scrim in both light and dark mode. */
+.dialog-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-fill-base);
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--tracking-n035);
+  line-height: var(--leading-title);
+}
+.dialog-title-icon { display: inline-flex; align-items: center; flex-shrink: 0; }
+.dialog-title-label { flex: 1; min-width: 0; margin: 0; color: inherit; font: inherit; letter-spacing: inherit; }
+.dialog-close-on-scrim {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 2px;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: none;
+  opacity: var(--opacity-80);
+  flex-shrink: 0;
+  transition: opacity 120ms ease;
+}
+.dialog-close-on-scrim:hover { opacity: 1; }
+
+/* Card surface — used inside .dialog--bare or .dialog--drawer. Interior
+   padding follows the design-system card-padding token (32px sm, 24px
+   below), matching ContentCard. */
+.dialog-card {
+  background-color: var(--color-fill-base);
+  border-radius: var(--radius-xl);
+  padding: var(--padding-card);
+}
+
+/* Drawer variant — full-viewport overlay, slide-up panel with top-rounded
+   card extending to viewport bottom. */
+.dialog.dialog--drawer {
+  inset: 0;
+  width: 100vw;
+  max-width: none;
+  height: 100vh;
+  max-height: none;
+  margin: 0;
+  padding: var(--space-16) var(--space-16) 0;
+  background: transparent;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+}
+.dialog.dialog--drawer::backdrop {
+  background-color: color-mix(in srgb, var(--alpha-strong, var(--color-text-primary)) 55%, transparent);
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
+}
+.dialog--drawer .dialog-panel {
+  position: relative;
+  width: 100%;
+  max-width: 896px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: var(--padding-card);
+  animation: dialog-drawer-in var(--motion-modal-in) both;
+}
+@keyframes dialog-drawer-in {
+  from { opacity: 0; transform: translateY(100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.dialog--drawer .dialog-card--drawer {
+  flex: 1;
+  min-height: 0;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: var(--padding-card);
+  display: flex;
+  flex-direction: column;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog.dialog--bare,
+  .dialog--drawer .dialog-panel { animation: none; }
+}
+
+/* ─── CONFIRM DIALOG — message + action row composed on dialog-card ───────────
+   Heading-md message sits above two transparent text buttons (cancel +
+   confirm). The spring-zoom ::before background follows the canonical DS
+   pattern from .btn. Confirm uses status-error for the destructive case. */
+.dialog-confirm-card { display: flex; flex-direction: column; gap: var(--space-3); }
+.dialog-confirm-message {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--tracking-n035);
+  line-height: var(--leading-title);
+  color: var(--color-text-primary);
+}
+.dialog-confirm-actions { display: flex; gap: var(--space-2); align-items: center; }
+.dialog-confirm-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: transparent;
+  border: none;
+  cursor: none;
+  padding: 2px;
+  max-height: 24px;
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--tracking-n035);
+  line-height: var(--leading-title);
+  border-radius: var(--radius-sm);
+  transition: opacity 120ms ease;
+}
+.dialog-confirm-btn > span { white-space: nowrap; }
+.dialog-confirm-btn::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  background-color: currentColor;
+  border-radius: var(--radius-sm);
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 150ms ease, transform 350ms var(--ease-bounce);
+  pointer-events: none;
+}
+.dialog-confirm-btn:hover::before { opacity: var(--opacity-20); transform: scale(1); }
+.dialog-confirm-btn:active::before { opacity: var(--opacity-40); transform: scale(0.97); }
+.dialog-confirm-btn--cancel { color: var(--color-text-primary); opacity: var(--opacity-40); }
+.dialog-confirm-btn--cancel:hover { opacity: var(--opacity-80); }
+.dialog-confirm-btn--confirm { color: var(--color-status-error); }
+.dialog-confirm-btn--confirm.dialog-confirm-btn--default { color: var(--color-text-primary); }
 
 /* ─── SHEET — left/right only, inset 8px to become a floating card ──────────
    Scrim uses the same blur + darken treatment as Dialog. The sheet panel is
@@ -2444,48 +2943,97 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
   text-align: center;
 }
 
-/* ─── FLOATING ACTION BAR ────────────────────────────────────────────────── */
-.fab {
-  position: fixed;
-  bottom: var(--space-6);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 990;
-  animation: fab-enter 220ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+/* ─── STICKER PEEL — corner-lift on hover ────────────────────────────────────
+   A draggable-image surface whose chosen corner appears to lift off the
+   canvas on hover. The main image is clip-pathed to cut a corner triangle;
+   a sibling .peelable-flap div renders the same image (via background-image
+   from the --peelable-src var the component sets in JSX) clipped to the
+   inverse triangle, tinted as the un-printed paper back, rotated outward
+   off the hinge, and drop-shadowed to sell the lift.
+
+   Because the flap uses the source image as both background and mask,
+   alpha pixels stay transparent — cutout stickers don't render a stray
+   grey triangle on the off-image area. CSS-only, no GSAP / no JS animation.
+
+   Lineage: Scrapbook CanvasView .cv-sticker-* pattern (l0at-izar worktree,
+   src/styles/stickerizer.css L475–569). Generalised here from "sticker" to
+   "any peelable image". */
+.peelable {
+  position: relative;
+  display: inline-block;
+  /* Peel size as % of the image — drives both the main image's corner cut
+     and the flap's clip region. Animates smoothly between rest and hover. */
+  --peelable-peel: 0%;
+  --peelable-ease: var(--ease-soft-spring);
+  --peelable-duration: 360ms;
 }
-@keyframes fab-enter {
-  from { opacity: 0; transform: translateX(-50%) translateY(16px); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+.peelable:hover { --peelable-peel: 11%; }
+
+.peelable-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: filter 180ms ease, clip-path var(--peelable-duration) var(--peelable-ease);
 }
-.fab-inner {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-3) var(--space-5);
-  /* Tooltip-style: always inverted — dark in light mode, light in dark mode */
-  background-color: var(--color-text-primary);
-  color: var(--color-fill-base);
-  border-radius: var(--radius-sm);
+.peelable[data-peel-corner='tl'] .peelable-img {
+  clip-path: polygon(var(--peelable-peel) 0, 100% 0, 100% 100%, 0 100%, 0 var(--peelable-peel));
 }
-.fab-count {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: 0.875rem;
-  letter-spacing: var(--tracking-n010);
-  /* Inherit inverted color; opacity maps to 60% of fill-base */
-  color: inherit;
-  opacity: var(--opacity-60);
-  white-space: nowrap;
+.peelable[data-peel-corner='tr'] .peelable-img {
+  clip-path: polygon(0 0, calc(100% - var(--peelable-peel)) 0, 100% var(--peelable-peel), 100% 100%, 0 100%);
 }
-.fab-clear { color: inherit; opacity: var(--opacity-40); transition: opacity 150ms ease; }
-.fab-clear:hover { opacity: 1; }
-.fab-actions { display: flex; align-items: center; gap: var(--space-2); }
-.fab-action { font-size: 0.875rem; letter-spacing: var(--tracking-n010); color: inherit; }
-.fab-action-destructive { color: var(--color-status-error); }
-.fab-action-icon { display: flex; align-items: center; }
+.peelable[data-peel-corner='bl'] .peelable-img {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, var(--peelable-peel) 100%, 0 calc(100% - var(--peelable-peel)));
+}
+.peelable[data-peel-corner='br'] .peelable-img {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--peelable-peel)), calc(100% - var(--peelable-peel)) 100%, 0 100%);
+}
+
+/* The flap — full-area, painted with the image via background-image, clipped
+   to the corner triangle, tinted as paper-back. Transparent pixels remain
+   transparent automatically (the flap IS the image), so alpha sources work.
+   Hidden at rest (peel = 0%) so a zero-area flap doesn't render a hairline. */
+.peelable-flap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background-image: var(--peelable-src);
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: grayscale(1) brightness(1.35) contrast(0.85);
+  opacity: 0;
+  transition: clip-path var(--peelable-duration) var(--peelable-ease),
+              transform   var(--peelable-duration) var(--peelable-ease),
+              opacity     var(--peelable-duration) var(--peelable-ease);
+}
+.peelable:hover .peelable-flap { opacity: 1; }
+
+.peelable[data-peel-corner='tl'] .peelable-flap {
+  clip-path: polygon(0 0, var(--peelable-peel) 0, 0 var(--peelable-peel));
+  transform-origin: 0 0;
+  transform: rotate(-6deg) translate(-2%, -2%);
+}
+.peelable[data-peel-corner='tr'] .peelable-flap {
+  clip-path: polygon(calc(100% - var(--peelable-peel)) 0, 100% 0, 100% var(--peelable-peel));
+  transform-origin: 100% 0;
+  transform: rotate(6deg) translate(2%, -2%);
+}
+.peelable[data-peel-corner='bl'] .peelable-flap {
+  clip-path: polygon(0 calc(100% - var(--peelable-peel)), var(--peelable-peel) 100%, 0 100%);
+  transform-origin: 0 100%;
+  transform: rotate(6deg) translate(-2%, 2%);
+}
+.peelable[data-peel-corner='br'] .peelable-flap {
+  clip-path: polygon(100% calc(100% - var(--peelable-peel)), 100% 100%, calc(100% - var(--peelable-peel)) 100%);
+  transform-origin: 100% 100%;
+  transform: rotate(-6deg) translate(2%, 2%);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .fab { animation: none; }
+  .peelable-img, .peelable-flap { transition: none; }
+  .peelable:hover { --peelable-peel: 0%; }
 }
 
 /* ─── CONTENT CARD ───────────────────────────────────────────────────────── */
@@ -2493,14 +3041,14 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  padding: var(--space-5);
-  background-color: var(--color-fill-primary);
+  padding: var(--padding-card);
+  background-color: var(--color-fill-base);
   border-radius: var(--radius-md);
   border: var(--border-sm) solid var(--color-transparent-weak);
   transition: background-color 150ms ease;
 }
 .content-card-interactive { cursor: none; }
-.content-card-interactive:hover { background-color: color-mix(in srgb, var(--color-transparent-weak) 100%, var(--color-fill-primary) 0%); }
+.content-card-interactive:hover { background-color: var(--color-fill-primary); }
 .content-card-body { display: flex; flex-direction: column; gap: var(--space-2); flex: 1; }
 /* heading-md as the primary type size for card titles */
 .content-card-title { font-size: 1.5rem; letter-spacing: var(--tracking-n030); line-height: var(--leading-heading); font-weight: var(--fw-normal); }

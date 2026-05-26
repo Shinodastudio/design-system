@@ -11,7 +11,7 @@ Design as stewardship. Clarity is the form. Opacity is the hierarchy.
 
 **Anti-patterns — refuse unconditionally:**
 - Gradients, drop shadows, shimmer loaders
-- Border-radius beyond `--radius-sm` on primary elements
+- Radius values outside the two-tier system: `--radius-md` (12px) for interactive controls (buttons, inputs, button groups); `--radius-xl` (24px) for card surfaces (dialogs, modals, sheets). No other values on primary elements.
 - Emoji in UI chrome
 - "Powered by" badges or provider branding
 - Any color outside the grey/status palette

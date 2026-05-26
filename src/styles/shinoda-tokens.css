@@ -114,6 +114,18 @@
   --border-lg:   4px;
   --border-xl:   8px;
 
+  /* ─── MOTION ───────────────────────────────────────────────────────────
+     Motion is a token: every named transition flows through one of these
+     curves and durations. Adding a new feel? Add it here first.
+     - modal-in: drawer-style slide (easeInOutQuint, slow start + finish).
+     - modal-card-in: centred-modal card lift (soft spring, faster).
+     - spring-bounce: button-zoom hover background (existing pattern). */
+  --ease-in-out-quint:  cubic-bezier(0.83, 0, 0.17, 1);
+  --ease-soft-spring:   cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-bounce:        cubic-bezier(0.34, 1.4, 0.64, 1);
+  --motion-modal-in:        540ms var(--ease-in-out-quint);
+  --motion-modal-card-in:   280ms var(--ease-soft-spring);
+
   /* ─── BLUR (full Figma scale) ──────────────────────────────────────── */
   --blur-none: 0px;
   --blur-xs:   8px;

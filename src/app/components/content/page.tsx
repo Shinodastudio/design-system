@@ -6,7 +6,6 @@ import { StickyCol } from '@/components/layout/StickyCol';
 import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 import { ComponentSection } from '@/components/catalogue/ComponentSection';
 import { ContentCard } from '@/components/content/ContentCard';
-import { DownloadTile } from '@/components/content/DownloadTile';
 import { CodeSnippet } from '@/components/content/CodeSnippet';
 import { Button } from '@/components/primitives/Button';
 
@@ -19,7 +18,7 @@ export default function ContentPage(): React.ReactElement {
         <StickyCol>
           <CatalogueIntro
             title="Content"
-            description="Content card for structured copy, and download tile for file assets."
+            description="Content card for structured copy and inline code snippet for click-to-copy lines."
           />
         </StickyCol>
         <div>
@@ -71,38 +70,6 @@ export default function ContentPage(): React.ReactElement {
           />
 
           <ComponentSection
-            name="DownloadTile"
-            description="File asset row with icon, filename, type/size metadata, and a download action."
-            code={`<DownloadTile\n  filename="shinoda-tokens.css"\n  fileType="CSS"\n  fileSize="12 KB"\n  onDownload={fn}\n/>`}
-            sizes={SIZES}
-            states={['default']}
-            render={(): React.ReactNode => (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', width: '100%' }}>
-                <DownloadTile
-                  filename="shinoda-tokens.css"
-                  fileType="CSS"
-                  fileSize="12 KB"
-                  description="All design tokens as CSS custom properties"
-                  onDownload={() => undefined}
-                />
-                <DownloadTile
-                  filename="shinoda-base.css"
-                  fileType="CSS"
-                  fileSize="8 KB"
-                  description="Reset, typography, layout shell"
-                  onDownload={() => undefined}
-                />
-                <DownloadTile
-                  filename="brand-guidelines.pdf"
-                  fileType="PDF"
-                  fileSize="4.2 MB"
-                  onDownload={() => undefined}
-                />
-              </div>
-            )}
-          />
-
-          <ComponentSection
             name="CodeSnippet"
             description="Click-to-copy code line. 40% opacity at rest, fills in on hover with a Copy icon, and confirms the write with a CheckCircle + 'Copied to Clipboard' for ~1.6s."
             code={`<CodeSnippet code="<Button>Label</Button>" />`}
@@ -114,23 +81,6 @@ export default function ContentPage(): React.ReactElement {
                 <CodeSnippet code="import { Button } from '@shinoda/ds';" />
                 <CodeSnippet code="bun add @shinoda/ds" />
               </div>
-            )}
-          />
-
-          <ComponentSection
-            name="DownloadTile — loading state"
-            description="Pass isDownloading to replace the button with a Skeleton placeholder during async download."
-            code={`<DownloadTile\n  filename="export.zip"\n  onDownload={fn}\n  isDownloading\n/>`}
-            sizes={SIZES}
-            states={['default']}
-            render={(): React.ReactNode => (
-              <DownloadTile
-                filename="export.zip"
-                fileType="ZIP"
-                fileSize="56 MB"
-                onDownload={() => undefined}
-                isDownloading
-              />
             )}
           />
 

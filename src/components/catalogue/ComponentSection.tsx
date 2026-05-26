@@ -70,6 +70,10 @@ export function ComponentSection<S extends string>({
   const resolvedSizeLabel = sizeLabel ?? ((s: S): string => String(s));
   const isNonDefaultState = state !== 'default';
   const isNonDefaultSize = size !== resolvedDefault;
+  // Hide a chip entirely if the component exposes nothing to pick from —
+  // a single-option dropdown is noise, not affordance.
+  const showSizeChip = sizes.length > 1;
+  const showStateChip = states.length > 1;
 
   // Auto-focus the first focusable child when state is 'focus'.
   useEffect(() => {
@@ -90,7 +94,7 @@ export function ComponentSection<S extends string>({
           <span className="heading-md">{name}</span>
           <div className="component-section-chips">
             {/* Size chip — orange + × when non-default, dropdown when default */}
-            {isNonDefaultSize ? (
+            {showSizeChip && (isNonDefaultSize ? (
               <button
                 type="button"
                 className="section-chip section-chip--active"
@@ -114,10 +118,10 @@ export function ComponentSection<S extends string>({
                 </select>
                 <span className="section-chip-chevron" aria-hidden="true" />
               </label>
-            )}
+            ))}
 
             {/* State chip — orange + × when non-default, dropdown when default */}
-            {isNonDefaultState ? (
+            {showStateChip && (isNonDefaultState ? (
               <button
                 type="button"
                 className="section-chip section-chip--active"
@@ -141,7 +145,7 @@ export function ComponentSection<S extends string>({
                 </select>
                 <span className="section-chip-chevron" aria-hidden="true" />
               </label>
-            )}
+            ))}
             {extraChips}
           </div>
         </div>

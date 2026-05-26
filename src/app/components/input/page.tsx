@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { MainWrapper } from '@/components/layout/MainWrapper';
 import { Grid } from '@/components/layout/Grid';
 import { StickyCol } from '@/components/layout/StickyCol';
+import { Divider } from '@/components/primitives/Divider';
 import {
   Input,
   Textarea,
@@ -11,7 +13,13 @@ import {
   InputError,
   InputField,
 } from '@/components/primitives/Input';
+import { Select } from '@/components/primitives/Select';
+import { Checkbox, Radio, Choice, ChoiceLabel } from '@/components/primitives/Choice';
+import { SearchDropdown } from '@/components/search/SearchDropdown';
+import type { SearchOption } from '@/components/search/SearchDropdown';
 import { ComponentSection } from '@/components/catalogue/ComponentSection';
+import { ComponentFrame } from '@/components/catalogue/ComponentFrame';
+import { ComponentPreviewer } from '@/components/catalogue/ComponentPreviewer';
 import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 
 const INPUT_SIZES = [
@@ -35,14 +43,41 @@ const INPUT_FONT: Record<InputSize, string> = {
   'body-2xs':    '0.875rem',
 };
 
+const SELECT_FONT: Record<InputSize, string> = {
+  ...INPUT_FONT,
+  'heading-2xs': '0.875rem',
+};
+
+const SEARCH_SIZES = ['default'] as const;
+
+const DESIGN_TOKENS: readonly SearchOption[] = [
+  { value: 'color-primary', label: 'color-primary', description: 'Primary text colour token' },
+  { value: 'color-fill-base', label: 'color-fill-base', description: 'Background fill token' },
+  { value: 'space-4', label: 'space-4', description: '16px standard block padding' },
+  { value: 'space-8', label: 'space-8', description: '32px section spacing' },
+  { value: 'radius-sm', label: 'radius-sm', description: 'Small border radius' },
+  { value: 'opacity-60', label: 'opacity-60', description: '60% opacity — secondary content' },
+] as const;
+
+const CITIES: readonly SearchOption[] = [
+  { value: 'london', label: 'London', description: 'United Kingdom' },
+  { value: 'paris', label: 'Paris', description: 'France' },
+  { value: 'berlin', label: 'Berlin', description: 'Germany' },
+  { value: 'amsterdam', label: 'Amsterdam', description: 'Netherlands' },
+  { value: 'lisbon', label: 'Lisbon', description: 'Portugal' },
+] as const;
+
 export default function InputPage(): React.ReactElement {
+  const [tokenValue, setTokenValue] = useState<string | undefined>(undefined);
+  const [cityValue, setCityValue] = useState<string | undefined>(undefined);
+
   return (
     <MainWrapper>
       <Grid>
         <StickyCol>
           <CatalogueIntro
             title="Input"
-            description="Underline-only — no outer box. Single 1px rule lifts to full primary on focus."
+            description="Text fields, textareas, select, checkbox, radio, and search dropdown. Underline-only — no outer box. 1px rule lifts to primary text on focus."
           />
         </StickyCol>
         <div>
@@ -126,6 +161,127 @@ export default function InputPage(): React.ReactElement {
                   style={{ fontSize: INPUT_FONT[size as InputSize] }}
                 />
               </InputField>
+            )}
+          />
+
+          <Divider />
+
+          <ComponentPreviewer
+            states={['default', 'hover', 'focus', 'disabled']}
+            sizes={INPUT_SIZES}
+            defaultSize="body-xs"
+            render={({ state, size }): React.ReactNode => (
+              <InputField className="w-full">
+                <InputLabel htmlFor="preview-select">Role</InputLabel>
+                <Select
+                  id="preview-select"
+                  defaultValue="director"
+                  disabled={state === 'disabled'}
+                  className={state === 'disabled' ? 'op-40' : undefined}
+                  style={{ fontSize: SELECT_FONT[size as InputSize] }}
+                >
+                  <option value="director">Creative Director</option>
+                  <option value="strategist">Strategist</option>
+                  <option value="engineer">Engineer</option>
+                </Select>
+              </InputField>
+            )}
+          />
+
+          <ComponentFrame
+            title="Checkbox"
+            description="Square, 4px radius. Filled with text-primary on check. Cursor hides on hover."
+            code={`<Choice>
+  <Checkbox defaultChecked />
+  <ChoiceLabel>Subscribe to dispatches</ChoiceLabel>
+</Choice>`}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+              <Choice>
+                <Checkbox defaultChecked />
+                <ChoiceLabel>Subscribe to dispatches</ChoiceLabel>
+              </Choice>
+              <Choice>
+                <Checkbox />
+                <ChoiceLabel>Send weekly digest</ChoiceLabel>
+              </Choice>
+            </div>
+          </ComponentFrame>
+
+          <ComponentFrame
+            title="Radio group"
+            description="Perfectly circular outer and inner. Uniform across all font-size contexts."
+            code={`<Choice><Radio name="theme" defaultChecked /> <ChoiceLabel>Light</ChoiceLabel></Choice>`}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+              <Choice>
+                <Radio name="ex-theme" defaultChecked />
+                <ChoiceLabel>Light</ChoiceLabel>
+              </Choice>
+              <Choice>
+                <Radio name="ex-theme" />
+                <ChoiceLabel>Dark</ChoiceLabel>
+              </Choice>
+              <Choice>
+                <Radio name="ex-theme" />
+                <ChoiceLabel>System</ChoiceLabel>
+              </Choice>
+            </div>
+          </ComponentFrame>
+
+          <Divider />
+
+          <ComponentSection
+            name="SearchDropdown"
+            description="Filters options as you type. Keyboard navigable with arrow keys and Enter."
+            code={`<SearchDropdown\n  options={options}\n  value={value}\n  onChange={setValue}\n  placeholder="Search tokens…"\n/>`}
+            sizes={SEARCH_SIZES}
+            states={['default', 'disabled']}
+            render={({ state }): React.ReactNode => (
+              <div style={{ width: '100%', maxWidth: '20em' }}>
+                <SearchDropdown
+                  options={DESIGN_TOKENS}
+                  value={tokenValue}
+                  onChange={setTokenValue}
+                  placeholder="Search tokens…"
+                  disabled={state === 'disabled'}
+                />
+              </div>
+            )}
+          />
+
+          <ComponentSection
+            name="SearchDropdown with descriptions"
+            description="Each option can carry a secondary description line rendered at 40% opacity."
+            code={`const options = [\n  { value: 'london', label: 'London', description: 'United Kingdom' },\n  …\n];\n\n<SearchDropdown options={options} onChange={setValue} />`}
+            sizes={SEARCH_SIZES}
+            states={['default']}
+            render={(): React.ReactNode => (
+              <div style={{ width: '100%', maxWidth: '20em' }}>
+                <SearchDropdown
+                  options={CITIES}
+                  value={cityValue}
+                  onChange={setCityValue}
+                  placeholder="Search cities…"
+                />
+              </div>
+            )}
+          />
+
+          <ComponentSection
+            name="SearchDropdown — loading state"
+            description="Pass isLoading to show a loading message while options are being fetched."
+            code={`<SearchDropdown options={[]} isLoading placeholder="Searching…" />`}
+            sizes={SEARCH_SIZES}
+            states={['default']}
+            render={(): React.ReactNode => (
+              <div style={{ width: '100%', maxWidth: '20em' }}>
+                <SearchDropdown
+                  options={[]}
+                  isLoading
+                  placeholder="Searching…"
+                />
+              </div>
             )}
           />
 
