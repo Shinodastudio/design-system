@@ -42,3 +42,4 @@ export {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from './DropdownMenu';
+export type { DropdownMenuItemVariant } from './DropdownMenu';

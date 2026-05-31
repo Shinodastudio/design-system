@@ -482,6 +482,17 @@ declare function ShinodaLink({ href, children, className, external, size, disabl
 
 interface InputProps extends React.ComponentPropsWithoutRef<'input'> {
     readonly hasError?: boolean;
+    /**
+     * When set, renders a float-label variant: no external InputLabel needed.
+     * The string becomes the label that starts inside the field as placeholder
+     * text and floats above on focus or when the field has a value.
+     */
+    readonly floatLabel?: string;
+    /**
+     * Strips the bottom underline. Use inside contained surfaces (e.g. Command
+     * search row) where the parent already provides a visual boundary.
+     */
+    readonly borderless?: boolean;
 }
 declare const Input: react.ForwardRefExoticComponent<InputProps & react.RefAttributes<HTMLInputElement>>;
 interface TextareaProps extends React.ComponentPropsWithoutRef<'textarea'> {
@@ -792,37 +803,6 @@ interface GridTileActionProps {
 }
 declare function GridTileAction({ children, onClick, ariaLabel, variant, className, }: GridTileActionProps): React.ReactElement;
 
-type PeelCorner = 'tl' | 'tr' | 'bl' | 'br' | 'auto';
-interface PeelableImageProps {
-    readonly src: string;
-    readonly alt: string;
-    /**
-     * Which corner peels on hover. 'auto' (default) picks one at mount time
-     * via a memoised random choice — each instance gets its own corner that
-     * persists for the component's lifetime.
-     */
-    readonly corner?: PeelCorner;
-    readonly className?: string;
-    readonly style?: React.CSSProperties;
-}
-/**
- * PeelableImage — image surface with a CSS-only sticker-peel corner effect.
- *
- * On hover, the chosen corner appears to lift off the canvas: the main
- * image is clip-pathed to remove a corner triangle, and a sibling flap
- * (a clipped copy of the same image via background-image, tinted with
- * grayscale/brightness so it reads as the un-printed paper back) takes
- * its place with a small rotation and drop-shadow.
- *
- * Because the flap IS the image (via background-image and a mask), alpha
- * pixels stay transparent — cutout stickers don't render a grey triangle
- * floating in empty space.
- *
- * Lineage: Scrapbook CanvasView sticker-peel pattern (l0at-izar worktree,
- * src/styles/stickerizer.css L475–569).
- */
-declare function PeelableImage({ src, alt, corner, className, style, }: PeelableImageProps): React.ReactElement;
-
 type BadgeVariant = 'neutral' | 'red' | 'orange' | 'yellow' | 'green' | 'blue';
 interface BadgeProps {
     readonly variant?: BadgeVariant;
@@ -1103,14 +1083,19 @@ interface DropdownMenuContentProps {
     readonly className?: string;
 }
 declare function DropdownMenuContent({ children, className }: DropdownMenuContentProps): React.ReactElement | null;
+type DropdownMenuItemVariant = 'default' | 'danger';
 interface DropdownMenuItemProps {
     readonly children: React.ReactNode;
     readonly onClick?: () => void;
     readonly disabled?: boolean;
     readonly className?: string;
     readonly index?: number;
+    /** Leading icon — any React node, typically <Icon name="..." size="em" /> */
+    readonly icon?: React.ReactNode;
+    /** 'danger' renders the item in status-error red with a red hover fill. */
+    readonly variant?: DropdownMenuItemVariant;
 }
-declare function DropdownMenuItem({ children, onClick, disabled, className, index, }: DropdownMenuItemProps): React.ReactElement;
+declare function DropdownMenuItem({ children, onClick, disabled, className, index, icon, variant, }: DropdownMenuItemProps): React.ReactElement;
 interface DropdownMenuSeparatorProps {
     readonly className?: string;
 }
@@ -1197,7 +1182,11 @@ interface CommandEmptyProps {
     readonly children?: React.ReactNode;
     readonly className?: string;
 }
-declare function CommandEmpty({ children, className }: CommandEmptyProps): React.ReactElement;
+/**
+ * Renders only when the user has typed a query — prevents "No results" from
+ * appearing on an empty palette before any interaction.
+ */
+declare function CommandEmpty({ children, className }: CommandEmptyProps): React.ReactElement | null;
 interface CommandGroupProps {
     readonly label?: string;
     readonly children: React.ReactNode;
@@ -1209,9 +1198,14 @@ interface CommandItemProps {
     readonly onSelect?: () => void;
     readonly disabled?: boolean;
     readonly className?: string;
+    /** Overrides text used for query filtering. Falls back to string children. */
     readonly value?: string;
+    /** Leading icon — typically <Icon name="..." size="em" /> */
+    readonly icon?: React.ReactNode;
+    /** Shows a CaretRight chevron on the trailing edge to signal a sub-level. */
+    readonly hasSubmenu?: boolean;
 }
-declare function CommandItem({ children, onSelect, disabled, className, }: CommandItemProps): React.ReactElement | null;
+declare function CommandItem({ children, onSelect, disabled, className, value, icon, hasSubmenu, }: CommandItemProps): React.ReactElement | null;
 interface CommandSeparatorProps {
     readonly className?: string;
 }
@@ -1368,20 +1362,6 @@ interface CollapsibleCodeProps {
  */
 declare function CollapsibleCode({ code, language, className, }: CollapsibleCodeProps): React.ReactElement;
 
-interface MapMarker {
-    readonly position: readonly [number, number];
-    readonly label?: string;
-}
-interface MapProps {
-    readonly center?: readonly [number, number];
-    readonly zoom?: number;
-    readonly markers?: readonly MapMarker[];
-    readonly className?: string;
-    readonly onMapClick?: (position: readonly [number, number]) => void;
-}
-declare function Map(props: MapProps): React.ReactElement;
-declare function MapNoSSR(props: MapProps): React.ReactElement;
-
 interface ThemeContextValue {
     readonly theme: 'light' | 'dark';
     readonly toggleTheme: () => void;
@@ -1412,4 +1392,4 @@ declare function useTheme(): readonly [Theme, () => void];
 
 declare function cn(...inputs: readonly ClassValue[]): string;
 
-export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, type AlertVariant, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, Badge, type BadgeVariant, type BodyVariant, Button, ButtonGroup, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, ConfirmDialog, type ConfirmDialogIntent, ContentCard, Cursor, type CursorRef, DateInput, Dialog, DialogCard, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogPanel, DialogTitle, DialogTitleRow, DialogTrigger, type DialogVariant, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, type EditableColumn, EditableTable, FONT_WEIGHT_TOKENS, FileChip, type FileChipProps, FileDropzone, type FileDropzoneProps, Footer, Grid, GridTile, GridTileAction, HEADING_VARIANTS, type HeadingVariant, ICONS, ICONS_BY_ID, Icon, type IconProps, type IconRecord, type IconSize, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, type LinkSize, MainWrapper, Map, type MapMarker, MapNoSSR, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, type OpacityLevel, PADDING_TOKENS, PageWrapper, type PeelCorner, PeelableImage, Popover, PopoverContent, PopoverTrigger, Progress, type ProgressSize, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, Scrim, type ScrimBlur, SearchDropdown, type SearchOption, SectionTile, Select, type SemanticColor, Sheet, SheetContent, SheetFooter, SheetHeader, type SheetSide, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, type SubheadingVariant, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, type TooltipSide, type TypeVariant, cn, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };
+export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, type AlertVariant, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, Badge, type BadgeVariant, type BodyVariant, Button, ButtonGroup, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, ConfirmDialog, type ConfirmDialogIntent, ContentCard, Cursor, type CursorRef, DateInput, Dialog, DialogCard, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogPanel, DialogTitle, DialogTitleRow, DialogTrigger, type DialogVariant, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, type DropdownMenuItemVariant, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, type EditableColumn, EditableTable, FONT_WEIGHT_TOKENS, FileChip, type FileChipProps, FileDropzone, type FileDropzoneProps, Footer, Grid, GridTile, GridTileAction, HEADING_VARIANTS, type HeadingVariant, ICONS, ICONS_BY_ID, Icon, type IconProps, type IconRecord, type IconSize, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, type LinkSize, MainWrapper, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, type OpacityLevel, PADDING_TOKENS, PageWrapper, Popover, PopoverContent, PopoverTrigger, Progress, type ProgressSize, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, Scrim, type ScrimBlur, SearchDropdown, type SearchOption, SectionTile, Select, type SemanticColor, Sheet, SheetContent, SheetFooter, SheetHeader, type SheetSide, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, type SubheadingVariant, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, type TooltipSide, type TypeVariant, cn, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };

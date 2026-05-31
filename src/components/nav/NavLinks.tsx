@@ -28,7 +28,12 @@ export function NavLinks({ items }: NavLinksProps): React.ReactElement {
               pathname === item.href ? 'is-active' : undefined,
             )}
           >
-            <NextLink href={item.href}>{item.label}</NextLink>
+            <NextLink
+              href={item.href}
+              aria-current={pathname === item.href ? 'page' : undefined}
+            >
+              {item.label}
+            </NextLink>
           </Button>
         </li>
       ))}

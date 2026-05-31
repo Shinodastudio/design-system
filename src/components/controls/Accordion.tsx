@@ -92,9 +92,33 @@ export function Accordion({
     [type, openValues, controlledValue, onValueChange],
   );
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>): void => {
+    if (!(e.target as HTMLElement).classList.contains('accordion-trigger')) return;
+    const triggers = Array.from(
+      (e.currentTarget as HTMLDivElement).querySelectorAll<HTMLButtonElement>('.accordion-trigger'),
+    );
+    const currentIndex = triggers.indexOf(e.target as HTMLButtonElement);
+    if (currentIndex === -1) return;
+    let next = currentIndex;
+    if (e.key === 'ArrowDown') next = (currentIndex + 1) % triggers.length;
+    else if (e.key === 'ArrowUp') next = (currentIndex - 1 + triggers.length) % triggers.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = triggers.length - 1;
+    else return;
+    e.preventDefault();
+    const target = triggers[next];
+    if (target == null) return;
+    target.focus();
+  };
+
   return (
     <AccordionContext.Provider value={{ type, openValues, toggle }}>
-      <div className={cn('accordion', `accordion-size-${size}`, className)}>{children}</div>
+      <div
+        className={cn('accordion', `accordion-size-${size}`, className)}
+        onKeyDown={handleKeyDown}
+      >
+        {children}
+      </div>
     </AccordionContext.Provider>
   );
 }

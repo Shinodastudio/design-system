@@ -8,7 +8,7 @@ interface MainWrapperProps {
 
 export function MainWrapper({ children, className, as: Tag = 'main' }: MainWrapperProps): React.ReactElement {
   return (
-    <Tag className={cn('main-wrapper', className)}>
+    <Tag id={Tag === 'main' ? 'main-content' : undefined} className={cn('main-wrapper', className)}>
       {children}
     </Tag>
   );

@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/lib/cn';
 
 /**
@@ -132,6 +133,10 @@ export function DialogContent({
 }: DialogContentProps): React.ReactElement | null {
   const { open, close, titleId, descriptionId } = useDialogContext();
   const dialogRef = useRef<HTMLDialogElement | null>(null);
+  // Portal to document.body so the <dialog> is never clipped by an ancestor's
+  // overflow:hidden or stacking context (e.g. inside a catalogue preview card).
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => { setIsMounted(true); }, []);
 
   useEffect(() => {
     const el = dialogRef.current;
@@ -164,7 +169,7 @@ export function DialogContent({
   const variantClass =
     variant === 'bare' ? 'dialog--bare' : variant === 'drawer' ? 'dialog--drawer' : null;
 
-  return (
+  const dialogEl = (
     <dialog
       ref={dialogRef}
       className={cn('dialog', variantClass, className)}
@@ -181,6 +186,9 @@ export function DialogContent({
       )}
     </dialog>
   );
+
+  if (!isMounted) return null;
+  return createPortal(dialogEl, document.body);
 }
 
 /* ─── Composable primitives (used with variant="bare" or "drawer") ──────── */

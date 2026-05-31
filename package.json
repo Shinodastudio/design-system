@@ -24,7 +24,15 @@
     "lint": "eslint",
     "icons:generate": "bun run scripts/generate-icons.ts",
     "build:lib": "tsup && bun run scripts/copy-styles.ts",
-    "prepare": "bun run build:lib"
+    "prepare": "bun run build:lib",
+    "release": "bun run build:lib && npm version",
+    "release:patch": "bun run build:lib && npm version patch && npm publish",
+    "release:minor": "bun run build:lib && npm version minor && npm publish",
+    "release:major": "bun run build:lib && npm version major && npm publish"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
   },
   "peerDependencies": {
     "next": ">=15",

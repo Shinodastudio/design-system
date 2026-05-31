@@ -17,9 +17,6 @@ export * from './components/cursor';
 export { SectionTile } from './components/cards/SectionTile';
 export { GridTile, GridTileAction } from './components/cards/GridTile';
 
-// Sticker
-export * from './components/sticker';
-
 // Feedback
 export * from './components/feedback';
 
@@ -40,9 +37,6 @@ export * from './components/search';
 
 // Content
 export * from './components/content';
-
-// Map
-export * from './components/map';
 
 // Providers
 export { ClientShell, useThemeContext } from './providers/ClientShell';

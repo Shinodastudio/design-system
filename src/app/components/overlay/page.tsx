@@ -84,7 +84,7 @@ export default function OverlayPage(): React.ReactElement {
           <ComponentSection
             name="Dialog"
             description="Full-screen modal using the native <dialog> element. Closes on backdrop click or Escape."
-            code={`<Dialog>\n  <DialogTrigger><Button>Open</Button></DialogTrigger>\n  <DialogContent>\n    <DialogHeader>\n      <DialogTitle>Title</DialogTitle>\n    </DialogHeader>\n  </DialogContent>\n</Dialog>`}
+            code={`<Dialog>\n  <DialogTrigger><Button>Open</Button></DialogTrigger>\n  <DialogContent>\n    <DialogHeader>\n      <DialogTitle>Title</DialogTitle>\n    </DialogHeader>\n    <DialogDescription>Description</DialogDescription>\n    <DialogFooter>\n      <DialogClose>Cancel</DialogClose>\n      <Button>Confirm</Button>\n    </DialogFooter>\n  </DialogContent>\n</Dialog>`}
             sizes={SIZES}
             states={['default']}
             render={(): React.ReactNode => (
@@ -95,7 +95,6 @@ export default function OverlayPage(): React.ReactElement {
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Confirm action</DialogTitle>
-                    <DialogClose />
                   </DialogHeader>
                   <DialogDescription>
                     This action cannot be undone. Are you sure you want to proceed?
@@ -251,8 +250,8 @@ export default function OverlayPage(): React.ReactElement {
 
           <ComponentSection
             name="DropdownMenu"
-            description="Keyboard-navigable list of actions. Supports labels, separators, and disabled items."
-            code={`<DropdownMenu>\n  <DropdownMenuTrigger><Button>Actions</Button></DropdownMenuTrigger>\n  <DropdownMenuContent>\n    <DropdownMenuItem>Edit</DropdownMenuItem>\n    <DropdownMenuItem>Delete</DropdownMenuItem>\n  </DropdownMenuContent>\n</DropdownMenu>`}
+            description="Keyboard-navigable list of actions. Supports icons, labels, separators, disabled items, and a danger variant for destructive actions."
+            code={`<DropdownMenu>\n  <DropdownMenuTrigger><Button>Actions</Button></DropdownMenuTrigger>\n  <DropdownMenuContent>\n    <DropdownMenuLabel>File</DropdownMenuLabel>\n    <DropdownMenuItem index={0} icon={<Icon name="FolderOpen" size="em" />}>Open</DropdownMenuItem>\n    <DropdownMenuItem index={1} icon={<Icon name="Copy" size="em" />}>Duplicate</DropdownMenuItem>\n    <DropdownMenuSeparator />\n    <DropdownMenuLabel>Danger zone</DropdownMenuLabel>\n    <DropdownMenuItem index={2} icon={<Icon name="Archive" size="em" />} disabled>Archive</DropdownMenuItem>\n    <DropdownMenuItem index={3} icon={<Icon name="Trash" size="em" />} variant="danger">Delete</DropdownMenuItem>\n  </DropdownMenuContent>\n</DropdownMenu>`}
             sizes={SIZES}
             states={['default']}
             render={(): React.ReactNode => (
@@ -262,12 +261,12 @@ export default function OverlayPage(): React.ReactElement {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuLabel>File</DropdownMenuLabel>
-                  <DropdownMenuItem index={0}>Open</DropdownMenuItem>
-                  <DropdownMenuItem index={1}>Duplicate</DropdownMenuItem>
+                  <DropdownMenuItem index={0} icon={<Icon name="FolderOpen" size="em" />}>Open</DropdownMenuItem>
+                  <DropdownMenuItem index={1} icon={<Icon name="Copy" size="em" />}>Duplicate</DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuLabel>Danger zone</DropdownMenuLabel>
-                  <DropdownMenuItem index={2} disabled>Archive</DropdownMenuItem>
-                  <DropdownMenuItem index={3}>Delete</DropdownMenuItem>
+                  <DropdownMenuItem index={2} icon={<Icon name="Archive" size="em" />} disabled>Archive</DropdownMenuItem>
+                  <DropdownMenuItem index={3} icon={<Icon name="Trash" size="em" />} variant="danger">Delete</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}

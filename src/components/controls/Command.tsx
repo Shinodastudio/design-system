@@ -1,10 +1,7 @@
 'use client';
 
 import {
-  Children,
-  cloneElement,
   createContext,
-  isValidElement,
   useCallback,
   useContext,
   useId,
@@ -12,6 +9,8 @@ import {
   useState,
 } from 'react';
 import { cn } from '@/lib/cn';
+import { Icon } from '@/components/icons/Icon';
+import { Input } from '@/components/primitives/Input';
 
 interface CommandContextValue {
   readonly query: string;
@@ -62,35 +61,51 @@ export function CommandInput({ placeholder = 'Search…', className }: CommandIn
     const items = itemRefs.current.filter((el): el is HTMLButtonElement => el != null);
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      const currentDown = activeIndex;
-      const nextDown = currentDown < items.length - 1 ? currentDown + 1 : 0;
+      const nextDown = activeIndex < items.length - 1 ? activeIndex + 1 : 0;
       items[nextDown]?.focus();
       setActiveIndex(nextDown);
     }
     if (e.key === 'ArrowUp') {
       e.preventDefault();
-      const currentUp = activeIndex;
-      const nextUp = currentUp > 0 ? currentUp - 1 : items.length - 1;
+      const nextUp = activeIndex > 0 ? activeIndex - 1 : items.length - 1;
       items[nextUp]?.focus();
       setActiveIndex(nextUp);
     }
   };
 
+  const clearQuery = useCallback((): void => {
+    setQuery('');
+    setActiveIndex(-1);
+  }, [setQuery, setActiveIndex]);
+
   return (
-    <div className="command-input-wrap">
-      <input
-        id={inputId}
-        type="text"
-        className={cn('command-input', className)}
-        placeholder={placeholder}
-        value={query}
-        autoComplete="off"
-        spellCheck={false}
-        onChange={e => { setQuery(e.target.value); setActiveIndex(-1); }}
-        onKeyDown={handleKeyDown}
-        role="searchbox"
-        aria-autocomplete="list"
-      />
+    <div className="command-search-wrap">
+      <div className="command-search-row">
+        <Input
+          id={inputId}
+          type="text"
+          className={cn('command-input', className)}
+          placeholder={placeholder}
+          value={query}
+          autoComplete="off"
+          spellCheck={false}
+          borderless
+          onChange={(e): void => { setQuery(e.target.value); setActiveIndex(-1); }}
+          onKeyDown={handleKeyDown}
+          role="searchbox"
+          aria-autocomplete="list"
+        />
+        {query !== '' && (
+          <button
+            type="button"
+            className="command-search-clear"
+            aria-label="Clear search"
+            onClick={clearQuery}
+          >
+            ×
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -113,7 +128,13 @@ interface CommandEmptyProps {
   readonly className?: string;
 }
 
-export function CommandEmpty({ children, className }: CommandEmptyProps): React.ReactElement {
+/**
+ * Renders only when the user has typed a query — prevents "No results" from
+ * appearing on an empty palette before any interaction.
+ */
+export function CommandEmpty({ children, className }: CommandEmptyProps): React.ReactElement | null {
+  const { query } = useCommandContext();
+  if (query === '') return null;
   return (
     <div className={cn('command-empty', className)}>
       {children ?? 'No results found.'}
@@ -141,7 +162,12 @@ interface CommandItemProps {
   readonly onSelect?: () => void;
   readonly disabled?: boolean;
   readonly className?: string;
+  /** Overrides text used for query filtering. Falls back to string children. */
   readonly value?: string;
+  /** Leading icon — typically <Icon name="..." size="em" /> */
+  readonly icon?: React.ReactNode;
+  /** Shows a CaretRight chevron on the trailing edge to signal a sub-level. */
+  readonly hasSubmenu?: boolean;
 }
 
 export function CommandItem({
@@ -149,6 +175,9 @@ export function CommandItem({
   onSelect,
   disabled = false,
   className,
+  value,
+  icon,
+  hasSubmenu = false,
 }: CommandItemProps): React.ReactElement | null {
   const { query, itemRefs, setActiveIndex } = useCommandContext();
   const indexRef = useRef<number | null>(null);
@@ -156,7 +185,6 @@ export function CommandItem({
   const registerRef = useCallback(
     (el: HTMLButtonElement | null) => {
       if (el != null) {
-        const idx = itemRefs.current.indexOf(null);
         if (indexRef.current == null) {
           indexRef.current = itemRefs.current.length;
           itemRefs.current.push(el);
@@ -168,7 +196,7 @@ export function CommandItem({
     [itemRefs],
   );
 
-  const textContent = typeof children === 'string' ? children : '';
+  const textContent = value ?? (typeof children === 'string' ? children : '');
   const matches = query === '' || textContent.toLowerCase().includes(query.toLowerCase());
 
   if (!matches) return null;
@@ -180,20 +208,26 @@ export function CommandItem({
       role="option"
       disabled={disabled}
       className={cn('command-item', disabled && 'command-item-disabled', className)}
-      onClick={() => {
-        if (!disabled) onSelect?.();
-      }}
-      onKeyDown={(e) => {
+      onClick={(): void => { if (!disabled) onSelect?.(); }}
+      onKeyDown={(e): void => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           if (!disabled) onSelect?.();
         }
       }}
-      onFocus={() => {
+      onFocus={(): void => {
         if (indexRef.current != null) setActiveIndex(indexRef.current);
       }}
     >
+      {icon != null && (
+        <span className="command-item-icon" aria-hidden="true">{icon}</span>
+      )}
       {children}
+      {hasSubmenu && (
+        <span className="command-item-chevron" aria-hidden="true">
+          <Icon name="CaretRight" size="em" />
+        </span>
+      )}
     </button>
   );
 }

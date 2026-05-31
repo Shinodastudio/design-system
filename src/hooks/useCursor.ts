@@ -6,7 +6,6 @@ const LERP = 0.22;
 
 const TEXT_TAGS = new Set([
   'p','h1','h2','h3','h4','h5','h6','li','blockquote','span','em','strong','time','cite',
-  'input','textarea',
 ]);
 
 export interface CursorRef {
@@ -66,8 +65,13 @@ export function useCursor(cursorRef: React.RefObject<CursorRef>): void {
       const tag  = el.tagName.toLowerCase();
       const role = el.getAttribute('role');
 
-      // Buttons: cursor becomes the button background — hide it
-      if (tag === 'button' || role === 'button' || el.classList.contains('btn')) {
+      // Buttons and slider controls: hide custom cursor
+      if (
+        tag === 'button' ||
+        role === 'button' ||
+        role === 'slider' ||
+        el.classList.contains('btn')
+      ) {
         hiddenByContext.current = true;
         cursor?.classList.add('is-hidden');
         return;
@@ -75,6 +79,19 @@ export function useCursor(cursorRef: React.RefObject<CursorRef>): void {
 
       // Links: cursor hides as background appears behind text
       if (tag === 'a' || el.classList.contains('link')) {
+        hiddenByContext.current = true;
+        cursor?.classList.add('is-hidden');
+        return;
+      }
+
+      // Text inputs / textarea / select: cursor: none on element, hide custom cursor too
+      // Exclude checkbox + radio — they are controls, not text fields; cursor should stay.
+      const inputType = (el as HTMLInputElement).type ?? '';
+      const isTextInput =
+        (tag === 'input' && inputType !== 'checkbox' && inputType !== 'radio') ||
+        tag === 'textarea' ||
+        tag === 'select';
+      if (isTextInput) {
         hiddenByContext.current = true;
         cursor?.classList.add('is-hidden');
         return;

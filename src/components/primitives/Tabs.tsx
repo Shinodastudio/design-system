@@ -66,7 +66,7 @@ export function TabsList({ children, className, ariaLabel }: TabsListProps): Rea
   const [indicator, setIndicator] = useState<{ left: number; width: number; ready: boolean }>(
     { left: 0, width: 0, ready: false },
   );
-  const { active } = useTabsContext();
+  const { active, setActive } = useTabsContext();
 
   // Measure the active trigger's bounds within the list. Re-run on active change.
   // useLayoutEffect avoids a frame of mis-positioned indicator on initial paint.
@@ -103,12 +103,32 @@ export function TabsList({ children, className, ariaLabel }: TabsListProps): Rea
     return () => observer.disconnect();
   }, [active]);
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>): void => {
+    const list = listRef.current;
+    if (list == null) return;
+    const tabs = Array.from(list.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    const currentIndex = tabs.indexOf(document.activeElement as HTMLButtonElement);
+    if (currentIndex === -1) return;
+    let next = currentIndex;
+    if (e.key === 'ArrowRight') next = (currentIndex + 1) % tabs.length;
+    else if (e.key === 'ArrowLeft') next = (currentIndex - 1 + tabs.length) % tabs.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = tabs.length - 1;
+    else return;
+    e.preventDefault();
+    const target = tabs[next];
+    if (target == null) return;
+    target.focus();
+    setActive(target.dataset['tabValue'] ?? '');
+  };
+
   return (
     <div
       ref={listRef}
       className={cn('tabs-list', className)}
       role="tablist"
       aria-label={ariaLabel}
+      onKeyDown={handleKeyDown}
     >
       {children}
       <span
@@ -144,6 +164,7 @@ export function TabsTrigger({ value, children, className }: TabsTriggerProps): R
       aria-selected={isActive}
       data-active={isActive}
       data-tab-value={value}
+      tabIndex={isActive ? 0 : -1}
       className={cn('tabs-trigger', className)}
       onClick={() => setActive(value)}
     >

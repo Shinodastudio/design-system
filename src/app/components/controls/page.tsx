@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { MainWrapper } from '@/components/layout/MainWrapper';
 import { Grid } from '@/components/layout/Grid';
 import { StickyCol } from '@/components/layout/StickyCol';
@@ -22,10 +23,12 @@ import {
   CommandEmpty,
   CommandSeparator,
 } from '@/components/controls/Command';
+import { Icon } from '@/components/icons/Icon';
 
 const SIZES = ['default'] as const;
 
 export default function ControlsPage(): React.ReactElement {
+  const [commandPanel, setCommandPanel] = useState<'root' | 'components'>('root');
   return (
     <MainWrapper>
       <Grid>
@@ -82,7 +85,7 @@ export default function ControlsPage(): React.ReactElement {
                 <AccordionItem value="three">
                   <AccordionTrigger>What opacity values are permitted?</AccordionTrigger>
                   <AccordionContent>
-                    20%, 40%, 60%, 80%, and 5% for dividers. No other values.
+                    20%, 40%, 60%, 80%, and 10% for dividers. No other values.
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
@@ -149,29 +152,56 @@ export default function ControlsPage(): React.ReactElement {
 
           <ComponentSection
             name="Command"
-            description="Filterable command list with keyboard navigation. Supports groups and empty state."
-            code={`<Command>\n  <CommandInput placeholder="Search…" />\n  <CommandList>\n    <CommandGroup label="Actions">\n      <CommandItem>Open file</CommandItem>\n    </CommandGroup>\n  </CommandList>\n</Command>`}
+            description="Filterable command palette with icon items, sub-level chevrons, and a clearable search. Groups live in a white card; empty state only shows after a query."
+            code={`<Command>\n  <CommandInput placeholder="Search…" />\n  <CommandList>\n    <CommandGroup label="Navigation">\n      <CommandItem icon={<Icon name="Swatches" size="em" />}>Colour</CommandItem>\n      <CommandItem icon={<Icon name="PuzzlePiece" size="em" />} hasSubmenu>Components</CommandItem>\n    </CommandGroup>\n    <CommandSeparator />\n    <CommandGroup label="Actions">\n      <CommandItem icon={<Icon name="Copy" size="em" />}>Copy token</CommandItem>\n    </CommandGroup>\n    <CommandEmpty />\n  </CommandList>\n</Command>`}
             sizes={SIZES}
             states={['default']}
             render={(): React.ReactNode => (
-              <div style={{ width: '100%', maxWidth: '320px' }}>
               <Command>
                 <CommandInput placeholder="Search commands…" />
                 <CommandList>
+                  {commandPanel === 'root' ? (
+                    <>
+                      <CommandGroup label="Navigation">
+                        <CommandItem icon={<Icon name="Swatches" size="em" />}>Colour</CommandItem>
+                        <CommandItem icon={<Icon name="TextT" size="em" />}>Typography</CommandItem>
+                        <CommandItem
+                          icon={<Icon name="PuzzlePiece" size="em" />}
+                          hasSubmenu
+                          onSelect={(): void => setCommandPanel('components')}
+                        >
+                          Components
+                        </CommandItem>
+                      </CommandGroup>
+                      <CommandSeparator />
+                      <CommandGroup label="Actions">
+                        <CommandItem icon={<Icon name="Copy" size="em" />}>Copy token</CommandItem>
+                        <CommandItem icon={<Icon name="Export" size="em" />} disabled>Export</CommandItem>
+                      </CommandGroup>
+                    </>
+                  ) : (
+                    <>
+                      <CommandGroup label="Components">
+                        <CommandItem icon={<Icon name="CaretLeft" size="em" />} onSelect={(): void => setCommandPanel('root')}>Back</CommandItem>
+                      </CommandGroup>
+                      <CommandSeparator />
+                      <CommandGroup label="Primitives">
+                        <CommandItem icon={<Icon name="CursorClick" size="em" />}>Button</CommandItem>
+                        <CommandItem icon={<Icon name="TextCursor" size="em" />}>Input</CommandItem>
+                        <CommandItem icon={<Icon name="ToggleLeft" size="em" />}>Switch</CommandItem>
+                        <CommandItem icon={<Icon name="SlidersHorizontal" size="em" />}>Slider</CommandItem>
+                      </CommandGroup>
+                      <CommandSeparator />
+                      <CommandGroup label="Overlay">
+                        <CommandItem icon={<Icon name="FrameCorners" size="em" />}>Dialog</CommandItem>
+                        <CommandItem icon={<Icon name="SidebarSimple" size="em" />}>Sheet</CommandItem>
+                        <CommandItem icon={<Icon name="ChatCircle" size="em" />}>Tooltip</CommandItem>
+                      </CommandGroup>
+                    </>
+                  )}
                   <CommandEmpty />
-                  <CommandGroup label="Navigation">
-                    <CommandItem>Colour</CommandItem>
-                    <CommandItem>Typography</CommandItem>
-                    <CommandItem>Components</CommandItem>
-                  </CommandGroup>
-                  <CommandSeparator />
-                  <CommandGroup label="Actions">
-                    <CommandItem>Copy token</CommandItem>
-                    <CommandItem disabled>Export (unavailable)</CommandItem>
-                  </CommandGroup>
                 </CommandList>
               </Command>
-              </div>
             )}
           />
 
