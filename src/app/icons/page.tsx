@@ -14,6 +14,16 @@ import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 
 const SIZE_OPTIONS: readonly IconSize[] = ['2xs', 'xs', 'sm', 'md', 'lg', 'xl'];
 
+const SIZE_PX: Record<IconSize, number> = {
+  '2xs': 12,
+  xs:    14,
+  sm:    16,
+  md:    20,
+  lg:    24,
+  xl:    32,
+  em:    0,
+};
+
 export default function IconPage(): React.ReactElement {
   const [query, setQuery] = useState('');
   const [size, setSize] = useState<IconSize>('md');
@@ -54,7 +64,7 @@ export default function IconPage(): React.ReactElement {
           <Tabs defaultValue={size} value={size} onValueChange={(v) => setSize(v as IconSize)}>
             <TabsList ariaLabel="Icon size">
               {SIZE_OPTIONS.map((s) => (
-                <TabsTrigger key={s} value={s}>{s}</TabsTrigger>
+                <TabsTrigger key={s} value={s}>{SIZE_PX[s]}px</TabsTrigger>
               ))}
             </TabsList>
           </Tabs>

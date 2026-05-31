@@ -39,3 +39,7 @@
   --spacing-24: var(--space-24);
   --spacing-32: var(--space-32);
 }
+
+/* Tailwind v4 preflight resets dialog to display:block, overriding the browser
+   UA rule that hides closed dialogs. Restore correct behaviour explicitly. */
+dialog:not([open]) { display: none; }

@@ -123,8 +123,16 @@ document.addEventListener('focusout', () => {
 
 const GRAVITY_RADIUS   = 80;
 const GRAVITY_STRENGTH = 0.25;
+const GRAVITY_SELECTOR = '[data-gravity], .btn, a.link, .button-group-item, input.input, textarea.textarea, .input-float-field';
+
+// WeakSet prevents double-binding if React hook and this observer both fire
+// for the same element. The hook sets identical values, so duplicate writes
+// are harmless, but we avoid the extra listener.
+const gravityBound = new WeakSet();
 
 function applyGravity(el) {
+  if (gravityBound.has(el)) return;
+  gravityBound.add(el);
   document.addEventListener('mousemove', e => {
     const rect = el.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
@@ -143,7 +151,15 @@ function applyGravity(el) {
   });
 }
 
-document.querySelectorAll('[data-gravity], .btn, a.link').forEach(applyGravity);
+function initGravity() {
+  document.querySelectorAll(GRAVITY_SELECTOR).forEach(applyGravity);
+}
+
+// MutationObserver picks up React-rendered elements added after page load
+// (e.g. inline body copy links, dynamically mounted ButtonGroup items).
+const gravityObserver = new MutationObserver(initGravity);
+gravityObserver.observe(document.body, { childList: true, subtree: true });
+initGravity();
 
 /* ─── THEME ──────────────────────────────────────────────────────────── */
 

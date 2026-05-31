@@ -191,12 +191,18 @@ export function DropdownMenuContent({ children, className }: DropdownMenuContent
   );
 }
 
+export type DropdownMenuItemVariant = 'default' | 'danger';
+
 interface DropdownMenuItemProps {
   readonly children: React.ReactNode;
   readonly onClick?: () => void;
   readonly disabled?: boolean;
   readonly className?: string;
   readonly index?: number;
+  /** Leading icon — any React node, typically <Icon name="..." size="em" /> */
+  readonly icon?: React.ReactNode;
+  /** 'danger' renders the item in status-error red with a red hover fill. */
+  readonly variant?: DropdownMenuItemVariant;
 }
 
 export function DropdownMenuItem({
@@ -205,6 +211,8 @@ export function DropdownMenuItem({
   disabled = false,
   className,
   index = 0,
+  icon,
+  variant = 'default',
 }: DropdownMenuItemProps): React.ReactElement {
   const { close, itemRefs } = useDropdownContext();
 
@@ -220,7 +228,12 @@ export function DropdownMenuItem({
       type="button"
       role="menuitem"
       disabled={disabled}
-      className={cn('dropdown-item', disabled && 'dropdown-item-disabled', className)}
+      className={cn(
+        'dropdown-item',
+        variant === 'danger' && 'dropdown-item--danger',
+        disabled && 'dropdown-item-disabled',
+        className,
+      )}
       onClick={handleClick}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -229,6 +242,7 @@ export function DropdownMenuItem({
         }
       }}
     >
+      {icon != null && <span className="dropdown-item-icon" aria-hidden="true">{icon}</span>}
       {children}
     </button>
   );

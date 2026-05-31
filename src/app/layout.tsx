@@ -4,6 +4,7 @@ import { ClientShell } from '@/providers/ClientShell';
 import { PageWrapper } from '@/components/layout/PageWrapper';
 import { Footer } from '@/components/layout/Footer';
 import { Nav } from '@/components/nav/Nav';
+import { SkipLink } from '@/components/nav/SkipLink';
 
 export const metadata: Metadata = {
   title: 'Shinoda Design System',
@@ -34,6 +35,7 @@ export default function RootLayout({
       </head>
       <body>
         <ClientShell>
+          <SkipLink />
           <Nav />
           <PageWrapper>
             {children}

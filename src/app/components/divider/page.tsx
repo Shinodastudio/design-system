@@ -12,7 +12,7 @@ export default function DividerPage(): React.ReactElement {
         <StickyCol>
           <CatalogueIntro
             title="Divider"
-            description="Horizontal only — 1px at 5% opacity. No vertical dividers. Ever."
+            description="Horizontal only — 1px at 10% opacity. No vertical dividers. Ever."
           />
         </StickyCol>
         <div>

@@ -1,30 +1,66 @@
-import { forwardRef, useCallback, useRef } from 'react';
+import { forwardRef, useCallback, useId, useRef } from 'react';
 import { cn } from '@/lib/cn';
 import { useGravity } from '@/hooks/useGravity';
 
 interface InputProps extends React.ComponentPropsWithoutRef<'input'> {
   readonly hasError?: boolean;
+  /**
+   * When set, renders a float-label variant: no external InputLabel needed.
+   * The string becomes the label that starts inside the field as placeholder
+   * text and floats above on focus or when the field has a value.
+   */
+  readonly floatLabel?: string;
+  /**
+   * Strips the bottom underline. Use inside contained surfaces (e.g. Command
+   * search row) where the parent already provides a visual boundary.
+   */
+  readonly borderless?: boolean;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  function Input({ className, hasError = false, type = 'text', ...props }, ref) {
-    const localRef = useRef<HTMLInputElement>(null);
-    useGravity(localRef);
+  function Input({ className, hasError = false, type = 'text', floatLabel, borderless = false, id: userId, ...props }, ref) {
+    const inputRef = useRef<HTMLInputElement | null>(null);
+    const wrapperRef = useRef<HTMLDivElement | null>(null);
+    // Gravity targets the wrapper in float mode (moves label + field together),
+    // or the input element directly in standard mode.
+    useGravity(floatLabel != null ? wrapperRef : inputRef);
+
+    const generatedId = useId();
+    const inputId = userId ?? generatedId;
 
     const mergedRef = useCallback(
       (node: HTMLInputElement | null) => {
-        (localRef as React.MutableRefObject<HTMLInputElement | null>).current = node;
+        inputRef.current = node;
         if (typeof ref === 'function') ref(node);
         else if (ref != null) (ref as React.MutableRefObject<HTMLInputElement | null>).current = node;
       },
       [ref],
     );
 
+    if (floatLabel != null) {
+      return (
+        <div ref={wrapperRef} className="input-float-field">
+          <input
+            ref={mergedRef}
+            id={inputId}
+            type={type}
+            {...props}
+            placeholder=" "
+            className={cn('input input--float', hasError && 'is-error', className)}
+          />
+          <label htmlFor={inputId} className="input-float-label">
+            {floatLabel}
+          </label>
+        </div>
+      );
+    }
+
     return (
       <input
         ref={mergedRef}
+        id={userId}
         type={type}
-        className={cn('input', hasError && 'is-error', className)}
+        className={cn('input', borderless && 'input--borderless', hasError && 'is-error', className)}
         {...props}
       />
     );

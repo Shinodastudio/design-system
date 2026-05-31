@@ -87,14 +87,14 @@ export default function ButtonPage(): React.ReactElement {
         <StickyCol>
           <CatalogueIntro
             title="Button"
-            description="Transparent at rest. 20% overlay on hover. Gravity-pulled on proximity. Never cursor: pointer."
+            description="Transparent at rest. 10% overlay on hover. Gravity-pulled on proximity. Never cursor: pointer."
           />
         </StickyCol>
         <div>
 
           <ComponentSection
             name="Text Button"
-            description="Transparent at rest — 20% overlay fill reveals on hover via ::before scale-up. Accent tints text and background; 10% at rest, 20% on hover."
+            description="Transparent at rest — 10% overlay fill reveals on hover via ::before scale-up. Accent tints text and background at 10%."
             code={accentCode}
             sizes={BUTTON_SIZES}
             defaultSize="heading-md"

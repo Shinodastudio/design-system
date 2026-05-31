@@ -12,6 +12,7 @@ import {
 } from 'react';
 import { cn } from '@/lib/cn';
 import { Tooltip } from '@/components/overlay/Tooltip';
+import { useGravity } from '@/hooks/useGravity';
 
 /**
  * ButtonGroup — pill of icon+label items where the label expands fluidly
@@ -123,6 +124,25 @@ function ButtonGroupBase({
     return (): void => ro.disconnect();
   }, [measure, children]);
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>): void => {
+    const group = groupRef.current;
+    if (group == null) return;
+    const radios = Array.from(group.querySelectorAll<HTMLButtonElement>('[role="radio"]'));
+    const currentIndex = radios.indexOf(document.activeElement as HTMLButtonElement);
+    if (currentIndex === -1) return;
+    let next = currentIndex;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (currentIndex + 1) % radios.length;
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (currentIndex - 1 + radios.length) % radios.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = radios.length - 1;
+    else return;
+    e.preventDefault();
+    const target = radios[next];
+    if (target == null) return;
+    target.focus();
+    onValueChange(target.dataset['value'] ?? '');
+  };
+
   return (
     <ButtonGroupContext.Provider value={{ value, onValueChange, registerItem }}>
       <div
@@ -130,6 +150,7 @@ function ButtonGroupBase({
         className={cn('button-group', className)}
         role="radiogroup"
         aria-label={ariaLabel}
+        onKeyDown={handleKeyDown}
       >
         {thumb != null && (
           <span
@@ -164,13 +185,20 @@ export function ButtonGroupItem({
   const { value, onValueChange, registerItem } = useButtonGroupContext();
   const isActive = value === itemValue;
   const labelText = typeof children === 'string' ? children : undefined;
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  useGravity(buttonRef);
 
   const button = (
     <button
-      ref={(el): void => registerItem(itemValue, el)}
+      ref={(el): void => {
+        buttonRef.current = el;
+        registerItem(itemValue, el);
+      }}
       type="button"
       role="radio"
       aria-checked={isActive}
+      data-value={itemValue}
+      tabIndex={isActive ? 0 : -1}
       className={cn('button-group-item', isActive && 'is-active', className)}
       onClick={(): void => onValueChange(itemValue)}
     >

@@ -18,9 +18,9 @@ import NextLink from 'next/link';
  *     single home for type, text styles, colour, alignment and rich-text).
  */
 const COMPONENTS = [
-  { label: 'Button',      href: '/components/button',     description: 'Transparent at rest, 20% overlay on hover. Gravity-pulled.' },
+  { label: 'Button',      href: '/components/button',     description: 'Transparent at rest, 10% overlay on hover. Gravity-pulled.' },
   { label: 'Link',        href: '/components/link',       description: '20% underline at rest, 100% on hover. Gravity-pulled.' },
-  { label: 'Divider',     href: '/components/divider',    description: 'Horizontal only. 5% opacity. No vertical dividers ever.' },
+  { label: 'Divider',     href: '/components/divider',    description: 'Horizontal only. 10% opacity. No vertical dividers ever.' },
   { label: 'Input',       href: '/components/input',      description: 'Text fields, select, choice, and search dropdown.' },
   { label: 'Tabs',        href: '/components/tabs',       description: 'Horizontal tabs with animated indicator transitions.' },
   { label: 'Icon',        href: '/components/icon',       description: 'Searchable catalogue. currentColor strokes, 6 size variants.' },
@@ -31,10 +31,8 @@ const COMPONENTS = [
   { label: 'Data',        href: '/components/data',       description: 'Read-only and inline-editable data tables.' },
   { label: 'Calendar',    href: '/components/calendar',   description: 'Inline calendar picker and date text input.' },
   { label: 'Card',        href: '/components/card',       description: 'Square tiles with hover-revealed actions and timestamp meta.' },
-  { label: 'Sticker',     href: '/components/sticker',    description: 'Peelable image surface — corner lifts on hover, alpha-respecting.' },
-  { label: 'Content',     href: '/components/content',    description: 'ContentCard and CodeSnippet for structured copy.' },
-  { label: 'Map',         href: '/components/map',        description: 'Interactive Leaflet map — requires optional peer dependency.' },
-  { label: 'Upload',      href: '/components/upload',     description: 'File dropzone, file chips, and download tiles.' },
+{ label: 'Content',     href: '/components/content',    description: 'ContentCard and CodeSnippet for structured copy.' },
+{ label: 'Upload',      href: '/components/upload',     description: 'File dropzone, file chips, and download tiles.' },
 ] as const;
 
 interface ComponentTileProps {

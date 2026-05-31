@@ -2,8 +2,8 @@
 
 var clsx = require('clsx');
 var tailwindMerge = require('tailwind-merge');
-var react = require('react');
 var jsxRuntime = require('react/jsx-runtime');
+var react = require('react');
 var reactSlot = require('@radix-ui/react-slot');
 var ReactDOM = require('react-dom');
 var NextLink = require('next/link');
@@ -17,7 +17,6 @@ var NextLink__default = /*#__PURE__*/_interopDefault(NextLink);
 var __defProp = Object.defineProperty;
 var __defProps = Object.defineProperties;
 var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
-var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getOwnPropSymbols = Object.getOwnPropertySymbols;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __propIsEnum = Object.prototype.propertyIsEnumerable;
@@ -46,167 +45,12 @@ var __objRest = (source, exclude) => {
     }
   return target;
 };
-var __esm = (fn, res) => function __init() {
-  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
-};
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
 function cn(...inputs) {
   return tailwindMerge.twMerge(clsx.clsx(inputs));
 }
-var init_cn = __esm({
-  "src/lib/cn.ts"() {
-  }
-});
-
-// src/components/map/Map.tsx
-var Map_exports = {};
-__export(Map_exports, {
-  Map: () => Map2,
-  MapNoSSR: () => MapNoSSR
-});
-function LeafletMapInner({
-  center = DEFAULT_CENTER,
-  zoom = DEFAULT_ZOOM,
-  markers = [],
-  className,
-  onMapClick
-}) {
-  const containerRef = react.useRef(null);
-  const mapInstanceRef = react.useRef(null);
-  const [leafletError, setLeafletError] = react.useState(false);
-  react.useEffect(() => {
-    const container = containerRef.current;
-    if (container == null) return;
-    let mounted = true;
-    const init = async () => {
-      try {
-        const leafletId = "leaflet";
-        const L = await import(
-          /* webpackIgnore: true */
-          /* @vite-ignore */
-          leafletId
-        );
-        if (!mounted) return;
-        delete L.Icon.Default.prototype["_getIconUrl"];
-        L.Icon.Default.mergeOptions({
-          iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-          iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-          shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png"
-        });
-        const mapInstance = L.map(container).setView([center[0], center[1]], zoom);
-        mapInstanceRef.current = mapInstance;
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: "\xA9 OpenStreetMap contributors"
-        }).addTo(mapInstance);
-        for (const marker of markers) {
-          const m = L.marker([marker.position[0], marker.position[1]]);
-          m.addTo(mapInstance);
-          if (marker.label != null) m.bindPopup(marker.label);
-        }
-        if (onMapClick != null) {
-          mapInstance.on("click", (e) => {
-            onMapClick([e.latlng.lat, e.latlng.lng]);
-          });
-        }
-      } catch (e) {
-        if (mounted) setLeafletError(true);
-      }
-    };
-    void init();
-    return () => {
-      mounted = false;
-      if (mapInstanceRef.current != null) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
-    };
-  }, []);
-  if (leafletError) {
-    return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: cn("map-placeholder", className), children: [
-      /* @__PURE__ */ jsxRuntime.jsx("p", { children: "Map unavailable. Install required dependencies:" }),
-      /* @__PURE__ */ jsxRuntime.jsx("code", { children: "bun add react-leaflet leaflet @types/leaflet" })
-    ] });
-  }
-  return /* @__PURE__ */ jsxRuntime.jsx(
-    "div",
-    {
-      ref: containerRef,
-      className: cn("map-container", className),
-      style: { height: "400px", width: "100%" },
-      role: "application",
-      "aria-label": "Interactive map"
-    }
-  );
-}
-function Map2(props) {
-  const [leafletAvailable, setLeafletAvailable] = react.useState(null);
-  react.useEffect(() => {
-    const leafletId = "leaflet";
-    import(
-      /* webpackIgnore: true */
-      /* @vite-ignore */
-      leafletId
-    ).then(() => setLeafletAvailable(true)).catch(() => setLeafletAvailable(false));
-  }, []);
-  if (leafletAvailable === false) {
-    return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: cn("map-placeholder", props.className), children: [
-      /* @__PURE__ */ jsxRuntime.jsx("p", { children: "Map unavailable \u2014 install leaflet:" }),
-      /* @__PURE__ */ jsxRuntime.jsx("code", { children: "bun add react-leaflet leaflet @types/leaflet" })
-    ] });
-  }
-  if (leafletAvailable === null) {
-    return /* @__PURE__ */ jsxRuntime.jsx(
-      "div",
-      {
-        className: cn("map-placeholder", props.className),
-        style: { height: "400px", display: "flex", alignItems: "center", justifyContent: "center" },
-        children: "Loading map\u2026"
-      }
-    );
-  }
-  return /* @__PURE__ */ jsxRuntime.jsx(LeafletMapInner, __spreadValues({}, props));
-}
-function MapNoSSR(props) {
-  return /* @__PURE__ */ jsxRuntime.jsx(
-    react.Suspense,
-    {
-      fallback: /* @__PURE__ */ jsxRuntime.jsx(
-        "div",
-        {
-          className: cn("map-placeholder", props.className),
-          style: { height: "400px", display: "flex", alignItems: "center", justifyContent: "center" },
-          children: "Loading map\u2026"
-        }
-      ),
-      children: /* @__PURE__ */ jsxRuntime.jsx(LazyMap, __spreadValues({}, props))
-    }
-  );
-}
-var DEFAULT_CENTER, DEFAULT_ZOOM, LazyMap;
-var init_Map = __esm({
-  "src/components/map/Map.tsx"() {
-    "use client";
-    init_cn();
-    DEFAULT_CENTER = [51.505, -0.09];
-    DEFAULT_ZOOM = 13;
-    LazyMap = react.lazy(async () => {
-      const mod = await Promise.resolve().then(() => (init_Map(), Map_exports));
-      return { default: mod.Map };
-    });
-  }
-});
-
-// src/components/primitives/Divider.tsx
-init_cn();
 function Divider({ className }) {
   return /* @__PURE__ */ jsxRuntime.jsx("hr", { className: cn("divider", className) });
 }
-
-// src/components/primitives/Text.tsx
-init_cn();
 var OPACITY_CLASS = {
   80: "op-80",
   60: "op-60",
@@ -234,26 +78,29 @@ function Text({
   const Tag = as != null ? as : defaultTag(variant);
   return /* @__PURE__ */ jsxRuntime.jsx(Tag, { className: cn(variant, opacity != null ? OPACITY_CLASS[opacity] : void 0, className), style, children });
 }
-
-// src/components/primitives/Button.tsx
-init_cn();
 var GRAVITY_RADIUS = 80;
 var GRAVITY_STRENGTH = 0.25;
+var GRAVITY_MAX = 6;
+function clampGravity(v) {
+  return Math.max(-GRAVITY_MAX, Math.min(GRAVITY_MAX, v));
+}
 function useGravity(ref) {
   react.useEffect(() => {
     function onMove(e) {
       const el = ref.current;
       if (!el) return;
       const rect = el.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const dx = e.clientX - cx;
-      const dy = e.clientY - cy;
-      const dist = Math.sqrt(dx * dx + dy * dy);
+      const nearX = Math.max(rect.left, Math.min(rect.right, e.clientX));
+      const nearY = Math.max(rect.top, Math.min(rect.bottom, e.clientY));
+      const dist = Math.sqrt(
+        (e.clientX - nearX) ** 2 + (e.clientY - nearY) ** 2
+      );
       if (dist < GRAVITY_RADIUS) {
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
         const pull = (1 - dist / GRAVITY_RADIUS) * GRAVITY_STRENGTH;
-        el.style.setProperty("--gravity-x", `${dx * pull}px`);
-        el.style.setProperty("--gravity-y", `${dy * pull}px`);
+        el.style.setProperty("--gravity-x", `${clampGravity((e.clientX - cx) * pull)}px`);
+        el.style.setProperty("--gravity-y", `${clampGravity((e.clientY - cy) * pull)}px`);
       } else {
         el.style.setProperty("--gravity-x", "0px");
         el.style.setProperty("--gravity-y", "0px");
@@ -331,15 +178,6 @@ function Button(_a) {
     })
   );
 }
-
-// src/components/primitives/ButtonGroup.tsx
-init_cn();
-
-// src/components/overlay/Tooltip.tsx
-init_cn();
-
-// src/components/icons/Icon.tsx
-init_cn();
 
 // src/components/icons/data/icons.generated.ts
 var ICONS = [
@@ -2083,6 +1921,25 @@ function ButtonGroupBase({
     itemsRef.current.forEach((el) => ro.observe(el));
     return () => ro.disconnect();
   }, [measure, children]);
+  const handleKeyDown = (e) => {
+    var _a;
+    const group = groupRef.current;
+    if (group == null) return;
+    const radios = Array.from(group.querySelectorAll('[role="radio"]'));
+    const currentIndex = radios.indexOf(document.activeElement);
+    if (currentIndex === -1) return;
+    let next = currentIndex;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") next = (currentIndex + 1) % radios.length;
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") next = (currentIndex - 1 + radios.length) % radios.length;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = radios.length - 1;
+    else return;
+    e.preventDefault();
+    const target = radios[next];
+    if (target == null) return;
+    target.focus();
+    onValueChange((_a = target.dataset["value"]) != null ? _a : "");
+  };
   return /* @__PURE__ */ jsxRuntime.jsx(ButtonGroupContext.Provider, { value: { value, onValueChange, registerItem }, children: /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
     {
@@ -2090,6 +1947,7 @@ function ButtonGroupBase({
       className: cn("button-group", className),
       role: "radiogroup",
       "aria-label": ariaLabel,
+      onKeyDown: handleKeyDown,
       children: [
         thumb != null && /* @__PURE__ */ jsxRuntime.jsx(
           "span",
@@ -2117,13 +1975,20 @@ function ButtonGroupItem({
   const { value, onValueChange, registerItem } = useButtonGroupContext();
   const isActive = value === itemValue;
   const labelText = typeof children === "string" ? children : void 0;
+  const buttonRef = react.useRef(null);
+  useGravity(buttonRef);
   const button = /* @__PURE__ */ jsxRuntime.jsxs(
     "button",
     {
-      ref: (el) => registerItem(itemValue, el),
+      ref: (el) => {
+        buttonRef.current = el;
+        registerItem(itemValue, el);
+      },
       type: "button",
       role: "radio",
       "aria-checked": isActive,
+      "data-value": itemValue,
+      tabIndex: isActive ? 0 : -1,
       className: cn("button-group-item", isActive && "is-active", className),
       onClick: () => onValueChange(itemValue),
       children: [
@@ -2138,9 +2003,6 @@ function ButtonGroupItem({
   return button;
 }
 var ButtonGroup = Object.assign(ButtonGroupBase, { Item: ButtonGroupItem });
-
-// src/components/primitives/ShinodaLink.tsx
-init_cn();
 var LINK_SIZES = BUTTON_SIZES;
 function ShinodaLink({
   href,
@@ -2179,28 +2041,45 @@ function ShinodaLink({
   }
   return /* @__PURE__ */ jsxRuntime.jsx(NextLink__default.default, { ref, href, className: classes, children });
 }
-
-// src/components/primitives/Input.tsx
-init_cn();
 var Input = react.forwardRef(
   function Input2(_a, ref) {
-    var _b = _a, { className, hasError = false, type = "text" } = _b, props = __objRest(_b, ["className", "hasError", "type"]);
-    const localRef = react.useRef(null);
-    useGravity(localRef);
+    var _b = _a, { className, hasError = false, type = "text", floatLabel, borderless = false, id: userId } = _b, props = __objRest(_b, ["className", "hasError", "type", "floatLabel", "borderless", "id"]);
+    const inputRef = react.useRef(null);
+    const wrapperRef = react.useRef(null);
+    useGravity(floatLabel != null ? wrapperRef : inputRef);
+    const generatedId = react.useId();
+    const inputId = userId != null ? userId : generatedId;
     const mergedRef = react.useCallback(
       (node) => {
-        localRef.current = node;
+        inputRef.current = node;
         if (typeof ref === "function") ref(node);
         else if (ref != null) ref.current = node;
       },
       [ref]
     );
+    if (floatLabel != null) {
+      return /* @__PURE__ */ jsxRuntime.jsxs("div", { ref: wrapperRef, className: "input-float-field", children: [
+        /* @__PURE__ */ jsxRuntime.jsx(
+          "input",
+          __spreadProps(__spreadValues({
+            ref: mergedRef,
+            id: inputId,
+            type
+          }, props), {
+            placeholder: " ",
+            className: cn("input input--float", hasError && "is-error", className)
+          })
+        ),
+        /* @__PURE__ */ jsxRuntime.jsx("label", { htmlFor: inputId, className: "input-float-label", children: floatLabel })
+      ] });
+    }
     return /* @__PURE__ */ jsxRuntime.jsx(
       "input",
       __spreadValues({
         ref: mergedRef,
+        id: userId,
         type,
-        className: cn("input", hasError && "is-error", className)
+        className: cn("input", borderless && "input--borderless", hasError && "is-error", className)
       }, props)
     );
   }
@@ -2241,9 +2120,6 @@ function InputError({ children, className }) {
 function InputField({ children, className, style }) {
   return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn(className), style: __spreadValues({ display: "flex", flexDirection: "column" }, style), children });
 }
-
-// src/components/primitives/Select.tsx
-init_cn();
 var Select = react.forwardRef(
   function Select2(_a, ref) {
     var _b = _a, { className, hasError = false, children } = _b, props = __objRest(_b, ["className", "hasError", "children"]);
@@ -2268,9 +2144,6 @@ var Select = react.forwardRef(
     ) });
   }
 );
-
-// src/components/primitives/Choice.tsx
-init_cn();
 var Checkbox = react.forwardRef(
   function Checkbox2(_a, ref) {
     var _b = _a, { className } = _b, props = __objRest(_b, ["className"]);
@@ -2305,7 +2178,6 @@ function Choice({ children, className }) {
 function ChoiceLabel({ children, className }) {
   return /* @__PURE__ */ jsxRuntime.jsx("span", { className: cn("choice-label", className), children });
 }
-init_cn();
 var TabsContext = react.createContext(null);
 function useTabsContext() {
   const ctx = react.useContext(TabsContext);
@@ -2335,7 +2207,7 @@ function TabsList({ children, className, ariaLabel }) {
   const [indicator, setIndicator] = react.useState(
     { left: 0, width: 0, ready: false }
   );
-  const { active } = useTabsContext();
+  const { active, setActive } = useTabsContext();
   react.useLayoutEffect(() => {
     const list = listRef.current;
     if (list == null) return;
@@ -2366,6 +2238,25 @@ function TabsList({ children, className, ariaLabel }) {
     observer.observe(list);
     return () => observer.disconnect();
   }, [active]);
+  const handleKeyDown = (e) => {
+    var _a;
+    const list = listRef.current;
+    if (list == null) return;
+    const tabs = Array.from(list.querySelectorAll('[role="tab"]'));
+    const currentIndex = tabs.indexOf(document.activeElement);
+    if (currentIndex === -1) return;
+    let next = currentIndex;
+    if (e.key === "ArrowRight") next = (currentIndex + 1) % tabs.length;
+    else if (e.key === "ArrowLeft") next = (currentIndex - 1 + tabs.length) % tabs.length;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = tabs.length - 1;
+    else return;
+    e.preventDefault();
+    const target = tabs[next];
+    if (target == null) return;
+    target.focus();
+    setActive((_a = target.dataset["tabValue"]) != null ? _a : "");
+  };
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
     {
@@ -2373,6 +2264,7 @@ function TabsList({ children, className, ariaLabel }) {
       className: cn("tabs-list", className),
       role: "tablist",
       "aria-label": ariaLabel,
+      onKeyDown: handleKeyDown,
       children: [
         children,
         /* @__PURE__ */ jsxRuntime.jsx(
@@ -2405,6 +2297,7 @@ function TabsTrigger({ value, children, className }) {
       "aria-selected": isActive,
       "data-active": isActive,
       "data-tab-value": value,
+      tabIndex: isActive ? 0 : -1,
       className: cn("tabs-trigger", className),
       onClick: () => setActive(value),
       children
@@ -2416,9 +2309,6 @@ function TabsPanel({ value, children, className }) {
   if (active !== value) return null;
   return /* @__PURE__ */ jsxRuntime.jsx("div", { role: "tabpanel", className: cn("tabs-panel", className), children }, value);
 }
-
-// src/components/primitives/RichText.tsx
-init_cn();
 var SIZE_CLASS3 = {
   sm: "rich-text-sm",
   md: "rich-text-md",
@@ -2427,9 +2317,6 @@ var SIZE_CLASS3 = {
 function RichText({ children, className, size = "md" }) {
   return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("rich-text", SIZE_CLASS3[size], className), children });
 }
-
-// src/components/primitives/FileDropzone.tsx
-init_cn();
 function formatFileSize(bytes) {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1048576) return `${Math.round(bytes / 1024)} KB`;
@@ -2608,12 +2495,6 @@ function FileDropzone({
     }
   );
 }
-
-// src/components/primitives/DownloadTile.tsx
-init_cn();
-
-// src/components/feedback/Skeleton.tsx
-init_cn();
 function Skeleton({
   width,
   height,
@@ -2656,7 +2537,6 @@ function DownloadTile({
     /* @__PURE__ */ jsxRuntime.jsx("div", { className: "download-tile-action", children: isDownloading ? /* @__PURE__ */ jsxRuntime.jsx(Skeleton, { width: 80, height: 28 }) : /* @__PURE__ */ jsxRuntime.jsx(Button, { size: "heading-xs", onClick: onDownload, "aria-label": `Download ${filename}`, children: "Download" }) })
   ] });
 }
-init_cn();
 function NavLinks({ items }) {
   const pathname = navigation.usePathname();
   return /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "nav-links", children: items.map((item) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: /* @__PURE__ */ jsxRuntime.jsx(
@@ -2668,7 +2548,14 @@ function NavLinks({ items }) {
         "nav-link",
         pathname === item.href ? "is-active" : void 0
       ),
-      children: /* @__PURE__ */ jsxRuntime.jsx(NextLink__default.default, { href: item.href, children: item.label })
+      children: /* @__PURE__ */ jsxRuntime.jsx(
+        NextLink__default.default,
+        {
+          href: item.href,
+          "aria-current": pathname === item.href ? "page" : void 0,
+          children: item.label
+        }
+      )
     }
   ) }, item.href)) });
 }
@@ -2687,9 +2574,7 @@ var TEXT_TAGS = /* @__PURE__ */ new Set([
   "em",
   "strong",
   "time",
-  "cite",
-  "input",
-  "textarea"
+  "cite"
 ]);
 function useCursor(cursorRef) {
   const mouseX = react.useRef(0);
@@ -2734,12 +2619,12 @@ function useCursor(cursorRef) {
       if (label) label.textContent = "";
     }
     function setContext(el) {
-      var _a2;
+      var _a2, _b2;
       clearContext();
       if (!el || el === document.body || el === html) return;
       const tag = el.tagName.toLowerCase();
       const role = el.getAttribute("role");
-      if (tag === "button" || role === "button" || el.classList.contains("btn")) {
+      if (tag === "button" || role === "button" || role === "slider" || el.classList.contains("btn")) {
         hiddenByContext.current = true;
         cursor == null ? void 0 : cursor.classList.add("is-hidden");
         return;
@@ -2749,9 +2634,16 @@ function useCursor(cursorRef) {
         cursor == null ? void 0 : cursor.classList.add("is-hidden");
         return;
       }
+      const inputType = (_a2 = el.type) != null ? _a2 : "";
+      const isTextInput = tag === "input" && inputType !== "checkbox" && inputType !== "radio" || tag === "textarea" || tag === "select";
+      if (isTextInput) {
+        hiddenByContext.current = true;
+        cursor == null ? void 0 : cursor.classList.add("is-hidden");
+        return;
+      }
       if (tag === "img" || tag === "figure" || el.dataset["cursor"] === "expand") {
         html.classList.add("cursor--chip");
-        if (label) label.textContent = (_a2 = el.dataset["cursorLabel"]) != null ? _a2 : "expand";
+        if (label) label.textContent = (_b2 = el.dataset["cursorLabel"]) != null ? _b2 : "expand";
         return;
       }
       if (TEXT_TAGS.has(tag) || el.isContentEditable) {
@@ -2907,40 +2799,27 @@ var NAV_ITEMS = [
 function Nav() {
   return /* @__PURE__ */ jsxRuntime.jsxs("header", { className: "nav", children: [
     /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "nav-inner", children: [
-      /* @__PURE__ */ jsxRuntime.jsx(NavLinks, { items: NAV_ITEMS }),
+      /* @__PURE__ */ jsxRuntime.jsx("nav", { "aria-label": "Primary", children: /* @__PURE__ */ jsxRuntime.jsx(NavLinks, { items: NAV_ITEMS }) }),
       /* @__PURE__ */ jsxRuntime.jsx(ThemeToggle, {})
     ] }),
     /* @__PURE__ */ jsxRuntime.jsx(NavProgressiveBlur, {})
   ] });
 }
-
-// src/components/layout/PageWrapper.tsx
-init_cn();
 function PageWrapper({ children, className }) {
   return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("page-wrapper", className), children });
 }
-
-// src/components/layout/MainWrapper.tsx
-init_cn();
 function MainWrapper({ children, className, as: Tag = "main" }) {
-  return /* @__PURE__ */ jsxRuntime.jsx(Tag, { className: cn("main-wrapper", className), children });
+  return /* @__PURE__ */ jsxRuntime.jsx(Tag, { id: Tag === "main" ? "main-content" : void 0, className: cn("main-wrapper", className), children });
 }
-
-// src/components/layout/Grid.tsx
-init_cn();
 function Grid({ children, className }) {
   return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("grid-2col", className), children });
 }
-
-// src/components/layout/StickyCol.tsx
-init_cn();
 function StickyCol({ children, className, style }) {
   return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("col-sticky", className), style, children });
 }
 function Footer() {
   return /* @__PURE__ */ jsxRuntime.jsx("footer", { className: "footer", children: /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "footer-nav", children: NAV_ITEMS.map((item) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: /* @__PURE__ */ jsxRuntime.jsx(NextLink__default.default, { href: item.href, className: "footer-nav-link body-md op-40", children: item.label }) }, item.href)) }) });
 }
-init_cn();
 function SectionTile({
   label,
   description,
@@ -2955,9 +2834,6 @@ function SectionTile({
     ] })
   ] });
 }
-
-// src/components/cards/GridTile.tsx
-init_cn();
 function GridTile({
   children,
   actions,
@@ -3017,44 +2893,6 @@ function GridTileAction({
     }
   );
 }
-
-// src/components/sticker/PeelableImage.tsx
-init_cn();
-var CORNERS = ["tl", "tr", "bl", "br"];
-function randomCorner() {
-  return CORNERS[Math.floor(Math.random() * CORNERS.length)];
-}
-function PeelableImage({
-  src,
-  alt,
-  corner = "auto",
-  className,
-  style
-}) {
-  const resolvedCorner = react.useMemo(
-    () => corner === "auto" ? randomCorner() : corner,
-    [corner]
-  );
-  return /* @__PURE__ */ jsxRuntime.jsxs(
-    "div",
-    {
-      className: cn("peelable", className),
-      "data-peel-corner": resolvedCorner,
-      style: __spreadProps(__spreadValues({}, style), {
-        // Both the main image and the flap consume this var so the flap stays
-        // pixel-aligned with the image — including for cutout (alpha) sources.
-        ["--peelable-src"]: `url("${src}")`
-      }),
-      children: [
-        /* @__PURE__ */ jsxRuntime.jsx("img", { className: "peelable-img", src, alt }),
-        /* @__PURE__ */ jsxRuntime.jsx("div", { className: "peelable-flap", "aria-hidden": "true" })
-      ]
-    }
-  );
-}
-
-// src/components/feedback/Badge.tsx
-init_cn();
 function Badge({
   variant = "neutral",
   className,
@@ -3080,9 +2918,6 @@ function Badge({
     }
   );
 }
-
-// src/components/feedback/Alert.tsx
-init_cn();
 var DISMISS_ANIMATION_MS = 200;
 var VARIANT_ALIAS = {
   default: "default",
@@ -3165,9 +3000,6 @@ function Alert({
     }
   );
 }
-
-// src/components/feedback/Progress.tsx
-init_cn();
 function Progress({
   value,
   size = "md",
@@ -3203,9 +3035,6 @@ function Progress({
     )
   ] });
 }
-
-// src/components/overlay/Dialog.tsx
-init_cn();
 var DialogContext = react.createContext(null);
 function useDialogContext() {
   const ctx = react.useContext(DialogContext);
@@ -3258,6 +3087,10 @@ function DialogContent({
 }) {
   const { open, close, titleId, descriptionId } = useDialogContext();
   const dialogRef = react.useRef(null);
+  const [isMounted, setIsMounted] = react.useState(false);
+  react.useEffect(() => {
+    setIsMounted(true);
+  }, []);
   react.useEffect(() => {
     const el = dialogRef.current;
     if (el == null) return;
@@ -3284,7 +3117,7 @@ function DialogContent({
     [close]
   );
   const variantClass = variant === "bare" ? "dialog--bare" : variant === "drawer" ? "dialog--drawer" : null;
-  return /* @__PURE__ */ jsxRuntime.jsx(
+  const dialogEl = /* @__PURE__ */ jsxRuntime.jsx(
     "dialog",
     {
       ref: dialogRef,
@@ -3295,6 +3128,8 @@ function DialogContent({
       children: variant === "card" ? /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dialog-content", children }) : children
     }
   );
+  if (!isMounted) return null;
+  return ReactDOM.createPortal(dialogEl, document.body);
 }
 function DialogPanel({ children, className }) {
   return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("dialog-panel", className), children });
@@ -3352,9 +3187,6 @@ function DialogClose({ children, className }) {
   const { close } = useDialogContext();
   return /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", className: cn("btn dialog-close", className), onClick: close, children: children != null ? children : /* @__PURE__ */ jsxRuntime.jsx("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M3 3L13 13M13 3L3 13", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }) }) });
 }
-
-// src/components/overlay/ConfirmDialog.tsx
-init_cn();
 var INTENT_DEFAULTS = {
   default: { title: "Confirm", icon: "Question", confirm: "Confirm" },
   danger: { title: "Delete", icon: "Trash", confirm: "Delete it" }
@@ -3413,9 +3245,6 @@ function ConfirmDialog({
     ] })
   ] }) });
 }
-
-// src/components/overlay/Scrim.tsx
-init_cn();
 var ANIMATION_MS = 200;
 function Scrim({
   open,
@@ -3469,9 +3298,6 @@ function Scrim({
   );
   return ReactDOM.createPortal(node, document.body);
 }
-
-// src/components/overlay/Sheet.tsx
-init_cn();
 var SheetContext = react.createContext(null);
 function useSheetContext() {
   const ctx = react.useContext(SheetContext);
@@ -3572,9 +3398,6 @@ function SheetTitle({ children, className }) {
 function SheetFooter({ children, className }) {
   return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("sheet-footer", className), children });
 }
-
-// src/components/overlay/Popover.tsx
-init_cn();
 var PopoverContext = react.createContext(null);
 function usePopoverContext() {
   const ctx = react.useContext(PopoverContext);
@@ -3665,9 +3488,6 @@ function PopoverContent({ children, className }) {
     document.body
   );
 }
-
-// src/components/overlay/DropdownMenu.tsx
-init_cn();
 var DropdownContext = react.createContext(null);
 function useDropdownContext() {
   const ctx = react.useContext(DropdownContext);
@@ -3804,7 +3624,9 @@ function DropdownMenuItem({
   onClick,
   disabled = false,
   className,
-  index = 0
+  index = 0,
+  icon,
+  variant = "default"
 }) {
   const { close, itemRefs } = useDropdownContext();
   const handleClick = react.useCallback(() => {
@@ -3812,7 +3634,7 @@ function DropdownMenuItem({
     onClick == null ? void 0 : onClick();
     close();
   }, [disabled, onClick, close]);
-  return /* @__PURE__ */ jsxRuntime.jsx(
+  return /* @__PURE__ */ jsxRuntime.jsxs(
     "button",
     {
       ref: (el) => {
@@ -3821,7 +3643,12 @@ function DropdownMenuItem({
       type: "button",
       role: "menuitem",
       disabled,
-      className: cn("dropdown-item", disabled && "dropdown-item-disabled", className),
+      className: cn(
+        "dropdown-item",
+        variant === "danger" && "dropdown-item--danger",
+        disabled && "dropdown-item-disabled",
+        className
+      ),
       onClick: handleClick,
       onKeyDown: (e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -3829,7 +3656,10 @@ function DropdownMenuItem({
           handleClick();
         }
       },
-      children
+      children: [
+        icon != null && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "dropdown-item-icon", "aria-hidden": "true", children: icon }),
+        children
+      ]
     }
   );
 }
@@ -3839,9 +3669,6 @@ function DropdownMenuSeparator({ className }) {
 function DropdownMenuLabel({ children, className }) {
   return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("dropdown-label", className), children });
 }
-
-// src/components/controls/Switch.tsx
-init_cn();
 function Switch({
   checked: controlledChecked,
   defaultChecked = false,
@@ -3883,9 +3710,6 @@ function Switch({
     label != null && /* @__PURE__ */ jsxRuntime.jsx("label", { htmlFor: id, className: "switch-label", "data-cursor": "text", children: label })
   ] });
 }
-
-// src/components/controls/Slider.tsx
-init_cn();
 function snap(raw, min, max, step) {
   const stepped = Math.round((raw - min) / step) * step + min;
   return Math.min(max, Math.max(min, stepped));
@@ -4021,9 +3845,6 @@ function Slider({
     ] })
   ] });
 }
-
-// src/components/controls/Accordion.tsx
-init_cn();
 var AccordionContext = react.createContext(null);
 function useAccordionContext() {
   const ctx = react.useContext(AccordionContext);
@@ -4068,7 +3889,32 @@ function Accordion({
     },
     [type, openValues, controlledValue, onValueChange]
   );
-  return /* @__PURE__ */ jsxRuntime.jsx(AccordionContext.Provider, { value: { type, openValues, toggle }, children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("accordion", `accordion-size-${size}`, className), children }) });
+  const handleKeyDown = (e) => {
+    if (!e.target.classList.contains("accordion-trigger")) return;
+    const triggers = Array.from(
+      e.currentTarget.querySelectorAll(".accordion-trigger")
+    );
+    const currentIndex = triggers.indexOf(e.target);
+    if (currentIndex === -1) return;
+    let next = currentIndex;
+    if (e.key === "ArrowDown") next = (currentIndex + 1) % triggers.length;
+    else if (e.key === "ArrowUp") next = (currentIndex - 1 + triggers.length) % triggers.length;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = triggers.length - 1;
+    else return;
+    e.preventDefault();
+    const target = triggers[next];
+    if (target == null) return;
+    target.focus();
+  };
+  return /* @__PURE__ */ jsxRuntime.jsx(AccordionContext.Provider, { value: { type, openValues, toggle }, children: /* @__PURE__ */ jsxRuntime.jsx(
+    "div",
+    {
+      className: cn("accordion", `accordion-size-${size}`, className),
+      onKeyDown: handleKeyDown,
+      children
+    }
+  ) });
 }
 function AccordionItem({ value, children, className }) {
   const { openValues } = useAccordionContext();
@@ -4120,9 +3966,6 @@ function AccordionContent({ children, className }) {
     }
   );
 }
-
-// src/components/controls/Command.tsx
-init_cn();
 var CommandContext = react.createContext(null);
 function useCommandContext() {
   const ctx = react.useContext(CommandContext);
@@ -4143,43 +3986,60 @@ function CommandInput({ placeholder = "Search\u2026", className }) {
     const items = itemRefs.current.filter((el) => el != null);
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      const currentDown = activeIndex;
-      const nextDown = currentDown < items.length - 1 ? currentDown + 1 : 0;
+      const nextDown = activeIndex < items.length - 1 ? activeIndex + 1 : 0;
       (_a = items[nextDown]) == null ? void 0 : _a.focus();
       setActiveIndex(nextDown);
     }
     if (e.key === "ArrowUp") {
       e.preventDefault();
-      const currentUp = activeIndex;
-      const nextUp = currentUp > 0 ? currentUp - 1 : items.length - 1;
+      const nextUp = activeIndex > 0 ? activeIndex - 1 : items.length - 1;
       (_b = items[nextUp]) == null ? void 0 : _b.focus();
       setActiveIndex(nextUp);
     }
   };
-  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: "command-input-wrap", children: /* @__PURE__ */ jsxRuntime.jsx(
-    "input",
-    {
-      id: inputId,
-      type: "text",
-      className: cn("command-input", className),
-      placeholder,
-      value: query,
-      autoComplete: "off",
-      spellCheck: false,
-      onChange: (e) => {
-        setQuery(e.target.value);
-        setActiveIndex(-1);
-      },
-      onKeyDown: handleKeyDown,
-      role: "searchbox",
-      "aria-autocomplete": "list"
-    }
-  ) });
+  const clearQuery = react.useCallback(() => {
+    setQuery("");
+    setActiveIndex(-1);
+  }, [setQuery, setActiveIndex]);
+  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: "command-search-wrap", children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "command-search-row", children: [
+    /* @__PURE__ */ jsxRuntime.jsx(
+      Input,
+      {
+        id: inputId,
+        type: "text",
+        className: cn("command-input", className),
+        placeholder,
+        value: query,
+        autoComplete: "off",
+        spellCheck: false,
+        borderless: true,
+        onChange: (e) => {
+          setQuery(e.target.value);
+          setActiveIndex(-1);
+        },
+        onKeyDown: handleKeyDown,
+        role: "searchbox",
+        "aria-autocomplete": "list"
+      }
+    ),
+    query !== "" && /* @__PURE__ */ jsxRuntime.jsx(
+      "button",
+      {
+        type: "button",
+        className: "command-search-clear",
+        "aria-label": "Clear search",
+        onClick: clearQuery,
+        children: "\xD7"
+      }
+    )
+  ] }) });
 }
 function CommandList({ children, className }) {
   return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("command-list", className), role: "listbox", children });
 }
 function CommandEmpty({ children, className }) {
+  const { query } = useCommandContext();
+  if (query === "") return null;
   return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("command-empty", className), children: children != null ? children : "No results found." });
 }
 function CommandGroup({ label, children, className }) {
@@ -4192,14 +4052,16 @@ function CommandItem({
   children,
   onSelect,
   disabled = false,
-  className
+  className,
+  value,
+  icon,
+  hasSubmenu = false
 }) {
   const { query, itemRefs, setActiveIndex } = useCommandContext();
   const indexRef = react.useRef(null);
   const registerRef = react.useCallback(
     (el) => {
       if (el != null) {
-        itemRefs.current.indexOf(null);
         if (indexRef.current == null) {
           indexRef.current = itemRefs.current.length;
           itemRefs.current.push(el);
@@ -4210,10 +4072,10 @@ function CommandItem({
     },
     [itemRefs]
   );
-  const textContent = typeof children === "string" ? children : "";
+  const textContent = value != null ? value : typeof children === "string" ? children : "";
   const matches = query === "" || textContent.toLowerCase().includes(query.toLowerCase());
   if (!matches) return null;
-  return /* @__PURE__ */ jsxRuntime.jsx(
+  return /* @__PURE__ */ jsxRuntime.jsxs(
     "button",
     {
       ref: registerRef,
@@ -4233,16 +4095,17 @@ function CommandItem({
       onFocus: () => {
         if (indexRef.current != null) setActiveIndex(indexRef.current);
       },
-      children
+      children: [
+        icon != null && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "command-item-icon", "aria-hidden": "true", children: icon }),
+        children,
+        hasSubmenu && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "command-item-chevron", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntime.jsx(Icon, { name: "CaretRight", size: "em" }) })
+      ]
     }
   );
 }
 function CommandSeparator({ className }) {
   return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("command-separator", className), role: "separator" });
 }
-
-// src/components/data/Table.tsx
-init_cn();
 function Table({ children, stickyHeader = false, className }) {
   return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("table-wrapper", className), children: /* @__PURE__ */ jsxRuntime.jsx("table", { className: cn("table", stickyHeader && "table-sticky-header"), children }) });
 }
@@ -4275,9 +4138,6 @@ function TableCell({ children, className, colSpan, onClick }) {
 function TableCaption({ children, className }) {
   return /* @__PURE__ */ jsxRuntime.jsx("caption", { className: cn("table-caption", className), children });
 }
-
-// src/components/data/EditableTable.tsx
-init_cn();
 function getCellStringValue(val) {
   if (val == null) return "";
   if (typeof val === "string") return val;
@@ -4346,9 +4206,6 @@ function EditableTable({
     }) }, rowIndex)) })
   ] });
 }
-
-// src/components/calendar/CalendarPicker.tsx
-init_cn();
 var DAYS_OF_WEEK = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 var MONTH_NAMES = [
   "January",
@@ -4490,9 +4347,6 @@ function CalendarPicker({
     ] })
   ] });
 }
-
-// src/components/calendar/DateInput.tsx
-init_cn();
 var MONTH_SHORT = [
   "Jan",
   "Feb",
@@ -4641,9 +4495,6 @@ function DateInput({
     )
   ] });
 }
-
-// src/components/search/SearchDropdown.tsx
-init_cn();
 function SearchDropdown({
   options,
   value,
@@ -4807,9 +4658,6 @@ function SearchDropdown({
     )
   ] });
 }
-
-// src/components/content/ContentCard.tsx
-init_cn();
 function ContentCard({
   title,
   description,
@@ -4847,9 +4695,6 @@ function ContentCard({
     }
   );
 }
-
-// src/components/content/CodeSnippet.tsx
-init_cn();
 var COPIED_FEEDBACK_MS = 1600;
 function CodeSnippet({
   code,
@@ -4887,9 +4732,6 @@ function CodeSnippet({
     }
   );
 }
-
-// src/components/content/CollapsibleCode.tsx
-init_cn();
 var COPIED_FEEDBACK_MS2 = 1600;
 var COLLAPSED_LINES = 8;
 function CollapsibleCode({
@@ -4961,12 +4803,6 @@ function CollapsibleCode({
     )
   ] });
 }
-
-// src/components/map/index.ts
-init_Map();
-
-// src/index.ts
-init_cn();
 
 // src/lib/tokens.ts
 var HEADING_VARIANTS = [
@@ -5230,15 +5066,12 @@ exports.InputLabel = InputLabel;
 exports.LEADING_TOKENS = LEADING_TOKENS;
 exports.LINK_SIZES = LINK_SIZES;
 exports.MainWrapper = MainWrapper;
-exports.Map = Map2;
-exports.MapNoSSR = MapNoSSR;
 exports.Nav = Nav;
 exports.NavLinks = NavLinks;
 exports.NavProgressiveBlur = NavProgressiveBlur;
 exports.OPACITY_LEVELS = OPACITY_LEVELS;
 exports.PADDING_TOKENS = PADDING_TOKENS;
 exports.PageWrapper = PageWrapper;
-exports.PeelableImage = PeelableImage;
 exports.Popover = Popover;
 exports.PopoverContent = PopoverContent;
 exports.PopoverTrigger = PopoverTrigger;

@@ -156,6 +156,29 @@ button { font: inherit; background: none; border: none; cursor: none; }
    Vertical padding uses --space-5 (20px) → --space-4 (16px) on mobile.
    At ≤991, the link strip becomes horizontally scrollable to handle 9 items.
    At ≤767, the strip collapses behind a disclosure button (CSS-only, <details>). */
+
+/* ─── SKIP LINK — keyboard-only, slides in from above viewport on focus ──── */
+.skip-link {
+  position: fixed;
+  top: var(--space-4);
+  left: var(--space-4);
+  z-index: 9999;
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--color-text-primary);
+  color: var(--color-fill-base);
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n010);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transform: translateY(calc(-100% - var(--space-8)));
+  transition: transform 150ms ease;
+}
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: var(--border-md) dashed var(--color-fill-base);
+  outline-offset: 3px;
+}
+
 .nav {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -313,7 +336,7 @@ button { font: inherit; background: none; border: none; cursor: none; }
   content: '';
   position: absolute;
   inset: -0.1em;
-  background-color: var(--color-transparent-core);
+  background-color: var(--alpha-10);
   border-radius: var(--radius-sm);
   transform: scale(0.8);
   opacity: 0;
@@ -354,16 +377,22 @@ button { font: inherit; background: none; border: none; cursor: none; }
 .btn-size-body-xs  { font-size: 1rem;      letter-spacing: var(--tracking-n005); line-height: var(--leading-body-xs); }
 .btn-size-body-2xs { font-size: 0.875rem;  letter-spacing: var(--tracking-none); line-height: var(--leading-body-xs); }
 
-/* Focus ring — visible only via keyboard navigation. 2px outline at 2px
-   offset; ::before spring-bg also activates to match hover fill. */
+/* Focus ring — dashed border 7px outside the button bounds via ::after.
+   ::before spring-bg also activates so focus and hover are visually consistent. */
 .btn:focus-visible {
-  outline: var(--border-md) solid var(--color-text-primary);
-  outline-offset: var(--border-md);
-  border-radius: var(--radius-sm);
+  outline: none;
 }
 .btn:focus-visible::before {
   transform: scale(1);
   opacity: 1;
+}
+.btn:focus-visible::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  border-radius: var(--radius-md);
+  border: var(--border-md) dashed var(--color-fill-tertiary);
+  pointer-events: none;
 }
 /* Icons inside buttons and links never receive pointer events themselves —
    ensures the cursor's btn-context detection (which walks closest()) always
@@ -408,7 +437,7 @@ button { font: inherit; background: none; border: none; cursor: none; }
 }
 .link:hover {
   background-size: 100% 2px, 100% 2px;
-  background-color: var(--color-transparent-core);
+  background-color: var(--alpha-10);
 }
 .link[aria-disabled="true"],
 .link.is-disabled {
@@ -425,7 +454,7 @@ button { font: inherit; background: none; border: none; cursor: none; }
   outline-offset: var(--border-md);
   border-radius: var(--radius-sm);
   background-size: 100% 2px, 100% 2px;
-  background-color: var(--color-transparent-core);
+  background-color: var(--alpha-10);
 }
 
 /* ─── ACCENT BUTTON & LINK VARIANTS ──────────────────────────────────────
@@ -442,7 +471,7 @@ button { font: inherit; background: none; border: none; cursor: none; }
   color: var(--btn-accent-color);
 }
 .btn--accent::before {
-  background-color: color-mix(in srgb, var(--btn-accent-color) 20%, transparent);
+  background-color: color-mix(in srgb, var(--btn-accent-color) 10%, transparent);
 }
 .btn--accent:focus-visible {
   outline-color: var(--btn-accent-color);
@@ -452,7 +481,7 @@ button { font: inherit; background: none; border: none; cursor: none; }
   color: var(--btn-accent-color);
 }
 .link--accent:hover {
-  background-color: color-mix(in srgb, var(--btn-accent-color) 20%, transparent);
+  background-color: color-mix(in srgb, var(--btn-accent-color) 10%, transparent);
 }
 .link--accent:focus-visible {
   outline-color: var(--btn-accent-color);
@@ -526,8 +555,12 @@ button { font: inherit; background: none; border: none; cursor: none; }
   white-space: nowrap;
   flex-shrink: 0;
   outline: none;
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
   transition: padding 280ms var(--ease-in-out-quint),
-              color 280ms var(--ease-in-out-quint);
+              color 280ms var(--ease-in-out-quint),
+              transform 200ms cubic-bezier(0.23, 1, 0.32, 1),
+              background-color 150ms ease;
 }
 .button-group-item-icon {
   display: flex;
@@ -538,12 +571,12 @@ button { font: inherit; background: none; border: none; cursor: none; }
   padding: 2px;
   flex-shrink: 0;
   opacity: var(--opacity-20);
+  pointer-events: none;
   transition: opacity 150ms ease, transform 80ms ease;
 }
 
-/* Inactive: hover lifts the icon to 60%. No background — the thumb owns
-   the pill fill, and adding a second pill behind inactive items would
-   double-paint as the thumb slides over them. */
+/* Inactive: hover lifts icon to 60% and adds a 10% bg pill behind the item. */
+.button-group-item:not(.is-active):hover { background-color: var(--alpha-10); }
 .button-group-item:not(.is-active):hover .button-group-item-icon { opacity: var(--opacity-60); }
 .button-group-item:not(.is-active):active { transform: scale(0.94); }
 
@@ -577,6 +610,7 @@ button { font: inherit; background: none; border: none; cursor: none; }
   grid-template-columns: 0fr;
   overflow: hidden;
   margin-left: 0;
+  pointer-events: none;
   transition: grid-template-columns 280ms var(--ease-in-out-quint),
               margin-left 280ms var(--ease-in-out-quint);
 }
@@ -1658,17 +1692,29 @@ html.cursor--focused .cursor { opacity: 0; }
   outline: none;
   cursor: none;
   caret-color: var(--color-text-primary);
-  transition: border-color 200ms ease;
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+  transition: border-color 200ms ease, transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .input::placeholder, .textarea::placeholder { color: var(--color-text-tertiary); }
 .input:hover, .textarea:hover, .select-native:hover {
-  border-bottom-color: var(--color-text-tertiary);
+  border-bottom-color: var(--color-text-primary);
 }
 .input:focus, .input:focus-visible,
 .textarea:focus, .textarea:focus-visible,
 .select-native:focus, .select-native:focus-visible {
   border-bottom-color: var(--color-text-primary);
 }
+/* Borderless variant — strips the underline. Use inside surfaces that provide
+   their own visual container (e.g. CommandInput search row). */
+.input--borderless {
+  border-bottom: none;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.input--borderless:hover,
+.input--borderless:focus,
+.input--borderless:focus-visible { border-bottom: none; }
 .textarea { min-height: 6em; resize: vertical; line-height: var(--leading-body-md); }
 
 .input-label {
@@ -1692,6 +1738,55 @@ html.cursor--focused .cursor { opacity: 0; }
 }
 .input.is-error, .textarea.is-error, .select-native.is-error {
   border-bottom-color: var(--color-status-error);
+  color: var(--color-status-error);
+}
+
+/* ─── FLOAT LABEL VARIANT ────────────────────────────────────────────────
+   The label starts inside the field at placeholder position. On focus or
+   when the field has a value (:not(:placeholder-shown)), it floats up and
+   scales to input-label size. Requires placeholder=" " (single space) on
+   the input to keep the :placeholder-shown selector reliable.
+   DOM order: <input> then <label> — required for the ~ sibling selector. */
+.input-float-field {
+  position: relative;
+  padding-top: 1.5rem; /* reserves space above the input for the floated label */
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* In float mode the input itself doesn't handle gravity — the wrapper does */
+.input--float {
+  transform: none;
+}
+
+.input-float-label {
+  position: absolute;
+  left: 0;
+  /* Rests at the same y-position as the input's text:
+     wrapper padding-top (1.5rem) + input padding-top (space-3 = 12px) */
+  top: calc(1.5rem + var(--space-3));
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n015);
+  line-height: var(--leading-body-xs);
+  color: var(--color-text-primary);
+  opacity: var(--opacity-40);
+  pointer-events: none;
+  cursor: none;
+  transform-origin: left top;
+  transition:
+    transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 150ms ease;
+}
+
+/* Float up on focus or when field has a value */
+.input--float:focus ~ .input-float-label,
+.input--float:not(:placeholder-shown) ~ .input-float-label {
+  transform: translateY(calc(-1.5rem - var(--space-3))) scale(0.875);
+  opacity: var(--opacity-60);
+}
+
+.input--float.is-error ~ .input-float-label {
   color: var(--color-status-error);
 }
 
@@ -1837,6 +1932,11 @@ html.cursor--focused .cursor { opacity: 0; }
 .tabs-trigger:hover::before { transform: scale(1); opacity: 1; }
 .tabs-trigger:hover { opacity: var(--opacity-80); }
 .tabs-trigger[data-active="true"] { opacity: 1; }
+.tabs-trigger:focus-visible {
+  outline: var(--border-md) dashed var(--color-text-primary);
+  outline-offset: 4px;
+  border-radius: var(--radius-xs);
+}
 
 /* Shared indicator — JS measures the active trigger and translates the bar
    to match. Width and translateX come from inline styles set in TabsList. */
@@ -2011,9 +2111,7 @@ html.cursor--focused .cursor { opacity: 0; }
 .alert {
   --alert-accent: var(--color-text-primary);
   display: flex;
-  /* Align icon, body, and dismiss to the top so a multi-line description
-     pushes downward — the title row stays the visual anchor. */
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   font-size: 0.875rem;
@@ -2043,8 +2141,6 @@ html.cursor--focused .cursor { opacity: 0; }
 .alert-green   { --alert-accent: var(--accent-green); }
 .alert-blue    { --alert-accent: var(--accent-blue); }
 
-/* Icon sits inline with the title — its natural baseline matches body-sm,
-   so no extra y-offset is needed when align-items is flex-start. */
 .alert-icon { display: inline-flex; flex-shrink: 0; color: var(--alert-accent); }
 .alert-body { flex: 1; display: flex; flex-direction: column; gap: var(--space-1); }
 /* Title, content, and dismiss all share body-sm (1.125rem). Hierarchy is
@@ -2062,8 +2158,6 @@ html.cursor--focused .cursor { opacity: 0; }
 .alert-content { opacity: var(--opacity-60); }
 .alert-dismiss {
   flex-shrink: 0;
-  /* No vertical padding so the dismiss baseline aligns with the title in
-     the multi-line layout. */
   padding-block: 0;
   color: var(--alert-accent);
   opacity: var(--opacity-40);
@@ -2104,15 +2198,7 @@ html.cursor--focused .cursor { opacity: 0; }
   width: 100%;
   height: 1em;
   border-radius: var(--radius-xs);
-  background-color: var(--color-text-primary);
-  animation: skeleton-pulse 1.6s ease-in-out infinite;
-}
-@keyframes skeleton-pulse {
-  0%, 100% { opacity: var(--opacity-20); }
-  50%       { opacity: var(--opacity-40); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .skeleton { animation: none; opacity: var(--opacity-20); }
+  background-color: var(--alpha-10);
 }
 
 /* ─── TOOLTIP — always inverted to the current theme ────────────────────────
@@ -2213,14 +2299,13 @@ html.cursor--focused .cursor { opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
   .dialog-content { animation: none; }
 }
-.dialog-header { display: flex; flex-direction: column; gap: var(--space-2); }
-.dialog-title { font-size: 1.5rem; letter-spacing: var(--tracking-n030); line-height: var(--leading-heading); }
+.dialog-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.dialog-title { flex: 1; font-size: 1.5rem; letter-spacing: var(--tracking-n030); line-height: var(--leading-heading); }
 .dialog-description { font-size: 1rem; letter-spacing: var(--tracking-n015); opacity: var(--opacity-60); }
-.dialog-footer { display: flex; gap: var(--space-3); justify-content: flex-end; flex-wrap: wrap; }
+/* Footer: cancel/dismiss on the left, confirm on the right */
+.dialog-footer { display: flex; gap: var(--space-3); justify-content: space-between; flex-wrap: wrap; align-items: center; }
 .dialog-close {
-  position: absolute;
-  top: var(--space-4);
-  right: var(--space-4);
+  flex-shrink: 0;
   opacity: var(--opacity-40);
   transition: opacity 150ms ease;
 }
@@ -2401,8 +2486,12 @@ html.cursor--focused .cursor { opacity: 0; }
 }
 .dialog-confirm-btn:hover::before { opacity: var(--opacity-20); transform: scale(1); }
 .dialog-confirm-btn:active::before { opacity: var(--opacity-40); transform: scale(0.97); }
-.dialog-confirm-btn--cancel { color: var(--color-text-primary); opacity: var(--opacity-40); }
-.dialog-confirm-btn--cancel:hover { opacity: var(--opacity-80); }
+/* Cancel: opacity on children only so the ::before hover fill isn't muted by
+   the parent opacity cascade. Figma applies opacity per-element (icon + label),
+   not on the container. */
+.dialog-confirm-btn--cancel { color: var(--color-text-primary); }
+.dialog-confirm-btn--cancel > * { opacity: var(--opacity-40); transition: opacity 120ms ease; }
+.dialog-confirm-btn--cancel:hover > * { opacity: var(--opacity-80); }
 .dialog-confirm-btn--confirm { color: var(--color-status-error); }
 .dialog-confirm-btn--confirm.dialog-confirm-btn--default { color: var(--color-text-primary); }
 
@@ -2509,6 +2598,13 @@ html.cursor--focused .cursor { opacity: 0; }
 }
 .dropdown-item:hover { background-color: var(--color-transparent-weak); }
 .dropdown-item-disabled { opacity: var(--opacity-40); }
+/* Danger variant — destructive action (e.g. Delete). Red text, red fill on hover. */
+.dropdown-item--danger { color: var(--color-status-error); }
+.dropdown-item--danger:hover {
+  background-color: color-mix(in srgb, var(--color-status-error) 10%, transparent);
+}
+/* Icon wrapper — inherits size from parent font-size */
+.dropdown-item-icon { display: inline-flex; align-items: center; flex-shrink: 0; }
 .dropdown-separator {
   height: var(--border-sm);
   background-color: var(--color-text-primary);
@@ -2673,6 +2769,11 @@ html.cursor--focused .cursor { opacity: 0; }
 }
 .accordion-trigger:hover::before { transform: scale(1); opacity: 1; }
 .accordion-trigger:hover { opacity: 1; }
+.accordion-trigger:focus-visible {
+  outline: var(--border-md) dashed var(--color-text-primary);
+  outline-offset: 4px;
+  border-radius: var(--radius-xs);
+}
 /* Never intercept cursor context — the button should always be the event target */
 .accordion-trigger-text { flex: 1; pointer-events: none; }
 .accordion-chevron {
@@ -2700,35 +2801,82 @@ html.cursor--focused .cursor { opacity: 0; }
 }
 
 /* ─── COMMAND ────────────────────────────────────────────────────────────── */
+/* ─── COMMAND ─────────────────────────────────────────────────────────────────
+   Outer shell: fill-base bg + drop shadow. Inner search wrap + items card. */
 .command {
   display: flex;
+  width: 320px;
+  padding: var(--space-1);
   flex-direction: column;
-  border: var(--border-sm) solid var(--color-transparent-weak);
-  border-radius: var(--radius-md);
-  background-color: var(--color-fill-base);
-  overflow: hidden;
+  gap: var(--space-1);
+  border-radius: var(--radius-lg);
+  background: var(--color-fill-base);
+  box-shadow: 0 12px 24px 0 rgba(0, 0, 0, 0.10);
 }
-.command-input-wrap {
-  border-bottom: var(--border-sm) solid var(--color-transparent-weak);
-  padding: var(--space-3) var(--space-4);
+
+/* Search area — 12px padding, column. Houses the icon + input + clear row. */
+.command-search-wrap {
+  display: flex;
+  padding: var(--space-3);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  align-self: stretch;
 }
-.command-input {
-  display: block;
+.command-search-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   width: 100%;
-  font: inherit;
-  font-size: 1rem;
-  letter-spacing: var(--tracking-n015);
-  color: var(--color-text-primary);
+}
+/* flex-1 so the DS Input fills available space within the search row */
+.command-input { flex: 1; }
+.command-search-clear {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
   background: transparent;
   border: none;
-  outline: none;
-  caret-color: var(--color-text-primary);
+  padding: 0 var(--space-1);
+  cursor: none;
+  color: var(--color-text-primary);
+  font-size: 1.1em;
+  line-height: 1;
+  opacity: var(--opacity-40);
+  transition: opacity 120ms ease;
 }
-.command-input::placeholder { color: var(--color-text-tertiary); }
-.command-list { max-height: 320px; overflow-y: auto; padding: var(--space-1); }
-.command-empty { padding: var(--space-4); font-size: 0.875rem; letter-spacing: var(--tracking-n010); opacity: var(--opacity-40); text-align: center; }
-.command-group { padding: var(--space-1) 0; }
-/* Group label — same layout as items but not interactive */
+.command-search-clear:hover { opacity: var(--opacity-80); }
+
+/* Items card — white elevated surface, 4px padding, 8px gap between groups. */
+.command-list {
+  display: flex;
+  padding: var(--space-1);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  align-self: stretch;
+  border-radius: var(--radius-md);
+  background: white;
+  max-height: 320px;
+  overflow-y: auto;
+}
+@media (prefers-color-scheme: dark) {
+  .command-list { background: var(--color-fill-primary); }
+}
+[data-theme="dark"] .command-list { background: var(--color-fill-primary); }
+[data-theme="light"] .command-list { background: white; }
+
+/* Only shown when query is non-empty and all items filtered out. */
+.command-empty {
+  width: 100%;
+  padding: var(--space-4);
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n010);
+  opacity: var(--opacity-40);
+  text-align: center;
+}
+
+.command-group { width: 100%; }
 .command-group-label {
   display: flex;
   align-items: center;
@@ -2743,6 +2891,7 @@ html.cursor--focused .cursor { opacity: 0; }
 .command-item {
   display: flex;
   align-items: center;
+  gap: var(--space-2);
   width: 100%;
   padding: var(--space-2) var(--space-3);
   font: inherit;
@@ -2759,8 +2908,13 @@ html.cursor--focused .cursor { opacity: 0; }
 .command-item:hover,
 .command-item:focus { background-color: var(--color-transparent-weak); outline: none; }
 .command-item-disabled { opacity: var(--opacity-40); }
+/* Leading icon — inherits size from item font */
+.command-item-icon { display: inline-flex; align-items: center; flex-shrink: 0; }
+/* Submenu chevron — pushed to far right */
+.command-item-chevron { margin-left: auto; display: inline-flex; align-items: center; flex-shrink: 0; opacity: var(--opacity-40); }
 .command-separator {
   height: var(--border-sm);
+  width: 100%;
   background-color: var(--color-text-primary);
   opacity: var(--opacity-divider);
   margin: var(--space-1) 0;
@@ -2943,99 +3097,6 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
   text-align: center;
 }
 
-/* ─── STICKER PEEL — corner-lift on hover ────────────────────────────────────
-   A draggable-image surface whose chosen corner appears to lift off the
-   canvas on hover. The main image is clip-pathed to cut a corner triangle;
-   a sibling .peelable-flap div renders the same image (via background-image
-   from the --peelable-src var the component sets in JSX) clipped to the
-   inverse triangle, tinted as the un-printed paper back, rotated outward
-   off the hinge, and drop-shadowed to sell the lift.
-
-   Because the flap uses the source image as both background and mask,
-   alpha pixels stay transparent — cutout stickers don't render a stray
-   grey triangle on the off-image area. CSS-only, no GSAP / no JS animation.
-
-   Lineage: Scrapbook CanvasView .cv-sticker-* pattern (l0at-izar worktree,
-   src/styles/stickerizer.css L475–569). Generalised here from "sticker" to
-   "any peelable image". */
-.peelable {
-  position: relative;
-  display: inline-block;
-  /* Peel size as % of the image — drives both the main image's corner cut
-     and the flap's clip region. Animates smoothly between rest and hover. */
-  --peelable-peel: 0%;
-  --peelable-ease: var(--ease-soft-spring);
-  --peelable-duration: 360ms;
-}
-.peelable:hover { --peelable-peel: 11%; }
-
-.peelable-img {
-  display: block;
-  width: 100%;
-  height: auto;
-  transition: filter 180ms ease, clip-path var(--peelable-duration) var(--peelable-ease);
-}
-.peelable[data-peel-corner='tl'] .peelable-img {
-  clip-path: polygon(var(--peelable-peel) 0, 100% 0, 100% 100%, 0 100%, 0 var(--peelable-peel));
-}
-.peelable[data-peel-corner='tr'] .peelable-img {
-  clip-path: polygon(0 0, calc(100% - var(--peelable-peel)) 0, 100% var(--peelable-peel), 100% 100%, 0 100%);
-}
-.peelable[data-peel-corner='bl'] .peelable-img {
-  clip-path: polygon(0 0, 100% 0, 100% 100%, var(--peelable-peel) 100%, 0 calc(100% - var(--peelable-peel)));
-}
-.peelable[data-peel-corner='br'] .peelable-img {
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--peelable-peel)), calc(100% - var(--peelable-peel)) 100%, 0 100%);
-}
-
-/* The flap — full-area, painted with the image via background-image, clipped
-   to the corner triangle, tinted as paper-back. Transparent pixels remain
-   transparent automatically (the flap IS the image), so alpha sources work.
-   Hidden at rest (peel = 0%) so a zero-area flap doesn't render a hairline. */
-.peelable-flap {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  background-image: var(--peelable-src);
-  background-size: 100% 100%;
-  background-position: center;
-  background-repeat: no-repeat;
-  filter: grayscale(1) brightness(1.35) contrast(0.85);
-  opacity: 0;
-  transition: clip-path var(--peelable-duration) var(--peelable-ease),
-              transform   var(--peelable-duration) var(--peelable-ease),
-              opacity     var(--peelable-duration) var(--peelable-ease);
-}
-.peelable:hover .peelable-flap { opacity: 1; }
-
-.peelable[data-peel-corner='tl'] .peelable-flap {
-  clip-path: polygon(0 0, var(--peelable-peel) 0, 0 var(--peelable-peel));
-  transform-origin: 0 0;
-  transform: rotate(-6deg) translate(-2%, -2%);
-}
-.peelable[data-peel-corner='tr'] .peelable-flap {
-  clip-path: polygon(calc(100% - var(--peelable-peel)) 0, 100% 0, 100% var(--peelable-peel));
-  transform-origin: 100% 0;
-  transform: rotate(6deg) translate(2%, -2%);
-}
-.peelable[data-peel-corner='bl'] .peelable-flap {
-  clip-path: polygon(0 calc(100% - var(--peelable-peel)), var(--peelable-peel) 100%, 0 100%);
-  transform-origin: 0 100%;
-  transform: rotate(6deg) translate(-2%, 2%);
-}
-.peelable[data-peel-corner='br'] .peelable-flap {
-  clip-path: polygon(100% calc(100% - var(--peelable-peel)), 100% 100%, calc(100% - var(--peelable-peel)) 100%);
-  transform-origin: 100% 100%;
-  transform: rotate(-6deg) translate(2%, 2%);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .peelable-img, .peelable-flap { transition: none; }
-  .peelable:hover { --peelable-peel: 0%; }
-}
-
 /* ─── CONTENT CARD ───────────────────────────────────────────────────────── */
 .content-card {
   display: flex;
@@ -3091,33 +3152,6 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
 .download-tile-size { font-size: 0.875rem; letter-spacing: var(--tracking-n010); opacity: var(--opacity-40); }
 .download-tile-description { font-size: 0.875rem; letter-spacing: var(--tracking-n010); opacity: var(--opacity-60); }
 .download-tile-action { flex-shrink: 0; }
-
-/* ─── MAP ─────────────────────────────────────────────────────────────────── */
-.map-container { width: 100%; height: 400px; border-radius: var(--radius-md); overflow: hidden; }
-.map-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-3);
-  width: 100%;
-  height: 400px;
-  background-color: var(--color-fill-primary);
-  border: var(--border-sm) solid var(--color-transparent-weak);
-  border-radius: var(--radius-md);
-  font-size: 1rem;
-  letter-spacing: var(--tracking-n010);
-  opacity: var(--opacity-60);
-  text-align: center;
-  padding: var(--space-6);
-}
-.map-placeholder code {
-  font-family: var(--font-mono);
-  font-size: 0.875rem;
-  padding: var(--space-2) var(--space-3);
-  background-color: var(--color-transparent-weak);
-  border-radius: var(--radius-xs);
-}
 
 /* ─── FILE DROPZONE ──────────────────────────────────────────────────────────
    Interactive drop target. Dashed border is intentional (upload convention).

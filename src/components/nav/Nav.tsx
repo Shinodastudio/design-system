@@ -16,7 +16,9 @@ export function Nav(): React.ReactElement {
   return (
     <header className="nav">
       <div className="nav-inner">
-        <NavLinks items={NAV_ITEMS} />
+        <nav aria-label="Primary">
+          <NavLinks items={NAV_ITEMS} />
+        </nav>
         <ThemeToggle />
       </div>
       <NavProgressiveBlur />
