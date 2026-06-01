@@ -11,10 +11,10 @@ Design as stewardship. Clarity is the form. Opacity is the hierarchy.
 
 **Anti-patterns — refuse unconditionally:**
 - Gradients, drop shadows, shimmer loaders
-- Border-radius beyond `--radius-sm` on primary elements
+- Radius tiers mixed on the same surface
 - Emoji in UI chrome
 - "Powered by" badges or provider branding
-- Any color outside the grey/status palette
+- Any color outside the grey/status palette (hardcoded hex allowed only for deliberate stylistic exceptions)
 - Smooth scroll — sharpness is intentional
 - Vertical dividers
 - Asymmetric column widths
@@ -24,7 +24,7 @@ Design as stewardship. Clarity is the form. Opacity is the hierarchy.
 
 ## Opacity Scale — THE hierarchy tool
 
-**Content opacities — only these four values, ever:**
+**Content hierarchy:**
 
 | Token | Value | Use |
 |---|---|---|
@@ -33,15 +33,17 @@ Design as stewardship. Clarity is the form. Opacity is the hierarchy.
 | `--opacity-40` | 40% | Tertiary / metadata labels / nav links at rest |
 | `--opacity-20` | 20% | Very low emphasis / link underline at rest |
 
-**Structural:**
+**Structural (backgrounds and dividers only):**
 
 | Token | Value | Use |
 |---|---|---|
-| `--opacity-divider` | 5% | Horizontal dividers only |
+| `--opacity-10` | 10% | Light mode divider · button/control background at rest |
+| `--opacity-5`  | 5%  | Dark mode divider |
+| `--opacity-divider` | 10% | Alias for divider usage — prefer `--alpha-10` as a bg colour |
 
-No other opacity values exist. Never use 30%, 50%, 70%, 90%, 10%, or 15%.
+Never use 30%, 50%, 70%, 90%, or 15%. 10% and 5% are structural only — not for content text.
 
-Utility classes: `.op-80`, `.op-60`, `.op-40`, `.op-20`
+Utility classes: `.op-80`, `.op-60`, `.op-40`, `.op-20`, `.op-10`, `.op-5`
 
 ---
 
@@ -71,12 +73,24 @@ Utility classes: `.op-80`, `.op-60`, `.op-40`, `.op-20`
 
 ---
 
+## Radius — Three tiers, no mixing
+
+| Tier | Token | Value | Use |
+|---|---|---|---|
+| Control | `--radius-sm` | 8px | Buttons, inputs, selects, checkboxes, toggles, tags/badges |
+| Tile | `--radius-md` | 12px | Grid tiles, content cards, inline chips |
+| Surface | `--radius-xl` | 24px | Dialogs, modals, sheets, popup cards |
+
+Pick by surface type. Never mix tiers on the same surface. Nested containers step up one tier (button=8 inside tile=12 inside surface=24).
+
+---
+
 ## Layout
 
 - Grid: **always `1fr 1fr`** — equal 50/50
-- Max width: **1280px** (`--container-5xl`)
-- Global padding: `--space-6` (24px)
-- Dividers: **horizontal only**, 5% opacity (`--opacity-divider`)
+- Max width: **1312px** (`--container-5xl`)
+- Global padding: `--padding-page` (responsive: 4em → 2em → 1.5em)
+- Dividers: **horizontal only**, `--alpha-10` in light / `--alpha-5` in dark
 - No vertical dividers, ever
 
 ---
@@ -99,17 +113,21 @@ Single `1.25em` solid dot, `mix-blend-mode: difference`.
 
 ## Buttons
 
-- `0.1em` padding on all sides
-- Transparent at rest
-- Hover: `--color-overlay-core` (20% opacity fill)
-- Active: `opacity: 0.40`
+- `0.1em` inset on all sides (spring-zoom `::before` background)
+- Transparent at rest; 10% fill (`--alpha-10`) on hover
+- Active: `opacity: 0.80`
+- `border-radius: --radius-sm` (8px)
 - Never `cursor: pointer`
 
 ## Links
 
-- Underline always present at **20% opacity** (`--color-overlay-core`)
-- Hover: underline transitions to **100% opacity** (`--color-text-primary`)
-- Never fully hidden underline
+Two variants:
+
+**`ShinodaLink` / `.link`** — standalone links, CTAs, nav items. Renders as `display: inline` with a dual-layer `background-image` underline: 20% opacity at rest, 100% on hover. Background fill appears on hover.
+
+**`PlainLink` / `.plainlink`** — inline body-copy links. `border-bottom` underline only: 20% at rest → 100% on hover. No background fill. Use when the `.link` hover background is too heavy for running text.
+
+Both: underline always present, never hidden.
 
 ## Text Selection
 
@@ -117,18 +135,28 @@ Inverted: `background: --color-text-primary; color: --color-fill-base`
 
 ---
 
+## Navigation — Group fade
+
+The top nav and any sidebar nav uses a **group fade** interaction: the entire link strip dims to 40% at rest and lifts to 100% as a unit on hover. Individual links do not have independent opacity — the group's `opacity` handles it.
+
+CSS pattern: `.nav-links { opacity: 0.4; transition: opacity 0.2s } .nav-links:hover { opacity: 1 }`
+
+---
+
 ## Component Checklist
 
-- [ ] Only semantic color tokens — no raw hex
-- [ ] Both modes work
-- [ ] `cursor: none` preserved
+- [ ] Only semantic color tokens — no raw hex (exceptions: deliberate stylistic hardcodes are allowed)
+- [ ] Both light and dark modes work
+- [ ] `cursor: none` preserved on all interactive elements
 - [ ] `data-gravity` on interactive elements
 - [ ] Grid is 50/50
 - [ ] No vertical dividers
-- [ ] Horizontal dividers at 5%
+- [ ] Horizontal dividers use `--alpha-10` (light) / `--alpha-5` (dark) — not opacity on a solid element
 - [ ] Hierarchy via opacity (20/40/60/80), not size
 - [ ] `heading-md` as default — not `heading-xl`
 - [ ] Links: 20% underline at rest, 100% on hover
-- [ ] Buttons: 0.1em padding, 20% hover fill
+- [ ] Buttons: spring-zoom bg, 10% fill at rest hover, `--radius-sm`
+- [ ] Cards/dialogs: `--radius-xl`
+- [ ] Tiles: `--radius-md`
 - [ ] `::selection` inverted
 - [ ] No smooth scroll
