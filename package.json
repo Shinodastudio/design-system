@@ -1,5 +1,5 @@
 {
-  "name": "@shinoda/ds",
+  "name": "@shinodastudio/ds",
   "version": "0.1.1",
   "description": "Shinoda Design System — components, styles, and tokens",
   "main": "./dist/index.js",
