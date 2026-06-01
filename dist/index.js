@@ -2041,6 +2041,35 @@ function ShinodaLink({
   }
   return /* @__PURE__ */ jsxRuntime.jsx(NextLink__default.default, { ref, href, className: classes, children });
 }
+function PlainLink({
+  href,
+  children,
+  className,
+  external = false,
+  disabled = false
+}) {
+  const ref = react.useRef(null);
+  useGravity(ref);
+  const classes = cn("plainlink", disabled && "is-disabled", className);
+  if (external) {
+    return /* @__PURE__ */ jsxRuntime.jsx(
+      "a",
+      {
+        ref,
+        href: disabled ? void 0 : href,
+        className: classes,
+        target: "_blank",
+        rel: "noopener noreferrer",
+        "aria-disabled": disabled || void 0,
+        children
+      }
+    );
+  }
+  if (disabled) {
+    return /* @__PURE__ */ jsxRuntime.jsx("a", { ref, className: classes, "aria-disabled": "true", children });
+  }
+  return /* @__PURE__ */ jsxRuntime.jsx(NextLink__default.default, { ref, href, className: classes, children });
+}
 var Input = react.forwardRef(
   function Input2(_a, ref) {
     var _b = _a, { className, hasError = false, type = "text", floatLabel, borderless = false, id: userId } = _b, props = __objRest(_b, ["className", "hasError", "type", "floatLabel", "borderless", "id"]);
@@ -2814,11 +2843,38 @@ function MainWrapper({ children, className, as: Tag = "main" }) {
 function Grid({ children, className }) {
   return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("grid-2col", className), children });
 }
-function StickyCol({ children, className, style }) {
-  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: cn("col-sticky", className), style, children });
+function StickyCol({ children, className, narrow = false, style }) {
+  return /* @__PURE__ */ jsxRuntime.jsx(
+    "div",
+    {
+      className: cn("col-sticky", narrow && "col-sticky--280", className),
+      style,
+      children
+    }
+  );
 }
 function Footer() {
   return /* @__PURE__ */ jsxRuntime.jsx("footer", { className: "footer", children: /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "footer-nav", children: NAV_ITEMS.map((item) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: /* @__PURE__ */ jsxRuntime.jsx(NextLink__default.default, { href: item.href, className: "footer-nav-link body-md op-40", children: item.label }) }, item.href)) }) });
+}
+function BackToTop({
+  label = "Back to top",
+  className
+}) {
+  const ref = react.useRef(null);
+  useGravity(ref);
+  function handleClick() {
+    window.scrollTo({ top: 0 });
+  }
+  return /* @__PURE__ */ jsxRuntime.jsx(
+    "button",
+    {
+      ref,
+      type: "button",
+      className: cn("btn backtotop", className),
+      onClick: handleClick,
+      children: label
+    }
+  );
 }
 function SectionTile({
   label,
@@ -5004,6 +5060,7 @@ exports.BLUR_TOKENS = BLUR_TOKENS;
 exports.BODY_VARIANTS = BODY_VARIANTS;
 exports.BORDER_TOKENS = BORDER_TOKENS;
 exports.BREAKPOINT_TOKENS = BREAKPOINT_TOKENS;
+exports.BackToTop = BackToTop;
 exports.Badge = Badge;
 exports.Button = Button;
 exports.ButtonGroup = ButtonGroup;
@@ -5072,6 +5129,7 @@ exports.NavProgressiveBlur = NavProgressiveBlur;
 exports.OPACITY_LEVELS = OPACITY_LEVELS;
 exports.PADDING_TOKENS = PADDING_TOKENS;
 exports.PageWrapper = PageWrapper;
+exports.PlainLink = PlainLink;
 exports.Popover = Popover;
 exports.PopoverContent = PopoverContent;
 exports.PopoverTrigger = PopoverTrigger;

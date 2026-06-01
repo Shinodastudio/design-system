@@ -480,6 +480,24 @@ interface ShinodaLinkProps {
 }
 declare function ShinodaLink({ href, children, className, external, size, disabled, accent, }: ShinodaLinkProps): React.ReactElement;
 
+/**
+ * PlainLink — inline body-copy link variant.
+ *
+ * Simpler than ShinodaLink. Use when a link sits inside running body text
+ * and the background-fill hover of `.link` is too heavy. The only visual
+ * affordance is a `border-bottom` underline at 20% opacity at rest,
+ * transitioning to full opacity on hover. No fill, no flex container —
+ * renders as `display: inline` so it flows with surrounding text naturally.
+ */
+interface PlainLinkProps {
+    readonly href: string;
+    readonly children: React.ReactNode;
+    readonly className?: string;
+    readonly external?: boolean;
+    readonly disabled?: boolean;
+}
+declare function PlainLink({ href, children, className, external, disabled, }: PlainLinkProps): React.ReactElement;
+
 interface InputProps extends React.ComponentPropsWithoutRef<'input'> {
     readonly hasError?: boolean;
     /**
@@ -710,8 +728,15 @@ interface StickyColProps {
     readonly children: React.ReactNode;
     readonly className?: string;
     readonly style?: React.CSSProperties;
+    /**
+     * Caps the column to 280px on desktop (≥992px).
+     * Reverts to full-width at tablet and below — the grid collapses anyway.
+     * Use when 480px is too wide for the left column content (short label lists,
+     * compact nav, etc.).
+     */
+    readonly narrow?: boolean;
 }
-declare function StickyCol({ children, className, style }: StickyColProps): React.ReactElement;
+declare function StickyCol({ children, className, narrow, style }: StickyColProps): React.ReactElement;
 
 /**
  * Footer — only shown ≤768px (CSS-controlled). Renders the same NAV_ITEMS
@@ -721,6 +746,25 @@ declare function StickyCol({ children, className, style }: StickyColProps): Reac
  * Above 768px the footer is hidden (display: none in shinoda-base.css).
  */
 declare function Footer(): React.ReactElement;
+
+interface BackToTopProps {
+    readonly label?: string;
+    readonly className?: string;
+}
+/**
+ * BackToTop — scrolls the page to the top on click.
+ *
+ * Uses `scrollTo` with no `behavior` option (instant — smooth scroll is
+ * refused by the DS spec). Place in a footer, page end, or sidebar;
+ * positioning is the parent's responsibility.
+ *
+ * Pairs with an icon or plain text label:
+ *   <BackToTop />                       → "Back to top"
+ *   <BackToTop label="↑" />             → single arrow
+ *   <BackToTop><Icon name="arrow-up" /></BackToTop> — not yet (children not
+ *   exposed; add if needed).
+ */
+declare function BackToTop({ label, className, }: BackToTopProps): React.ReactElement;
 
 declare function Cursor(): React.ReactElement;
 
@@ -1392,4 +1436,4 @@ declare function useTheme(): readonly [Theme, () => void];
 
 declare function cn(...inputs: readonly ClassValue[]): string;
 
-export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, type AlertVariant, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, Badge, type BadgeVariant, type BodyVariant, Button, ButtonGroup, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, ConfirmDialog, type ConfirmDialogIntent, ContentCard, Cursor, type CursorRef, DateInput, Dialog, DialogCard, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogPanel, DialogTitle, DialogTitleRow, DialogTrigger, type DialogVariant, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, type DropdownMenuItemVariant, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, type EditableColumn, EditableTable, FONT_WEIGHT_TOKENS, FileChip, type FileChipProps, FileDropzone, type FileDropzoneProps, Footer, Grid, GridTile, GridTileAction, HEADING_VARIANTS, type HeadingVariant, ICONS, ICONS_BY_ID, Icon, type IconProps, type IconRecord, type IconSize, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, type LinkSize, MainWrapper, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, type OpacityLevel, PADDING_TOKENS, PageWrapper, Popover, PopoverContent, PopoverTrigger, Progress, type ProgressSize, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, Scrim, type ScrimBlur, SearchDropdown, type SearchOption, SectionTile, Select, type SemanticColor, Sheet, SheetContent, SheetFooter, SheetHeader, type SheetSide, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, type SubheadingVariant, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, type TooltipSide, type TypeVariant, cn, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };
+export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, type AlertVariant, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, BackToTop, Badge, type BadgeVariant, type BodyVariant, Button, ButtonGroup, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, ConfirmDialog, type ConfirmDialogIntent, ContentCard, Cursor, type CursorRef, DateInput, Dialog, DialogCard, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogPanel, DialogTitle, DialogTitleRow, DialogTrigger, type DialogVariant, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, type DropdownMenuItemVariant, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, type EditableColumn, EditableTable, FONT_WEIGHT_TOKENS, FileChip, type FileChipProps, FileDropzone, type FileDropzoneProps, Footer, Grid, GridTile, GridTileAction, HEADING_VARIANTS, type HeadingVariant, ICONS, ICONS_BY_ID, Icon, type IconProps, type IconRecord, type IconSize, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, type LinkSize, MainWrapper, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, type OpacityLevel, PADDING_TOKENS, PageWrapper, PlainLink, Popover, PopoverContent, PopoverTrigger, Progress, type ProgressSize, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, Scrim, type ScrimBlur, SearchDropdown, type SearchOption, SectionTile, Select, type SemanticColor, Sheet, SheetContent, SheetFooter, SheetHeader, type SheetSide, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, type SubheadingVariant, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, type TooltipSide, type TypeVariant, cn, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };
