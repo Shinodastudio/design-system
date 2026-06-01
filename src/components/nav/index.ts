@@ -1,4 +1,10 @@
 export { Nav }                from './Nav';
 export { NavLinks }           from './NavLinks';
 export { ThemeToggle }        from './ThemeToggle';
+export { SearchButton }       from './SearchButton';
 export { NavProgressiveBlur } from './NavProgressiveBlur';
+export { CommandDialog }      from './CommandDialog';
+export { CommandPalette }     from './CommandPalette';
+export { CommandPaletteHost } from './CommandPaletteHost';
+export { NAV_ITEMS, COMPONENT_CATEGORIES, componentLabel } from './navItems';
+export type { NavItem, ComponentCategory } from './navItems';

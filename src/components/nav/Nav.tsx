@@ -1,25 +1,30 @@
-import { NavLinks } from './NavLinks';
+import NextLink from 'next/link';
+import { Button } from '@/components/primitives/Button';
 import { ThemeToggle } from './ThemeToggle';
+import { SearchButton } from './SearchButton';
 import { NavProgressiveBlur } from './NavProgressiveBlur';
-import { NAV_ITEMS } from './navItems';
 
 /**
  * Top navigation bar.
  *
- * Visibility contract (May 2026 spec):
- * - ≥768px: full horizontal nav, theme toggle flush right.
- * - ≤768px: nav is hidden entirely. Items are rendered as a vertical list
- *   in the <Footer> instead. The CSS rule lives in shinoda-base.css under
- *   `.nav` and its responsive overrides — kept declarative, not JS-gated.
+ * Layout:
+ * - Top-left:  single "Shinoda Design System" brand link → /
+ * - Top-right: SearchButton (opens Command palette) + ThemeToggle
+ *
+ * All section navigation now happens through the Command palette
+ * (opened by the search icon or Cmd/Ctrl+K).
  */
 export function Nav(): React.ReactElement {
   return (
     <header className="nav">
       <div className="nav-inner">
-        <nav aria-label="Primary">
-          <NavLinks items={NAV_ITEMS} />
+        <Button asChild size="heading-2xs" className="nav-brand">
+          <NextLink href="/">Shinoda Design System</NextLink>
+        </Button>
+        <nav aria-label="Primary" className="nav-actions">
+          <SearchButton />
+          <ThemeToggle />
         </nav>
-        <ThemeToggle />
       </div>
       <NavProgressiveBlur />
     </header>
