@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useId,
   useRef,
   useState,
@@ -19,6 +20,7 @@ interface CommandContextValue {
   readonly setActiveIndex: (i: number) => void;
   readonly itemRefs: React.MutableRefObject<(HTMLButtonElement | null)[]>;
   readonly inputId: string;
+  readonly onClose: (() => void) | null;
 }
 
 const CommandContext = createContext<CommandContextValue | null>(null);
@@ -32,16 +34,20 @@ function useCommandContext(): CommandContextValue {
 interface CommandProps {
   readonly children: React.ReactNode;
   readonly className?: string;
+  /** Optional callback invoked when Escape is pressed inside the input. */
+  readonly onClose?: () => void;
 }
 
-export function Command({ children, className }: CommandProps): React.ReactElement {
+export function Command({ children, className, onClose }: CommandProps): React.ReactElement {
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(-1);
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const inputId = useId();
 
   return (
-    <CommandContext.Provider value={{ query, setQuery, activeIndex, setActiveIndex, itemRefs, inputId }}>
+    <CommandContext.Provider
+      value={{ query, setQuery, activeIndex, setActiveIndex, itemRefs, inputId, onClose: onClose ?? null }}
+    >
       <div className={cn('command', className)} role="combobox" aria-haspopup="listbox" aria-expanded="true">
         {children}
       </div>
@@ -52,10 +58,18 @@ export function Command({ children, className }: CommandProps): React.ReactEleme
 interface CommandInputProps {
   readonly placeholder?: string;
   readonly className?: string;
+  readonly autoFocus?: boolean;
 }
 
-export function CommandInput({ placeholder = 'Search…', className }: CommandInputProps): React.ReactElement {
-  const { query, setQuery, activeIndex, setActiveIndex, itemRefs, inputId } = useCommandContext();
+export function CommandInput({ placeholder = 'Search…', className, autoFocus = false }: CommandInputProps): React.ReactElement {
+  const { query, setQuery, activeIndex, setActiveIndex, itemRefs, inputId, onClose } = useCommandContext();
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  // Honour autoFocus on every mount — useful when the input is conditionally
+  // rendered inside a modal/dialog that mounts on open.
+  useEffect(() => {
+    if (autoFocus) inputRef.current?.focus();
+  }, [autoFocus]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const items = itemRefs.current.filter((el): el is HTMLButtonElement => el != null);
@@ -64,12 +78,27 @@ export function CommandInput({ placeholder = 'Search…', className }: CommandIn
       const nextDown = activeIndex < items.length - 1 ? activeIndex + 1 : 0;
       items[nextDown]?.focus();
       setActiveIndex(nextDown);
+      return;
     }
     if (e.key === 'ArrowUp') {
       e.preventDefault();
       const nextUp = activeIndex > 0 ? activeIndex - 1 : items.length - 1;
       items[nextUp]?.focus();
       setActiveIndex(nextUp);
+      return;
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      onClose?.();
+      return;
+    }
+    if (e.key === 'Enter') {
+      // Activate first visible item if nothing is focused yet — natural
+      // "press Enter to pick the top match" behaviour after filtering.
+      if (activeIndex < 0 && items.length > 0) {
+        e.preventDefault();
+        items[0]?.click();
+      }
     }
   };
 
@@ -82,6 +111,7 @@ export function CommandInput({ placeholder = 'Search…', className }: CommandIn
     <div className="command-search-wrap">
       <div className="command-search-row">
         <Input
+          ref={inputRef}
           id={inputId}
           type="text"
           className={cn('command-input', className)}
@@ -179,7 +209,7 @@ export function CommandItem({
   icon,
   hasSubmenu = false,
 }: CommandItemProps): React.ReactElement | null {
-  const { query, itemRefs, setActiveIndex } = useCommandContext();
+  const { query, itemRefs, activeIndex, setActiveIndex, inputId, onClose } = useCommandContext();
   const indexRef = useRef<number | null>(null);
 
   const registerRef = useCallback(
@@ -213,6 +243,33 @@ export function CommandItem({
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           if (!disabled) onSelect?.();
+          return;
+        }
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          onClose?.();
+          return;
+        }
+        // Keep arrow navigation working when focus has moved off the input.
+        const items = itemRefs.current.filter((el): el is HTMLButtonElement => el != null);
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          const next = activeIndex < items.length - 1 ? activeIndex + 1 : 0;
+          items[next]?.focus();
+          setActiveIndex(next);
+          return;
+        }
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (activeIndex <= 0) {
+            // Return focus to the search input from the first item.
+            document.getElementById(inputId)?.focus();
+            setActiveIndex(-1);
+          } else {
+            const prev = activeIndex - 1;
+            items[prev]?.focus();
+            setActiveIndex(prev);
+          }
         }
       }}
       onFocus={(): void => {
