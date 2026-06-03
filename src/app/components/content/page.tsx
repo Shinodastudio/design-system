@@ -78,8 +78,8 @@ export default function ContentPage(): React.ReactElement {
             render={(): React.ReactNode => (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', width: '100%', maxWidth: 400 }}>
                 <CodeSnippet code="<Button>Label</Button>" />
-                <CodeSnippet code="import { Button } from '@shinoda/ds';" />
-                <CodeSnippet code="bun add @shinoda/ds" />
+                <CodeSnippet code="import { Button } from '@shinodastudio/ds';" />
+                <CodeSnippet code="bun add @shinodastudio/ds" />
               </div>
             )}
           />

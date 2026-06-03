@@ -4,6 +4,7 @@ export { Button }      from './Button';
 export { ButtonGroup } from './ButtonGroup';
 export { ShinodaLink, LINK_SIZES } from './ShinodaLink';
 export type { LinkSize } from './ShinodaLink';
+export { PlainLink } from './PlainLink';
 export { Input, Textarea, InputLabel, InputHelp, InputError, InputField } from './Input';
 export { Select }      from './Select';
 export { Checkbox, Radio, Choice, ChoiceLabel } from './Choice';

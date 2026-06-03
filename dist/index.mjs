@@ -2034,6 +2034,35 @@ function ShinodaLink({
   }
   return /* @__PURE__ */ jsx(NextLink, { ref, href, className: classes, children });
 }
+function PlainLink({
+  href,
+  children,
+  className,
+  external = false,
+  disabled = false
+}) {
+  const ref = useRef(null);
+  useGravity(ref);
+  const classes = cn("plainlink", disabled && "is-disabled", className);
+  if (external) {
+    return /* @__PURE__ */ jsx(
+      "a",
+      {
+        ref,
+        href: disabled ? void 0 : href,
+        className: classes,
+        target: "_blank",
+        rel: "noopener noreferrer",
+        "aria-disabled": disabled || void 0,
+        children
+      }
+    );
+  }
+  if (disabled) {
+    return /* @__PURE__ */ jsx("a", { ref, className: classes, "aria-disabled": "true", children });
+  }
+  return /* @__PURE__ */ jsx(NextLink, { ref, href, className: classes, children });
+}
 var Input = forwardRef(
   function Input2(_a, ref) {
     var _b = _a, { className, hasError = false, type = "text", floatLabel, borderless = false, id: userId } = _b, props = __objRest(_b, ["className", "hasError", "type", "floatLabel", "borderless", "id"]);
@@ -2807,11 +2836,38 @@ function MainWrapper({ children, className, as: Tag = "main" }) {
 function Grid({ children, className }) {
   return /* @__PURE__ */ jsx("div", { className: cn("grid-2col", className), children });
 }
-function StickyCol({ children, className, style }) {
-  return /* @__PURE__ */ jsx("div", { className: cn("col-sticky", className), style, children });
+function StickyCol({ children, className, narrow = false, style }) {
+  return /* @__PURE__ */ jsx(
+    "div",
+    {
+      className: cn("col-sticky", narrow && "col-sticky--280", className),
+      style,
+      children
+    }
+  );
 }
 function Footer() {
   return /* @__PURE__ */ jsx("footer", { className: "footer", children: /* @__PURE__ */ jsx("ul", { className: "footer-nav", children: NAV_ITEMS.map((item) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(NextLink, { href: item.href, className: "footer-nav-link body-md op-40", children: item.label }) }, item.href)) }) });
+}
+function BackToTop({
+  label = "Back to top",
+  className
+}) {
+  const ref = useRef(null);
+  useGravity(ref);
+  function handleClick() {
+    window.scrollTo({ top: 0 });
+  }
+  return /* @__PURE__ */ jsx(
+    "button",
+    {
+      ref,
+      type: "button",
+      className: cn("btn backtotop", className),
+      onClick: handleClick,
+      children: label
+    }
+  );
 }
 function SectionTile({
   label,
@@ -4985,6 +5041,6 @@ var FONT_WEIGHT_TOKENS = [
   { name: "--fw-black", value: "900" }
 ];
 
-export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, Badge, Button, ButtonGroup, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, ConfirmDialog, ContentCard, Cursor, DateInput, Dialog, DialogCard, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogPanel, DialogTitle, DialogTitleRow, DialogTrigger, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EditableTable, FONT_WEIGHT_TOKENS, FileChip, FileDropzone, Footer, Grid, GridTile, GridTileAction, HEADING_VARIANTS, ICONS, ICONS_BY_ID, Icon, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, MainWrapper, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, PADDING_TOKENS, PageWrapper, Popover, PopoverContent, PopoverTrigger, Progress, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, Scrim, SearchDropdown, SectionTile, Select, Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, cn, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };
+export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, BackToTop, Badge, Button, ButtonGroup, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, ConfirmDialog, ContentCard, Cursor, DateInput, Dialog, DialogCard, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogPanel, DialogTitle, DialogTitleRow, DialogTrigger, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EditableTable, FONT_WEIGHT_TOKENS, FileChip, FileDropzone, Footer, Grid, GridTile, GridTileAction, HEADING_VARIANTS, ICONS, ICONS_BY_ID, Icon, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, MainWrapper, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, PADDING_TOKENS, PageWrapper, PlainLink, Popover, PopoverContent, PopoverTrigger, Progress, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, Scrim, SearchDropdown, SectionTile, Select, Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, cn, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

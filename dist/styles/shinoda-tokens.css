@@ -88,11 +88,18 @@
   --leading-paragraph: 1.50;
   --leading-caption:   1.00;
 
-  /* ─── OPACITY — content (ONLY these values, ever) ──────────────────── */
+  /* ─── OPACITY ────────────────────────────────────────────────────────
+     Content hierarchy (20/40/60/80) — the four tiers, always.
+     Structural (5/10) — dividers and button/control backgrounds only.
+       Light mode divider: 10% of #18181B (--alpha-10)
+       Dark mode divider:   5% of #FAFAFA (--alpha-5)
+       Button bg at rest:  10% fill (--alpha-10) */
   --opacity-80: 0.80;
   --opacity-60: 0.60;
   --opacity-40: 0.40;
   --opacity-20: 0.20;
+  --opacity-10: 0.10;
+  --opacity-5:  0.05;
   --opacity-divider: 0.10;
 
   /* ─── RADIUS (full Figma scale) ────────────────────────────────────── */

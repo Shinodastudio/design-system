@@ -72,11 +72,15 @@ button { font: inherit; background: none; border: none; cursor: none; }
 .body-xs  { font-size: 1rem;     font-weight: var(--fw-normal); line-height: var(--leading-body-xs); letter-spacing: var(--tracking-n005); }
 .body-2xs { font-size: 0.875rem; font-weight: var(--fw-normal); line-height: var(--leading-body-xs); letter-spacing: var(--tracking-none); }
 
-/* ─── OPACITY — only these values, ever ──────────────────────────────── */
+/* ─── OPACITY ─────────────────────────────────────────────────────────
+   Content hierarchy: 20 / 40 / 60 / 80.
+   Structural: 10 (light mode divider, button bg) / 5 (dark mode divider). */
 .op-80 { opacity: var(--opacity-80); }
 .op-60 { opacity: var(--opacity-60); }
 .op-40 { opacity: var(--opacity-40); }
 .op-20 { opacity: var(--opacity-20); }
+.op-10 { opacity: var(--opacity-10); }
+.op-5  { opacity: var(--opacity-5);  }
 
 /* ─── TEXT STYLE UTILITIES ──────────────────────────────────────────────
    Both the short Shinoda form (.text-italic) and the Webflow canonical form
@@ -259,13 +263,21 @@ button { font: inherit; background: none; border: none; cursor: none; }
   -webkit-mask-image: linear-gradient(to bottom, transparent 55%, black 68%, transparent 100%);
 }
 
-/* Nav links — body-xs (0.875rem) text buttons, 40% opacity at rest
-   (tertiary / metadata weight per the opacity scale). */
+/* Nav links — body-xs (0.875rem) text buttons.
+   Group fade: the entire .nav-links strip dims to 40% at rest and lifts to
+   full on hover — the whole nav surfaces together, not link by link. This
+   matches the Webflow sidebar group-fade interaction applied to the top bar. */
+.nav-links {
+  opacity: var(--opacity-40);
+  transition: opacity 0.2s ease;
+}
+.nav-links:hover { opacity: 1; }
+
 .nav-link.btn,
 .nav-link {
   font-size: 0.875rem;
   letter-spacing: var(--tracking-n015);
-  opacity: var(--opacity-40);
+  opacity: 1; /* group handles fade; individual reset to 1 */
 }
 /* Hover chip — tight 3px inset on all sides matching Figma spec; 10% fill
    (--alpha-10) instead of the global 20% --color-transparent-core. */
@@ -274,7 +286,6 @@ button { font: inherit; background: none; border: none; cursor: none; }
   border-radius: var(--radius-sm);
   background-color: var(--alpha-10);
 }
-.nav-link:hover { opacity: 1; }
 .nav-link.is-active { opacity: 1; }
 
 /* Tablet (≤991): horizontal scroll strip so 9 links never wrap or break the bar. */
@@ -3433,4 +3444,69 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
   font-weight: var(--fw-normal);
   letter-spacing: var(--tracking-n010);
   opacity: var(--opacity-40);
+}
+
+/* ─── RADIUS HIERARCHY ───────────────────────────────────────────────────
+   Three tiers. Pick by surface type, not by visual preference.
+   --radius-sm  (8px)  : Buttons, interactive controls (inputs, selects,
+                         checkboxes, toggles, tags/badges)
+   --radius-md  (12px) : Tiles — grid tiles, content cards, inline chips
+   --radius-xl  (24px) : Card surfaces — dialogs, modals, sheets, popups
+   No mixing tiers on the same surface. */
+
+/* ─── PLAIN LINK — inline body-copy link variant ─────────────────────────
+   Simpler than ShinodaLink (.link). Use when a link sits inline within
+   running body text and the full background-fill hover of .link is too heavy.
+   Underline at 20% opacity (border-bottom) at rest → 100% on hover.
+   No background fill — the border is the only affordance. */
+.plainlink {
+  color: var(--color-text-primary);
+  cursor: none;
+  display: inline;
+  position: relative;
+  padding: 0 0 0.2em;
+  border-bottom: var(--border-md) solid color-mix(in srgb, currentColor 20%, transparent);
+  background: transparent;
+  text-decoration: none;
+  line-height: inherit;
+  transition:
+    border-bottom-color 150ms ease,
+    opacity 150ms ease;
+  /* Gravity */
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+}
+.plainlink:hover {
+  border-bottom-color: currentColor;
+}
+.plainlink:active {
+  opacity: var(--opacity-80);
+}
+.plainlink[aria-disabled="true"],
+.plainlink.is-disabled {
+  opacity: var(--opacity-40);
+  pointer-events: none;
+}
+.plainlink:focus-visible {
+  outline: var(--border-md) solid var(--color-text-primary);
+  outline-offset: var(--border-md);
+  border-radius: 2px;
+  border-bottom-color: currentColor;
+}
+
+/* ─── STICKY COL — 280px narrow variant (desktop only) ─────────────────
+   Use on the left column when 480px is too wide (e.g. short label lists).
+   Reverts to full-width at tablet (≤991) since the grid collapses anyway. */
+.col-sticky--280 { max-width: 280px; }
+@media (max-width: 991px) {
+  .col-sticky--280 { max-width: none; }
+}
+
+/* ─── BACK TO TOP ────────────────────────────────────────────────────────
+   Positioned by parent context — no fixed/absolute rules here.
+   Uses .btn for interaction; pair with an arrow icon or plain text label. */
+.backtotop {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
 }
