@@ -209,6 +209,21 @@ button { font: inherit; background: none; border: none; cursor: none; }
   min-width: 0;
 }
 
+/* Brand link sits flush left. nav-actions cluster (search + theme toggle)
+   is pushed flush right via margin-left:auto. */
+.nav-brand.btn,
+.nav-brand {
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-n015);
+  opacity: 1;
+}
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
 /* ─── PROGRESSIVE BLUR — smooth scroll fadeout covering nav + below ──────
    Sits at top:0 inside .nav, spanning the full nav bar height plus a taper
    zone beneath it. No backdrop-filter on .nav-inner — this element handles
@@ -2929,6 +2944,34 @@ html.cursor--focused .cursor { opacity: 0; }
   background-color: var(--color-text-primary);
   opacity: var(--opacity-divider);
   margin: var(--space-1) 0;
+}
+
+/* ─── COMMAND DIALOG — modal palette portal ──────────────────────────────────
+   .command-overlay sits above the nav (z-index 999). The scrim is the full
+   inset:0 backdrop (close-on-click); the dialog is the centered card. */
+.command-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+.command-scrim {
+  position: absolute;
+  inset: 0;
+  background-color: var(--color-transparent-strong);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.command-dialog {
+  position: absolute;
+  top: 15vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(560px, calc(100vw - var(--space-8)));
+  max-width: 100%;
+}
+.command-palette { width: 100%; }
+@media (max-width: 640px) {
+  .command-dialog { top: 8vh; width: calc(100vw - var(--space-6)); }
 }
 
 /* ─── TABLE ──────────────────────────────────────────────────────────────── */
