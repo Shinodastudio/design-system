@@ -5,7 +5,7 @@ import { createContext, forwardRef, useRef, useId, useCallback, useState, useLay
 import { Slot } from '@radix-ui/react-slot';
 import ReactDOM, { createPortal } from 'react-dom';
 import NextLink from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 var __defProp = Object.defineProperty;
 var __defProps = Object.defineProperties;
@@ -2559,28 +2559,6 @@ function DownloadTile({
     /* @__PURE__ */ jsx("div", { className: "download-tile-action", children: isDownloading ? /* @__PURE__ */ jsx(Skeleton, { width: 80, height: 28 }) : /* @__PURE__ */ jsx(Button, { size: "heading-xs", onClick: onDownload, "aria-label": `Download ${filename}`, children: "Download" }) })
   ] });
 }
-function NavLinks({ items }) {
-  const pathname = usePathname();
-  return /* @__PURE__ */ jsx("ul", { className: "nav-links", children: items.map((item) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(
-    Button,
-    {
-      asChild: true,
-      size: "heading-2xs",
-      className: cn(
-        "nav-link",
-        pathname === item.href ? "is-active" : void 0
-      ),
-      children: /* @__PURE__ */ jsx(
-        NextLink,
-        {
-          href: item.href,
-          "aria-current": pathname === item.href ? "page" : void 0,
-          children: item.label
-        }
-      )
-    }
-  ) }, item.href)) });
-}
 var LERP = 0.22;
 var TEXT_TAGS = /* @__PURE__ */ new Set([
   "p",
@@ -2759,20 +2737,357 @@ function RouteAttribute() {
   }, [pathname]);
   return null;
 }
+function CommandDialog({ open, onClose, children }) {
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [open]);
+  if (!open || typeof document === "undefined") return null;
+  return createPortal(
+    /* @__PURE__ */ jsxs("div", { className: "command-overlay", children: [
+      /* @__PURE__ */ jsx("div", { className: "command-scrim", onClick: onClose, "aria-hidden": "true" }),
+      /* @__PURE__ */ jsx("div", { className: "command-dialog", role: "dialog", "aria-modal": "true", "aria-label": "Site navigation", children })
+    ] }),
+    document.body
+  );
+}
+var CommandContext = createContext(null);
+function useCommandContext() {
+  const ctx = useContext(CommandContext);
+  if (ctx == null) throw new Error("Command subcomponents must be inside <Command>");
+  return ctx;
+}
+function Command({ children, className, onClose }) {
+  const [query, setQuery] = useState("");
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const itemRefs = useRef([]);
+  const inputId = useId();
+  return /* @__PURE__ */ jsx(
+    CommandContext.Provider,
+    {
+      value: { query, setQuery, activeIndex, setActiveIndex, itemRefs, inputId, onClose: onClose != null ? onClose : null },
+      children: /* @__PURE__ */ jsx("div", { className: cn("command", className), role: "combobox", "aria-haspopup": "listbox", "aria-expanded": "true", children })
+    }
+  );
+}
+function CommandInput({ placeholder = "Search\u2026", className, autoFocus = false }) {
+  const { query, setQuery, activeIndex, setActiveIndex, itemRefs, inputId, onClose } = useCommandContext();
+  const inputRef = useRef(null);
+  useEffect(() => {
+    var _a;
+    if (autoFocus) (_a = inputRef.current) == null ? void 0 : _a.focus();
+  }, [autoFocus]);
+  const handleKeyDown = (e) => {
+    var _a, _b, _c;
+    const items = itemRefs.current.filter((el) => el != null);
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      const nextDown = activeIndex < items.length - 1 ? activeIndex + 1 : 0;
+      (_a = items[nextDown]) == null ? void 0 : _a.focus();
+      setActiveIndex(nextDown);
+      return;
+    }
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      const nextUp = activeIndex > 0 ? activeIndex - 1 : items.length - 1;
+      (_b = items[nextUp]) == null ? void 0 : _b.focus();
+      setActiveIndex(nextUp);
+      return;
+    }
+    if (e.key === "Escape") {
+      e.preventDefault();
+      onClose == null ? void 0 : onClose();
+      return;
+    }
+    if (e.key === "Enter") {
+      if (activeIndex < 0 && items.length > 0) {
+        e.preventDefault();
+        (_c = items[0]) == null ? void 0 : _c.click();
+      }
+    }
+  };
+  const clearQuery = useCallback(() => {
+    setQuery("");
+    setActiveIndex(-1);
+  }, [setQuery, setActiveIndex]);
+  return /* @__PURE__ */ jsx("div", { className: "command-search-wrap", children: /* @__PURE__ */ jsxs("div", { className: "command-search-row", children: [
+    /* @__PURE__ */ jsx(
+      Input,
+      {
+        ref: inputRef,
+        id: inputId,
+        type: "text",
+        className: cn("command-input", className),
+        placeholder,
+        value: query,
+        autoComplete: "off",
+        spellCheck: false,
+        borderless: true,
+        onChange: (e) => {
+          setQuery(e.target.value);
+          setActiveIndex(-1);
+        },
+        onKeyDown: handleKeyDown,
+        role: "searchbox",
+        "aria-autocomplete": "list"
+      }
+    ),
+    query !== "" && /* @__PURE__ */ jsx(
+      "button",
+      {
+        type: "button",
+        className: "command-search-clear",
+        "aria-label": "Clear search",
+        onClick: clearQuery,
+        children: "\xD7"
+      }
+    )
+  ] }) });
+}
+function CommandList({ children, className }) {
+  return /* @__PURE__ */ jsx("div", { className: cn("command-list", className), role: "listbox", children });
+}
+function CommandEmpty({ children, className }) {
+  const { query } = useCommandContext();
+  if (query === "") return null;
+  return /* @__PURE__ */ jsx("div", { className: cn("command-empty", className), children: children != null ? children : "No results found." });
+}
+function CommandGroup({ label, children, className }) {
+  return /* @__PURE__ */ jsxs("div", { className: cn("command-group", className), role: "group", "aria-label": label, children: [
+    label != null && /* @__PURE__ */ jsx("div", { className: "command-group-label", children: label }),
+    children
+  ] });
+}
+function CommandItem({
+  children,
+  onSelect,
+  disabled = false,
+  className,
+  value,
+  icon,
+  hasSubmenu = false
+}) {
+  const { query, itemRefs, activeIndex, setActiveIndex, inputId, onClose } = useCommandContext();
+  const indexRef = useRef(null);
+  const registerRef = useCallback(
+    (el) => {
+      if (el != null) {
+        if (indexRef.current == null) {
+          indexRef.current = itemRefs.current.length;
+          itemRefs.current.push(el);
+        } else {
+          itemRefs.current[indexRef.current] = el;
+        }
+      }
+    },
+    [itemRefs]
+  );
+  const textContent = value != null ? value : typeof children === "string" ? children : "";
+  const matches = query === "" || textContent.toLowerCase().includes(query.toLowerCase());
+  if (!matches) return null;
+  return /* @__PURE__ */ jsxs(
+    "button",
+    {
+      ref: registerRef,
+      type: "button",
+      role: "option",
+      disabled,
+      className: cn("command-item", disabled && "command-item-disabled", className),
+      onClick: () => {
+        if (!disabled) onSelect == null ? void 0 : onSelect();
+      },
+      onKeyDown: (e) => {
+        var _a, _b, _c;
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          if (!disabled) onSelect == null ? void 0 : onSelect();
+          return;
+        }
+        if (e.key === "Escape") {
+          e.preventDefault();
+          onClose == null ? void 0 : onClose();
+          return;
+        }
+        const items = itemRefs.current.filter((el) => el != null);
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          const next = activeIndex < items.length - 1 ? activeIndex + 1 : 0;
+          (_a = items[next]) == null ? void 0 : _a.focus();
+          setActiveIndex(next);
+          return;
+        }
+        if (e.key === "ArrowUp") {
+          e.preventDefault();
+          if (activeIndex <= 0) {
+            (_b = document.getElementById(inputId)) == null ? void 0 : _b.focus();
+            setActiveIndex(-1);
+          } else {
+            const prev = activeIndex - 1;
+            (_c = items[prev]) == null ? void 0 : _c.focus();
+            setActiveIndex(prev);
+          }
+        }
+      },
+      onFocus: () => {
+        if (indexRef.current != null) setActiveIndex(indexRef.current);
+      },
+      children: [
+        icon != null && /* @__PURE__ */ jsx("span", { className: "command-item-icon", "aria-hidden": "true", children: icon }),
+        children,
+        hasSubmenu && /* @__PURE__ */ jsx("span", { className: "command-item-chevron", "aria-hidden": "true", children: /* @__PURE__ */ jsx(Icon, { name: "CaretRight", size: "em" }) })
+      ]
+    }
+  );
+}
+function CommandSeparator({ className }) {
+  return /* @__PURE__ */ jsx("div", { className: cn("command-separator", className), role: "separator" });
+}
+
+// src/components/nav/navItems.ts
+var NAV_ITEMS = [
+  { label: "Colour", href: "/colour" },
+  { label: "Type", href: "/type" },
+  { label: "Icons", href: "/icons" },
+  { label: "Components", href: "/components" },
+  { label: "Structure", href: "/structure" },
+  { label: "Widths", href: "/widths" },
+  { label: "Paddings", href: "/paddings" },
+  { label: "Margins", href: "/margins" },
+  { label: "Grids", href: "/grids" },
+  { label: "Utility", href: "/utility" },
+  { label: "Implementation", href: "/implementation" }
+];
+var COMPONENT_CATEGORIES = [
+  { label: "Controls", items: ["button", "controls", "link", "tabs"] },
+  { label: "Input", items: ["input", "calendar", "upload"] },
+  { label: "Layout", items: ["card", "content", "divider"] },
+  { label: "Data", items: ["data", "map"] },
+  { label: "Feedback", items: ["feedback", "overlay"] },
+  { label: "Display", items: ["icon", "cursor", "sticker"] }
+];
+function componentLabel(slug) {
+  return slug.charAt(0).toUpperCase() + slug.slice(1);
+}
+var COMPONENTS_LABEL = "Components";
+function CommandPalette({ onClose }) {
+  var _a, _b;
+  const router = useRouter();
+  const [level, setLevel] = useState("sections");
+  const [activeCategory, setActiveCategory] = useState(null);
+  const navigate = (href) => {
+    router.push(href);
+    onClose();
+  };
+  const goBack = () => {
+    if (level === "components") {
+      setLevel("categories");
+      setActiveCategory(null);
+    } else if (level === "categories") {
+      setLevel("sections");
+    }
+  };
+  const placeholder = level === "sections" ? "Search the design system\u2026" : level === "categories" ? "Search component groups\u2026" : `Search ${(_a = activeCategory == null ? void 0 : activeCategory.toLowerCase()) != null ? _a : ""} components\u2026`;
+  return /* @__PURE__ */ jsxs(
+    Command,
+    {
+      className: "command-palette",
+      onClose,
+      children: [
+        /* @__PURE__ */ jsx(CommandInput, { placeholder, autoFocus: true }),
+        /* @__PURE__ */ jsxs(CommandList, { children: [
+          level === "sections" && /* @__PURE__ */ jsx(CommandGroup, { label: "Navigate", children: NAV_ITEMS.map((item) => /* @__PURE__ */ jsx(
+            CommandItem,
+            {
+              onSelect: () => {
+                if (item.label === COMPONENTS_LABEL) {
+                  setLevel("categories");
+                } else {
+                  navigate(item.href);
+                }
+              },
+              children: item.label
+            },
+            item.href
+          )) }),
+          level === "categories" && /* @__PURE__ */ jsxs(Fragment, { children: [
+            /* @__PURE__ */ jsx(CommandGroup, { children: /* @__PURE__ */ jsx(CommandItem, { onSelect: goBack, children: "\u2190 Back" }) }),
+            /* @__PURE__ */ jsxs(CommandGroup, { label: "Components", children: [
+              /* @__PURE__ */ jsx(CommandItem, { onSelect: () => navigate("/components"), children: "All components" }),
+              COMPONENT_CATEGORIES.map((cat) => /* @__PURE__ */ jsx(
+                CommandItem,
+                {
+                  onSelect: () => {
+                    setActiveCategory(cat.label);
+                    setLevel("components");
+                  },
+                  children: cat.label
+                },
+                cat.label
+              ))
+            ] })
+          ] }),
+          level === "components" && activeCategory != null && /* @__PURE__ */ jsxs(Fragment, { children: [
+            /* @__PURE__ */ jsx(CommandGroup, { children: /* @__PURE__ */ jsx(CommandItem, { onSelect: goBack, children: "\u2190 Back" }) }),
+            /* @__PURE__ */ jsx(CommandGroup, { label: `Components / ${activeCategory}`, children: (_b = COMPONENT_CATEGORIES.find((c) => c.label === activeCategory)) == null ? void 0 : _b.items.map((slug) => /* @__PURE__ */ jsx(
+              CommandItem,
+              {
+                onSelect: () => navigate(`/components/${slug}`),
+                children: componentLabel(slug)
+              },
+              slug
+            )) })
+          ] })
+        ] })
+      ]
+    },
+    `${level}:${activeCategory != null ? activeCategory : ""}`
+  );
+}
+function CommandPaletteHost() {
+  const { isCommandOpen, closeCommand } = useCommandState();
+  return /* @__PURE__ */ jsx(CommandDialog, { open: isCommandOpen, onClose: closeCommand, children: /* @__PURE__ */ jsx(CommandPalette, { onClose: closeCommand }) });
+}
 var ThemeContext = createContext({
   theme: "light",
   toggleTheme: () => void 0
 });
+var CommandStateContext = createContext({
+  isCommandOpen: false,
+  openCommand: () => void 0,
+  closeCommand: () => void 0
+});
 function useThemeContext() {
   return useContext(ThemeContext);
 }
+function useCommandState() {
+  return useContext(CommandStateContext);
+}
 function ClientShell({ children }) {
   const [theme, toggleTheme] = useTheme();
-  return /* @__PURE__ */ jsxs(ThemeContext.Provider, { value: { theme, toggleTheme }, children: [
+  const [isCommandOpen, setIsCommandOpen] = useState(false);
+  const openCommand = useCallback(() => setIsCommandOpen(true), []);
+  const closeCommand = useCallback(() => setIsCommandOpen(false), []);
+  useEffect(() => {
+    const handler = (e) => {
+      const isCmdK = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k";
+      if (isCmdK) {
+        e.preventDefault();
+        setIsCommandOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+  return /* @__PURE__ */ jsx(ThemeContext.Provider, { value: { theme, toggleTheme }, children: /* @__PURE__ */ jsxs(CommandStateContext.Provider, { value: { isCommandOpen, openCommand, closeCommand }, children: [
     /* @__PURE__ */ jsx(RouteAttribute, {}),
     /* @__PURE__ */ jsx(Cursor, {}),
-    children
-  ] });
+    children,
+    /* @__PURE__ */ jsx(CommandPaletteHost, {})
+  ] }) });
 }
 function SunIcon() {
   return /* @__PURE__ */ jsx("svg", { width: "18", height: "18", viewBox: "0 0 32 32", fill: "none", xmlns: "http://www.w3.org/2000/svg", "aria-hidden": "true", children: /* @__PURE__ */ jsx("path", { d: "M15 5V2C15 1.73478 15.1054 1.48043 15.2929 1.29289C15.4804 1.10536 15.7348 1 16 1C16.2652 1 16.5196 1.10536 16.7071 1.29289C16.8946 1.48043 17 1.73478 17 2V5C17 5.26522 16.8946 5.51957 16.7071 5.70711C16.5196 5.89464 16.2652 6 16 6C15.7348 6 15.4804 5.89464 15.2929 5.70711C15.1054 5.51957 15 5.26522 15 5ZM16 8C14.4177 8 12.871 8.46919 11.5554 9.34824C10.2398 10.2273 9.21447 11.4767 8.60896 12.9385C8.00346 14.4003 7.84504 16.0089 8.15372 17.5607C8.4624 19.1126 9.22433 20.538 10.3431 21.6569C11.462 22.7757 12.8874 23.5376 14.4393 23.8463C15.9911 24.155 17.5997 23.9965 19.0615 23.391C20.5233 22.7855 21.7727 21.7602 22.6518 20.4446C23.5308 19.129 24 17.5823 24 16C23.9977 13.879 23.1541 11.8455 21.6543 10.3457C20.1545 8.84591 18.121 8.00232 16 8ZM7.2925 8.7075C7.48014 8.89514 7.73464 9.00056 8 9.00056C8.26536 9.00056 8.51986 8.89514 8.7075 8.7075C8.89514 8.51986 9.00056 8.26536 9.00056 8C9.00056 7.73464 8.89514 7.48014 8.7075 7.2925L6.7075 5.2925C6.51986 5.10486 6.26536 4.99944 6 4.99944C5.73464 4.99944 5.48014 5.10486 5.2925 5.2925C5.10486 5.48014 4.99944 5.73464 4.99944 6C4.99944 6.26536 5.10486 6.51986 5.2925 6.7075L7.2925 8.7075ZM7.2925 23.2925L5.2925 25.2925C5.10486 25.4801 4.99944 25.7346 4.99944 26C4.99944 26.2654 5.10486 26.5199 5.2925 26.7075C5.48014 26.8951 5.73464 27.0006 6 27.0006C6.26536 27.0006 6.51986 26.8951 6.7075 26.7075L8.7075 24.7075C8.80041 24.6146 8.87411 24.5043 8.92439 24.3829C8.97468 24.2615 9.00056 24.1314 9.00056 24C9.00056 23.8686 8.97468 23.7385 8.92439 23.6171C8.87411 23.4957 8.80041 23.3854 8.7075 23.2925C8.61459 23.1996 8.50429 23.1259 8.3829 23.0756C8.2615 23.0253 8.13139 22.9994 8 22.9994C7.86861 22.9994 7.7385 23.0253 7.6171 23.0756C7.49571 23.1259 7.38541 23.1996 7.2925 23.2925ZM24 9C24.1314 9.0001 24.2615 8.97432 24.3829 8.92414C24.5042 8.87395 24.6146 8.80033 24.7075 8.7075L26.7075 6.7075C26.8951 6.51986 27.0006 6.26536 27.0006 6C27.0006 5.73464 26.8951 5.48014 26.7075 5.2925C26.5199 5.10486 26.2654 4.99944 26 4.99944C25.7346 4.99944 25.4801 5.10486 25.2925 5.2925L23.2925 7.2925C23.1525 7.43236 23.0571 7.61061 23.0185 7.80469C22.9798 7.99878 22.9996 8.19997 23.0754 8.38279C23.1511 8.56561 23.2794 8.72185 23.444 8.83172C23.6086 8.94159 23.8021 9.00016 24 9ZM24.7075 23.2925C24.5199 23.1049 24.2654 22.9994 24 22.9994C23.7346 22.9994 23.4801 23.1049 23.2925 23.2925C23.1049 23.4801 22.9994 23.7346 22.9994 24C22.9994 24.2654 23.1049 24.5199 23.2925 24.7075L25.2925 26.7075C25.3854 26.8004 25.4957 26.8741 25.6171 26.9244C25.7385 26.9747 25.8686 27.0006 26 27.0006C26.1314 27.0006 26.2615 26.9747 26.3829 26.9244C26.5043 26.8741 26.6146 26.8004 26.7075 26.7075C26.8004 26.6146 26.8741 26.5043 26.9244 26.3829C26.9747 26.2615 27.0006 26.1314 27.0006 26C27.0006 25.8686 26.9747 25.7385 26.9244 25.6171C26.8741 25.4957 26.8004 25.3854 26.7075 25.2925L24.7075 23.2925ZM6 16C6 15.7348 5.89464 15.4804 5.70711 15.2929C5.51957 15.1054 5.26522 15 5 15H2C1.73478 15 1.48043 15.1054 1.29289 15.2929C1.10536 15.4804 1 15.7348 1 16C1 16.2652 1.10536 16.5196 1.29289 16.7071C1.48043 16.8946 1.73478 17 2 17H5C5.26522 17 5.51957 16.8946 5.70711 16.7071C5.89464 16.5196 6 16.2652 6 16ZM16 26C15.7348 26 15.4804 26.1054 15.2929 26.2929C15.1054 26.4804 15 26.7348 15 27V30C15 30.2652 15.1054 30.5196 15.2929 30.7071C15.4804 30.8946 15.7348 31 16 31C16.2652 31 16.5196 30.8946 16.7071 30.7071C16.8946 30.5196 17 30.2652 17 30V27C17 26.7348 16.8946 26.4804 16.7071 26.2929C16.5196 26.1054 16.2652 26 16 26ZM30 15H27C26.7348 15 26.4804 15.1054 26.2929 15.2929C26.1054 15.4804 26 15.7348 26 16C26 16.2652 26.1054 16.5196 26.2929 16.7071C26.4804 16.8946 26.7348 17 27 17H30C30.2652 17 30.5196 16.8946 30.7071 16.7071C30.8946 16.5196 31 16.2652 31 16C31 15.7348 30.8946 15.4804 30.7071 15.2929C30.5196 15.1054 30.2652 15 30 15Z", fill: "currentColor" }) });
@@ -2793,6 +3108,40 @@ function ThemeToggle() {
     }
   );
 }
+function SearchIcon() {
+  return /* @__PURE__ */ jsx(
+    "svg",
+    {
+      width: "18",
+      height: "18",
+      viewBox: "0 0 32 32",
+      fill: "none",
+      xmlns: "http://www.w3.org/2000/svg",
+      "aria-hidden": "true",
+      children: /* @__PURE__ */ jsx(
+        "path",
+        {
+          d: "M14 4C8.477 4 4 8.477 4 14C4 19.523 8.477 24 14 24C16.395 24 18.594 23.158 20.318 21.756L26.293 27.732C26.484 27.916 26.74 28.018 27.005 28.014C27.27 28.009 27.523 27.901 27.71 27.71C27.901 27.523 28.009 27.27 28.014 27.005C28.018 26.74 27.916 26.484 27.732 26.293L21.756 20.318C23.158 18.594 24 16.395 24 14C24 8.477 19.523 4 14 4ZM14 6C18.443 6 22 9.557 22 14C22 18.443 18.443 22 14 22C9.557 22 6 18.443 6 14C6 9.557 9.557 6 14 6Z",
+          fill: "currentColor"
+        }
+      )
+    }
+  );
+}
+function SearchButton() {
+  const { openCommand } = useCommandState();
+  return /* @__PURE__ */ jsx(
+    Button,
+    {
+      className: "btn-icon op-40",
+      onClick: openCommand,
+      "aria-label": "Open command palette",
+      "aria-keyshortcuts": "Meta+K",
+      style: { "--hover-opacity": "1" },
+      children: /* @__PURE__ */ jsx(SearchIcon, {})
+    }
+  );
+}
 function NavProgressiveBlur() {
   return /* @__PURE__ */ jsx(
     "div",
@@ -2803,29 +3152,39 @@ function NavProgressiveBlur() {
     }
   );
 }
-
-// src/components/nav/navItems.ts
-var NAV_ITEMS = [
-  { label: "Colour", href: "/colour" },
-  { label: "Type", href: "/type" },
-  { label: "Icons", href: "/icons" },
-  { label: "Components", href: "/components" },
-  { label: "Structure", href: "/structure" },
-  { label: "Widths", href: "/widths" },
-  { label: "Paddings", href: "/paddings" },
-  { label: "Margins", href: "/margins" },
-  { label: "Grids", href: "/grids" },
-  { label: "Utility", href: "/utility" },
-  { label: "Implementation", href: "/implementation" }
-];
 function Nav() {
   return /* @__PURE__ */ jsxs("header", { className: "nav", children: [
     /* @__PURE__ */ jsxs("div", { className: "nav-inner", children: [
-      /* @__PURE__ */ jsx("nav", { "aria-label": "Primary", children: /* @__PURE__ */ jsx(NavLinks, { items: NAV_ITEMS }) }),
-      /* @__PURE__ */ jsx(ThemeToggle, {})
+      /* @__PURE__ */ jsx(Button, { asChild: true, size: "heading-2xs", className: "nav-brand", children: /* @__PURE__ */ jsx(NextLink, { href: "/", children: "Shinoda Design System" }) }),
+      /* @__PURE__ */ jsxs("nav", { "aria-label": "Primary", className: "nav-actions", children: [
+        /* @__PURE__ */ jsx(SearchButton, {}),
+        /* @__PURE__ */ jsx(ThemeToggle, {})
+      ] })
     ] }),
     /* @__PURE__ */ jsx(NavProgressiveBlur, {})
   ] });
+}
+function NavLinks({ items }) {
+  const pathname = usePathname();
+  return /* @__PURE__ */ jsx("ul", { className: "nav-links", children: items.map((item) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(
+    Button,
+    {
+      asChild: true,
+      size: "heading-2xs",
+      className: cn(
+        "nav-link",
+        pathname === item.href ? "is-active" : void 0
+      ),
+      children: /* @__PURE__ */ jsx(
+        NextLink,
+        {
+          href: item.href,
+          "aria-current": pathname === item.href ? "page" : void 0,
+          children: item.label
+        }
+      )
+    }
+  ) }, item.href)) });
 }
 function PageWrapper({ children, className }) {
   return /* @__PURE__ */ jsx("div", { className: cn("page-wrapper", className), children });
@@ -4015,146 +4374,6 @@ function AccordionContent({ children, className }) {
     }
   );
 }
-var CommandContext = createContext(null);
-function useCommandContext() {
-  const ctx = useContext(CommandContext);
-  if (ctx == null) throw new Error("Command subcomponents must be inside <Command>");
-  return ctx;
-}
-function Command({ children, className }) {
-  const [query, setQuery] = useState("");
-  const [activeIndex, setActiveIndex] = useState(-1);
-  const itemRefs = useRef([]);
-  const inputId = useId();
-  return /* @__PURE__ */ jsx(CommandContext.Provider, { value: { query, setQuery, activeIndex, setActiveIndex, itemRefs, inputId }, children: /* @__PURE__ */ jsx("div", { className: cn("command", className), role: "combobox", "aria-haspopup": "listbox", "aria-expanded": "true", children }) });
-}
-function CommandInput({ placeholder = "Search\u2026", className }) {
-  const { query, setQuery, activeIndex, setActiveIndex, itemRefs, inputId } = useCommandContext();
-  const handleKeyDown = (e) => {
-    var _a, _b;
-    const items = itemRefs.current.filter((el) => el != null);
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      const nextDown = activeIndex < items.length - 1 ? activeIndex + 1 : 0;
-      (_a = items[nextDown]) == null ? void 0 : _a.focus();
-      setActiveIndex(nextDown);
-    }
-    if (e.key === "ArrowUp") {
-      e.preventDefault();
-      const nextUp = activeIndex > 0 ? activeIndex - 1 : items.length - 1;
-      (_b = items[nextUp]) == null ? void 0 : _b.focus();
-      setActiveIndex(nextUp);
-    }
-  };
-  const clearQuery = useCallback(() => {
-    setQuery("");
-    setActiveIndex(-1);
-  }, [setQuery, setActiveIndex]);
-  return /* @__PURE__ */ jsx("div", { className: "command-search-wrap", children: /* @__PURE__ */ jsxs("div", { className: "command-search-row", children: [
-    /* @__PURE__ */ jsx(
-      Input,
-      {
-        id: inputId,
-        type: "text",
-        className: cn("command-input", className),
-        placeholder,
-        value: query,
-        autoComplete: "off",
-        spellCheck: false,
-        borderless: true,
-        onChange: (e) => {
-          setQuery(e.target.value);
-          setActiveIndex(-1);
-        },
-        onKeyDown: handleKeyDown,
-        role: "searchbox",
-        "aria-autocomplete": "list"
-      }
-    ),
-    query !== "" && /* @__PURE__ */ jsx(
-      "button",
-      {
-        type: "button",
-        className: "command-search-clear",
-        "aria-label": "Clear search",
-        onClick: clearQuery,
-        children: "\xD7"
-      }
-    )
-  ] }) });
-}
-function CommandList({ children, className }) {
-  return /* @__PURE__ */ jsx("div", { className: cn("command-list", className), role: "listbox", children });
-}
-function CommandEmpty({ children, className }) {
-  const { query } = useCommandContext();
-  if (query === "") return null;
-  return /* @__PURE__ */ jsx("div", { className: cn("command-empty", className), children: children != null ? children : "No results found." });
-}
-function CommandGroup({ label, children, className }) {
-  return /* @__PURE__ */ jsxs("div", { className: cn("command-group", className), role: "group", "aria-label": label, children: [
-    label != null && /* @__PURE__ */ jsx("div", { className: "command-group-label", children: label }),
-    children
-  ] });
-}
-function CommandItem({
-  children,
-  onSelect,
-  disabled = false,
-  className,
-  value,
-  icon,
-  hasSubmenu = false
-}) {
-  const { query, itemRefs, setActiveIndex } = useCommandContext();
-  const indexRef = useRef(null);
-  const registerRef = useCallback(
-    (el) => {
-      if (el != null) {
-        if (indexRef.current == null) {
-          indexRef.current = itemRefs.current.length;
-          itemRefs.current.push(el);
-        } else {
-          itemRefs.current[indexRef.current] = el;
-        }
-      }
-    },
-    [itemRefs]
-  );
-  const textContent = value != null ? value : typeof children === "string" ? children : "";
-  const matches = query === "" || textContent.toLowerCase().includes(query.toLowerCase());
-  if (!matches) return null;
-  return /* @__PURE__ */ jsxs(
-    "button",
-    {
-      ref: registerRef,
-      type: "button",
-      role: "option",
-      disabled,
-      className: cn("command-item", disabled && "command-item-disabled", className),
-      onClick: () => {
-        if (!disabled) onSelect == null ? void 0 : onSelect();
-      },
-      onKeyDown: (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          if (!disabled) onSelect == null ? void 0 : onSelect();
-        }
-      },
-      onFocus: () => {
-        if (indexRef.current != null) setActiveIndex(indexRef.current);
-      },
-      children: [
-        icon != null && /* @__PURE__ */ jsx("span", { className: "command-item-icon", "aria-hidden": "true", children: icon }),
-        children,
-        hasSubmenu && /* @__PURE__ */ jsx("span", { className: "command-item-chevron", "aria-hidden": "true", children: /* @__PURE__ */ jsx(Icon, { name: "CaretRight", size: "em" }) })
-      ]
-    }
-  );
-}
-function CommandSeparator({ className }) {
-  return /* @__PURE__ */ jsx("div", { className: cn("command-separator", className), role: "separator" });
-}
 function Table({ children, stickyHeader = false, className }) {
   return /* @__PURE__ */ jsx("div", { className: cn("table-wrapper", className), children: /* @__PURE__ */ jsx("table", { className: cn("table", stickyHeader && "table-sticky-header"), children }) });
 }
@@ -5041,6 +5260,6 @@ var FONT_WEIGHT_TOKENS = [
   { name: "--fw-black", value: "900" }
 ];
 
-export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, BackToTop, Badge, Button, ButtonGroup, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, ConfirmDialog, ContentCard, Cursor, DateInput, Dialog, DialogCard, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogPanel, DialogTitle, DialogTitleRow, DialogTrigger, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EditableTable, FONT_WEIGHT_TOKENS, FileChip, FileDropzone, Footer, Grid, GridTile, GridTileAction, HEADING_VARIANTS, ICONS, ICONS_BY_ID, Icon, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, MainWrapper, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, PADDING_TOKENS, PageWrapper, PlainLink, Popover, PopoverContent, PopoverTrigger, Progress, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, Scrim, SearchDropdown, SectionTile, Select, Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, cn, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };
+export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, BackToTop, Badge, Button, ButtonGroup, COMPONENT_CATEGORIES, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandPalette, CommandPaletteHost, CommandSeparator, ConfirmDialog, ContentCard, Cursor, DateInput, Dialog, DialogCard, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogPanel, DialogTitle, DialogTitleRow, DialogTrigger, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EditableTable, FONT_WEIGHT_TOKENS, FileChip, FileDropzone, Footer, Grid, GridTile, GridTileAction, HEADING_VARIANTS, ICONS, ICONS_BY_ID, Icon, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, MainWrapper, NAV_ITEMS, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, PADDING_TOKENS, PageWrapper, PlainLink, Popover, PopoverContent, PopoverTrigger, Progress, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, Scrim, SearchButton, SearchDropdown, SectionTile, Select, Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, cn, componentLabel, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

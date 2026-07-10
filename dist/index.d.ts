@@ -672,24 +672,27 @@ declare function Icon({ name, size, className, title, ...props }: IconProps): Re
 /**
  * Top navigation bar.
  *
- * Visibility contract (May 2026 spec):
- * - ≥768px: full horizontal nav, theme toggle flush right.
- * - ≤768px: nav is hidden entirely. Items are rendered as a vertical list
- *   in the <Footer> instead. The CSS rule lives in shinoda-base.css under
- *   `.nav` and its responsive overrides — kept declarative, not JS-gated.
+ * Layout:
+ * - Top-left:  single "Shinoda Design System" brand link → /
+ * - Top-right: SearchButton (opens Command palette) + ThemeToggle
+ *
+ * All section navigation now happens through the Command palette
+ * (opened by the search icon or Cmd/Ctrl+K).
  */
 declare function Nav(): React.ReactElement;
 
-interface NavItem {
+interface NavItem$1 {
     readonly label: string;
     readonly href: string;
 }
 interface NavLinksProps {
-    readonly items: readonly NavItem[];
+    readonly items: readonly NavItem$1[];
 }
 declare function NavLinks({ items }: NavLinksProps): React.ReactElement;
 
 declare function ThemeToggle(): React.ReactElement;
+
+declare function SearchButton(): React.ReactElement;
 
 /**
  * Smooth progressive blur rendered below the fixed nav bar.
@@ -704,6 +707,109 @@ declare function ThemeToggle(): React.ReactElement;
  *   --pb-blur-c    (default  4px — lightest, bottom zone)
  */
 declare function NavProgressiveBlur(): React.ReactElement;
+
+interface CommandDialogProps {
+    readonly open: boolean;
+    readonly onClose: () => void;
+    readonly children: React.ReactNode;
+}
+/**
+ * Floating modal wrapper for the Command palette.
+ * Portals to document.body so it layers above the nav (z-index 999).
+ * Renders a scrim that closes the dialog on click.
+ */
+declare function CommandDialog({ open, onClose, children }: CommandDialogProps): React.ReactElement | null;
+
+interface CommandPaletteProps {
+    readonly onClose: () => void;
+}
+/**
+ * Navigation-aware Command palette with three drill-down levels:
+ *   1. sections    — all NAV_ITEMS (leaf items navigate, "Components" drills in)
+ *   2. categories  — COMPONENT_CATEGORIES (drills into level 3)
+ *   3. components  — component pages within the active category (navigate)
+ *
+ * The whole Command is keyed by `${level}:${activeCategory}` so it remounts on
+ * every level transition. Remounting clears query, activeIndex, and the itemRefs
+ * registry inside Command, and re-triggers the CommandInput autoFocus.
+ */
+declare function CommandPalette({ onClose }: CommandPaletteProps): React.ReactElement;
+
+/**
+ * Mounts the CommandDialog with the global open state from ClientShell.
+ * Lives at the root of the React tree so the portal target is always present.
+ */
+declare function CommandPaletteHost(): React.ReactElement;
+
+/**
+ * Single source of truth for primary navigation items.
+ * Consumed by the CommandPalette (top-level sections) and Footer (vertical list, ≤768).
+ */
+declare const NAV_ITEMS: readonly [{
+    readonly label: "Colour";
+    readonly href: "/colour";
+}, {
+    readonly label: "Type";
+    readonly href: "/type";
+}, {
+    readonly label: "Icons";
+    readonly href: "/icons";
+}, {
+    readonly label: "Components";
+    readonly href: "/components";
+}, {
+    readonly label: "Structure";
+    readonly href: "/structure";
+}, {
+    readonly label: "Widths";
+    readonly href: "/widths";
+}, {
+    readonly label: "Paddings";
+    readonly href: "/paddings";
+}, {
+    readonly label: "Margins";
+    readonly href: "/margins";
+}, {
+    readonly label: "Grids";
+    readonly href: "/grids";
+}, {
+    readonly label: "Utility";
+    readonly href: "/utility";
+}, {
+    readonly label: "Implementation";
+    readonly href: "/implementation";
+}];
+type NavItem = (typeof NAV_ITEMS)[number];
+/**
+ * Grouped categories for the /components/* sub-routes.
+ * Used by the CommandPalette to drill from
+ *   level 1 (Components) → level 2 (category) → level 3 (component page).
+ *
+ * Each `items` entry is a slug that maps to `/components/[slug]`.
+ * Labels in level 3 are derived by title-casing the slug.
+ */
+declare const COMPONENT_CATEGORIES: readonly [{
+    readonly label: "Controls";
+    readonly items: readonly ["button", "controls", "link", "tabs"];
+}, {
+    readonly label: "Input";
+    readonly items: readonly ["input", "calendar", "upload"];
+}, {
+    readonly label: "Layout";
+    readonly items: readonly ["card", "content", "divider"];
+}, {
+    readonly label: "Data";
+    readonly items: readonly ["data", "map"];
+}, {
+    readonly label: "Feedback";
+    readonly items: readonly ["feedback", "overlay"];
+}, {
+    readonly label: "Display";
+    readonly items: readonly ["icon", "cursor", "sticker"];
+}];
+type ComponentCategory = (typeof COMPONENT_CATEGORIES)[number];
+/** Title-case a component slug (e.g. "button" → "Button"). */
+declare function componentLabel(slug: string): string;
 
 interface PageWrapperProps {
     readonly children: React.ReactNode;
@@ -1210,13 +1316,16 @@ declare function AccordionContent({ children, className }: AccordionContentProps
 interface CommandProps {
     readonly children: React.ReactNode;
     readonly className?: string;
+    /** Optional callback invoked when Escape is pressed inside the input. */
+    readonly onClose?: () => void;
 }
-declare function Command({ children, className }: CommandProps): React.ReactElement;
+declare function Command({ children, className, onClose }: CommandProps): React.ReactElement;
 interface CommandInputProps {
     readonly placeholder?: string;
     readonly className?: string;
+    readonly autoFocus?: boolean;
 }
-declare function CommandInput({ placeholder, className }: CommandInputProps): React.ReactElement;
+declare function CommandInput({ placeholder, className, autoFocus }: CommandInputProps): React.ReactElement;
 interface CommandListProps {
     readonly children: React.ReactNode;
     readonly className?: string;
@@ -1436,4 +1545,4 @@ declare function useTheme(): readonly [Theme, () => void];
 
 declare function cn(...inputs: readonly ClassValue[]): string;
 
-export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, type AlertVariant, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, BackToTop, Badge, type BadgeVariant, type BodyVariant, Button, ButtonGroup, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, ConfirmDialog, type ConfirmDialogIntent, ContentCard, Cursor, type CursorRef, DateInput, Dialog, DialogCard, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogPanel, DialogTitle, DialogTitleRow, DialogTrigger, type DialogVariant, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, type DropdownMenuItemVariant, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, type EditableColumn, EditableTable, FONT_WEIGHT_TOKENS, FileChip, type FileChipProps, FileDropzone, type FileDropzoneProps, Footer, Grid, GridTile, GridTileAction, HEADING_VARIANTS, type HeadingVariant, ICONS, ICONS_BY_ID, Icon, type IconProps, type IconRecord, type IconSize, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, type LinkSize, MainWrapper, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, type OpacityLevel, PADDING_TOKENS, PageWrapper, PlainLink, Popover, PopoverContent, PopoverTrigger, Progress, type ProgressSize, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, Scrim, type ScrimBlur, SearchDropdown, type SearchOption, SectionTile, Select, type SemanticColor, Sheet, SheetContent, SheetFooter, SheetHeader, type SheetSide, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, type SubheadingVariant, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, type TooltipSide, type TypeVariant, cn, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };
+export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, type AlertVariant, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, BackToTop, Badge, type BadgeVariant, type BodyVariant, Button, ButtonGroup, COMPONENT_CATEGORIES, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandPalette, CommandPaletteHost, CommandSeparator, type ComponentCategory, ConfirmDialog, type ConfirmDialogIntent, ContentCard, Cursor, type CursorRef, DateInput, Dialog, DialogCard, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogPanel, DialogTitle, DialogTitleRow, DialogTrigger, type DialogVariant, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, type DropdownMenuItemVariant, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, type EditableColumn, EditableTable, FONT_WEIGHT_TOKENS, FileChip, type FileChipProps, FileDropzone, type FileDropzoneProps, Footer, Grid, GridTile, GridTileAction, HEADING_VARIANTS, type HeadingVariant, ICONS, ICONS_BY_ID, Icon, type IconProps, type IconRecord, type IconSize, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, type LinkSize, MainWrapper, NAV_ITEMS, Nav, type NavItem, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, type OpacityLevel, PADDING_TOKENS, PageWrapper, PlainLink, Popover, PopoverContent, PopoverTrigger, Progress, type ProgressSize, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, Scrim, type ScrimBlur, SearchButton, SearchDropdown, type SearchOption, SectionTile, Select, type SemanticColor, Sheet, SheetContent, SheetFooter, SheetHeader, type SheetSide, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, type SubheadingVariant, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, type TooltipSide, type TypeVariant, cn, componentLabel, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };
