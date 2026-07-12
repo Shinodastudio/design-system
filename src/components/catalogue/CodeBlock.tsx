@@ -10,6 +10,8 @@ export function CodeBlock({ code }: CodeBlockProps): React.ReactElement {
         marginTop: 'var(--space-4)',
         padding: 'var(--space-4)',
         backgroundColor: 'var(--color-fill-secondary)',
+        border: 'none',
+        borderRadius: 0,
         overflowX: 'auto',
         whiteSpace: 'pre',
       }}

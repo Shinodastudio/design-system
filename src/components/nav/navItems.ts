@@ -1,6 +1,7 @@
 /**
  * Single source of truth for primary navigation items.
- * Consumed by the CommandPalette (top-level sections) and Footer (vertical list, ≤768).
+ * Consumed by the CommandPalette (top-level sections) and Footer (mobile
+ * vertical list, ≤767, and the desktop footer bar's page-name lookup).
  */
 export const NAV_ITEMS = [
   { label: 'Colour',     href: '/colour'     },
@@ -40,4 +41,46 @@ export type ComponentCategory = (typeof COMPONENT_CATEGORIES)[number];
 /** Title-case a component slug (e.g. "button" → "Button"). */
 export function componentLabel(slug: string): string {
   return slug.charAt(0).toUpperCase() + slug.slice(1);
+}
+
+/**
+ * Derives the display label for the current route — used by the desktop
+ * footer bar's "Page Name" slot. Matches NAV_ITEMS first, falls back to the
+ * component catalogue (title-cased slug) for `/components/[slug]`, then
+ * title-cases the last path segment for anything else.
+ */
+export function getPageName(pathname: string): string {
+  if (pathname === '/') return 'Home';
+
+  const navMatch = NAV_ITEMS.find((item) => item.href === pathname);
+  if (navMatch != null) return navMatch.label;
+
+  if (pathname.startsWith('/components/')) {
+    const slug = pathname.split('/')[2] ?? '';
+    return componentLabel(slug);
+  }
+
+  const lastSegment = pathname.split('/').filter(Boolean).pop() ?? '';
+  return componentLabel(lastSegment);
+}
+
+/**
+ * Breadcrumb trail for the current route — used by the desktop footer bar's
+ * left-hand "Page Name" slot (Figma 3932:13432). Single segment for
+ * top-level routes ("Home", "Components"); two segments for the
+ * `/components/[slug]` catalogue pages ("Components", "Button").
+ */
+export function getBreadcrumbSegments(pathname: string): readonly string[] {
+  if (pathname === '/') return ['Home'];
+
+  const navMatch = NAV_ITEMS.find((item) => item.href === pathname);
+  if (navMatch != null) return [navMatch.label];
+
+  if (pathname.startsWith('/components/')) {
+    const slug = pathname.split('/')[2] ?? '';
+    return ['Components', componentLabel(slug)];
+  }
+
+  const lastSegment = pathname.split('/').filter(Boolean).pop() ?? '';
+  return [componentLabel(lastSegment)];
 }

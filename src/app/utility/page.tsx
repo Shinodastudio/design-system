@@ -24,7 +24,47 @@ interface UtilityGroup {
   readonly items: readonly UtilityItem[];
 }
 
+/** Elevated swatch for the Shadow group — a light surface on a filled
+    backdrop so the shadow reads regardless of theme. */
+function ShadowSwatch({ shadowVar }: { readonly shadowVar: string }): React.ReactElement {
+  return (
+    <div
+      style={{
+        padding: 'var(--space-8)',
+        backgroundColor: 'var(--color-fill-primary)',
+        borderRadius: 'var(--radius-md)',
+      }}
+    >
+      <div
+        style={{
+          width: '64px',
+          height: '64px',
+          borderRadius: 'var(--radius-md)',
+          backgroundColor: 'var(--color-core-contrast)',
+          boxShadow: `var(${shadowVar})`,
+        }}
+      />
+    </div>
+  );
+}
+
+const SHADOW_ITEMS: readonly UtilityItem[] = [
+  { name: '.shadow-none', value: 'none', demo: <ShadowSwatch shadowVar="--shadow-none" /> },
+  { name: '.shadow-2xs',  value: '0px 1px 0px rgba(0,0,0,0.05)', demo: <ShadowSwatch shadowVar="--shadow-2xs" /> },
+  { name: '.shadow-xs',   value: '0px 1px 2px rgba(0,0,0,0.05)', demo: <ShadowSwatch shadowVar="--shadow-xs" /> },
+  { name: '.shadow-sm',   value: '0px 1px 3px rgba(0,0,0,0.10), 0px 1px 2px rgba(0,0,0,0.06)', demo: <ShadowSwatch shadowVar="--shadow-sm" /> },
+  { name: '.shadow-md',   value: '0px 2px 4px -1px rgba(0,0,0,0.06), 0px 4px 6px -1px rgba(0,0,0,0.10)', demo: <ShadowSwatch shadowVar="--shadow-md" /> },
+  { name: '.shadow-lg',   value: '0px 4px 6px -2px rgba(0,0,0,0.05), 0px 10px 15px -3px rgba(0,0,0,0.10)', demo: <ShadowSwatch shadowVar="--shadow-lg" /> },
+  { name: '.shadow-xl',   value: '0px 10px 10px -5px rgba(0,0,0,0.04), 0px 20px 25px -5px rgba(0,0,0,0.10)', demo: <ShadowSwatch shadowVar="--shadow-xl" /> },
+  { name: '.shadow-2xl',  value: '0px 25px 50px -12px rgba(0,0,0,0.25)', demo: <ShadowSwatch shadowVar="--shadow-2xl" /> },
+];
+
 const UTILITY_GROUPS: readonly UtilityGroup[] = [
+  {
+    title: 'Shadow',
+    note: 'Elevation scale — none through 2xl. Fixed black-based values, not theme-dependent.',
+    items: SHADOW_ITEMS,
+  },
   {
     title: 'Opacity (content)',
     note: 'Hierarchy tool — only these four values for content. Never 30/50/70/90/10/15.',

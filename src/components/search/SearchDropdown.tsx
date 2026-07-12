@@ -1,8 +1,15 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { cn } from '@/lib/cn';
+import {
+  CommandContext,
+  CommandList,
+  CommandGroup,
+  CommandItem,
+} from '@/components/controls/Command';
+import type { CommandContextValue } from '@/components/controls/Command';
 
 export interface SearchOption {
   readonly value: string;
@@ -46,6 +53,7 @@ export function SearchDropdown({
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const inputId = useId();
 
   const filtered = isLoading
     ? []
@@ -132,9 +140,26 @@ export function SearchDropdown({
     }
   };
 
+  // Drives <CommandItem> — the exact row component the site-wide search
+  // palette uses (Command.tsx) — off this component's own state instead of
+  // mounting a full <Command>+<CommandInput>. `query` is deliberately left
+  // as '' here: filtering already happened above via `filtered`, and a
+  // non-empty query would make CommandItem re-filter against label/value
+  // text alone, silently dropping options that only matched on description.
+  const commandContextValue: CommandContextValue = {
+    query: '',
+    setQuery: () => {},
+    activeIndex,
+    setActiveIndex,
+    itemRefs,
+    inputId,
+    onClose: closeList,
+  };
+
   return (
     <div ref={wrapperRef} className={cn('search-dropdown', className)}>
       <input
+        id={inputId}
         type="text"
         className={cn('search-dropdown-input input', disabled && 'opacity-40')}
         placeholder={placeholder}
@@ -154,38 +179,38 @@ export function SearchDropdown({
         ReactDOM.createPortal(
           <div
             ref={listRef}
-            className="search-dropdown-list"
+            className="search-dropdown-popover"
             style={{ top: position.top, left: position.left, width: position.width }}
-            role="listbox"
           >
-            {isLoading && (
-              <div className="search-dropdown-empty">Loading…</div>
-            )}
-            {!isLoading && filtered.length === 0 && (
-              <div className="search-dropdown-empty">No results.</div>
-            )}
-            {!isLoading && filtered.map((opt, idx) => (
-              <button
-                key={opt.value}
-                ref={el => { itemRefs.current[idx] = el; }}
-                type="button"
-                role="option"
-                aria-selected={opt.value === value}
-                className={cn(
-                  'search-dropdown-item',
-                  opt.value === value && 'search-dropdown-item-selected',
+            <div className="command search-dropdown-command">
+              <CommandList>
+                {isLoading && <div className="command-empty">Loading…</div>}
+                {!isLoading && filtered.length === 0 && (
+                  <div className="command-empty">No results.</div>
                 )}
-                onClick={() => selectOption(opt)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') selectOption(opt);
-                }}
-              >
-                <span className="search-dropdown-item-label">{opt.label}</span>
-                {opt.description != null && (
-                  <span className="search-dropdown-item-description">{opt.description}</span>
+                {!isLoading && filtered.length > 0 && (
+                  <CommandContext.Provider value={commandContextValue}>
+                    <CommandGroup>
+                      {filtered.map((opt) => (
+                        <CommandItem
+                          key={opt.value}
+                          value={opt.label}
+                          selected={opt.value === value}
+                          onSelect={() => selectOption(opt)}
+                        >
+                          <span className="command-item-text">
+                            <span className="command-item-label">{opt.label}</span>
+                            {opt.description != null && (
+                              <span className="command-item-description">{opt.description}</span>
+                            )}
+                          </span>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandContext.Provider>
                 )}
-              </button>
-            ))}
+              </CommandList>
+            </div>
           </div>,
           document.body,
         )}

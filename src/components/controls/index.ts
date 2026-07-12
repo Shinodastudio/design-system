@@ -10,10 +10,10 @@ export {
 
 export {
   Command,
+  CommandHeader,
   CommandInput,
   CommandList,
   CommandEmpty,
   CommandGroup,
   CommandItem,
-  CommandSeparator,
 } from './Command';

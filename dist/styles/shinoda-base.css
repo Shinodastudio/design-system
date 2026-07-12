@@ -82,6 +82,78 @@ button { font: inherit; background: none; border: none; cursor: none; }
 .op-10 { opacity: var(--opacity-10); }
 .op-5  { opacity: var(--opacity-5);  }
 
+/* ─── GLOBAL ELEMENT DEFAULTS — bare tag typography ──────────────────────
+   Unclassed h1–h6 have no browser reset by default, so they fall through to
+   the UA stylesheet (bold, arbitrary sizes) — this is what makes an
+   unstyled <h1> on a consuming site render bold and off-scale. These rules
+   fix that at the tag level so any HTML gets correct Shinoda type with zero
+   classes required. Values mirror the RICH TEXT BLOCK below one-for-one
+   (h1→heading-xl … h6→heading-2xs scale, sourced from the live Guidelines
+   Webflow export and translated onto our own --tracking-* scale, already
+   eased +0.005em past Webflow's raw numbers — see v3 changelog above).
+   Class selectors (.heading-md, .rich-text h3, etc.) always win on
+   specificity, so this section is additive and never fights a styled page.
+   `a`, `ul`/`ol`/`li` and `hr` spacing are deliberately excluded from this
+   section — the app reuses those bare tags structurally for UI chrome (nav
+   strips, footer lists, changelog entries, the .divider component), almost
+   always with flex+gap doing the spacing and a component class resetting
+   list-style. Opinionated prose defaults for those tags would fight that
+   layout. Use the dedicated .link class for the "underlined always" link
+   pattern, and see the RICH TEXT BLOCK below for the prose versions of
+   lists/hr, scoped to `.rich-text` only. */
+h1 { font-size: 2.5rem;   font-weight: var(--fw-normal); line-height: var(--leading-heading); letter-spacing: var(--tracking-n040); }
+h2 { font-size: 2rem;     font-weight: var(--fw-normal); line-height: var(--leading-heading); letter-spacing: var(--tracking-n035); }
+h3 { font-size: 1.5rem;   font-weight: var(--fw-normal); line-height: var(--leading-heading); letter-spacing: var(--tracking-n030); }
+h4 { font-size: 1.25rem;  font-weight: var(--fw-normal); line-height: var(--leading-heading); letter-spacing: var(--tracking-n025); }
+h5 { font-size: 1rem;     font-weight: var(--fw-normal); line-height: var(--leading-heading); letter-spacing: var(--tracking-n020); }
+h6 { font-size: 0.875rem; font-weight: var(--fw-normal); line-height: var(--leading-heading); letter-spacing: var(--tracking-n015); }
+
+p { font-size: 1.25rem; font-weight: var(--fw-normal); line-height: var(--leading-body-md); letter-spacing: var(--tracking-n015); }
+
+strong { font-weight: var(--fw-medium); }
+em { font-style: italic; }
+
+blockquote {
+  padding-left: var(--space-4);
+  border-left: var(--border-md) solid var(--color-text-primary);
+  font-style: italic;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 0.1em 0.3em;
+  background: var(--color-transparent-weak);
+  border-radius: var(--radius-xs);
+}
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: var(--space-4);
+  background: var(--color-fill-primary);
+  border: var(--border-sm) solid var(--color-outline);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+}
+pre code { background: transparent; padding: 0; }
+
+/* No margin-block here deliberately — the canonical .divider component
+   (Divider.tsx) relies on zero-margin hr and controls spacing via parent
+   layout/gap. Rich-text flow adds its own margin-block; see below. */
+hr { border: none; height: 1px; background: var(--color-text-primary); opacity: var(--opacity-divider); }
+
+/* ─── SHADOW ──────────────────────────────────────────────────────────
+   Elevation scale — none through 2xl. Fixed black-based values (not
+   theme-dependent); see --shadow-* tokens in shinoda-tokens.css. */
+.shadow-none { box-shadow: var(--shadow-none); }
+.shadow-2xs  { box-shadow: var(--shadow-2xs);  }
+.shadow-xs   { box-shadow: var(--shadow-xs);   }
+.shadow-sm   { box-shadow: var(--shadow-sm);   }
+.shadow-md   { box-shadow: var(--shadow-md);   }
+.shadow-lg   { box-shadow: var(--shadow-lg);   }
+.shadow-xl   { box-shadow: var(--shadow-xl);   }
+.shadow-2xl  { box-shadow: var(--shadow-2xl);  }
+
 /* ─── TEXT STYLE UTILITIES ──────────────────────────────────────────────
    Both the short Shinoda form (.text-italic) and the Webflow canonical form
    (.text-style-italic) are defined as aliases so the catalogue can label
@@ -107,7 +179,13 @@ button { font: inherit; background: none; border: none; cursor: none; }
 .text-3lines, .text-style-3lines { -webkit-line-clamp: 3; line-clamp: 3; }
 
 /* ─── ICON SIZES ─────────────────────────────────────────────────────── */
-.icon { display: inline-block; flex-shrink: 0; }
+/* pointer-events: none so the glyph never intercepts hover/click — every
+   icon is decorative, always wrapped by an interactive parent (button,
+   link, label). Without this, hovering dead-center of a small icon-only
+   button (e.g. .command-back) can resolve e.target/elementFromPoint to
+   the <svg> itself, which the cursor system doesn't recognise as a
+   button, so it fails to hide the custom cursor. */
+.icon { display: inline-block; flex-shrink: 0; pointer-events: none; }
 .icon-2xs { width: var(--icon-2xs); height: var(--icon-2xs); }
 .icon-xs  { width: var(--icon-xs);  height: var(--icon-xs);  }
 .icon-sm  { width: var(--icon-sm);  height: var(--icon-sm);  }
@@ -144,12 +222,12 @@ button { font: inherit; background: none; border: none; cursor: none; }
 /* Sticky left column — `top` must clear the nav bar + progressive blur stack
    (see --sticky-offset in tokens). Previously used --space-6 (24px) which sat
    inside the blur tail and ate the title under the blur. */
-.col-sticky { position: sticky; top: var(--sticky-offset); align-self: start; height: fit-content; padding-right: var(--space-6); }
+.col-sticky { position: sticky; top: var(--sticky-offset); align-self: start; height: fit-content; max-width: 480px; padding-right: 8em; }
 /* Collapse to single column at Webflow's mobile-landscape cutoff (767) to
    match the design canvas — keeps two columns at tablet (1024 canvas, ≤991). */
 @media (max-width: 767px) {
   .grid-2col { grid-template-columns: 1fr; }
-  .col-sticky { position: static; }
+  .col-sticky { position: static; max-width: none; }
 }
 
 /* Dividers — horizontal only, 10% opacity (token --opacity-divider) */
@@ -216,6 +294,16 @@ button { font: inherit; background: none; border: none; cursor: none; }
   font-size: 0.875rem;
   letter-spacing: var(--tracking-n015);
   opacity: 1;
+}
+/* Wordmark reads as a standalone chip rather than a plain text link, so its
+   hover pill gets more breathing room than the generic .btn 3px inset —
+   8px (--space-2) on all sides, still --radius-sm (8px) to match. Compound
+   selector (.nav-brand.btn) outranks the later, equally-specific .btn::before
+   rule in the cascade — Button renders both classes together on the anchor. */
+.nav-brand.btn::before,
+.nav-brand::before {
+  inset: calc(-1 * var(--space-2));
+  border-radius: var(--radius-sm);
 }
 .nav-actions {
   display: flex;
@@ -306,10 +394,88 @@ button { font: inherit; background: none; border: none; cursor: none; }
   .nav { display: none; }
 }
 
-/* ─── FOOTER — only visible ≤767, mirrors nav items as vertical list ── */
-.footer { display: none; }
+/* ─── SITE FOOTER — two layouts sharing one <footer> landmark (Figma 3932:13432) ──
+   .footer-bar  Persistent bar, ≥768px only: page name (left) / attribution +
+                Changelog trigger + theme toggle (right).
+   .footer-nav  Mobile-only (≤767px) vertical list of NAV_ITEMS — the sole nav
+                surface at that breakpoint, since .nav hides entirely there. */
+.site-footer { width: 100%; }
+
+.footer-bar { display: none; }
+@media (min-width: 768px) {
+  .footer-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    width: 100%;
+    max-width: var(--container-5xl);
+    margin-inline: auto;
+    padding-block: var(--space-4);
+    padding-inline: var(--padding-page);
+    color: var(--color-text-primary);
+  }
+}
+
+/* Breadcrumb trail — segments joined by "/", 2-unit (--space-2) gap on
+   either side of the slash so "Components", "/", "Buttons" read as three
+   evenly-spaced flex items. */
+.footer-bar-page {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+.footer-bar-slash { opacity: var(--opacity-40); }
+
+.footer-bar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+/* Each item sets its own opacity directly (system rule: hierarchy through
+   opacity, not compounding parent opacity) — "Made by Shinoda" at 80%,
+   "{year}"/"Changelog" at 40%, the dot separators at 20%. */
+.footer-bar-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.footer-bar-meta-dim { opacity: var(--opacity-40); }
+
+.footer-bar-dot {
+  width: 4px;
+  height: 4px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background-color: currentColor;
+  opacity: var(--opacity-20);
+}
+
+.footer-bar-changelog {
+  position: relative;
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  padding: var(--space-1);
+  margin: calc(var(--space-1) * -1);
+  border-radius: var(--radius-sm);
+  cursor: none;
+  transition: opacity 120ms ease, background-color 120ms ease;
+}
+.footer-bar-changelog:hover,
+.footer-bar-changelog:focus-visible {
+  opacity: 1;
+  background-color: var(--alpha-10);
+}
+.footer-bar-changelog:focus-visible { outline: none; }
+
+.footer-nav { display: none; }
 @media (max-width: 767px) {
-  .footer {
+  .site-footer {
     display: block;
     width: 100%;
     max-width: var(--container-5xl);
@@ -318,8 +484,8 @@ button { font: inherit; background: none; border: none; cursor: none; }
     padding-inline: var(--padding-page);
   }
   .footer-nav {
-    list-style: none;
     display: flex;
+    list-style: none;
     flex-direction: column;
     gap: var(--space-4);
     padding: 0;
@@ -329,11 +495,11 @@ button { font: inherit; background: none; border: none; cursor: none; }
   .footer-nav-link:hover { opacity: 1; }
 }
 
-/* ─── BUTTONS — no padding; bg inset 10% from text bounds (Figma spec) ─
+/* ─── BUTTONS — no padding; bg extends 3px outside text bounds (Figma spec) ─
    The outer element is exactly the text's natural bounding box — no extra
-   space. The hover background (::before) is inset 10% / 10.07% so it sits
-   just inside the text, not outside it. This matches Figma 3904-2513 where
-   button-bg uses inset-[10%_10.07%] with no padding on the container. */
+   space. The hover background (::before) extends 3px beyond the text at
+   body-xs (1rem / 16px) — i.e. 0.1875em, which scales proportionally with
+   the button's font-size at every other size step. */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -354,14 +520,18 @@ button { font: inherit; background: none; border: none; cursor: none; }
   transform: translate(var(--gravity-x), var(--gravity-y));
   transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1), opacity 150ms ease;
 }
-/* Spring zoom background — extends 0.1em beyond the text footprint on all sides.
+/* Spring zoom background — extends 0.1875em (3px at body-xs) beyond the text
+   footprint on all sides.
    At rest: scale(0.8) compresses it back to approximately text-width (invisible).
-   On hover: springs to scale(1) — full text bounds + 0.1em padding on all sides.
-   The pre-hover state is imperceptible; the hover reveals the full pill. */
+   On hover: springs to scale(1) — full text bounds + 0.1875em padding on all sides.
+   The pre-hover state is imperceptible; the hover reveals the full pill.
+   Hover/active/focus fill sits at 10% (--alpha-10) — reverted back from a
+   5% experiment; 10% is the spec value used consistently across buttons,
+   dropdown items, and other control surfaces. */
 .btn::before {
   content: '';
   position: absolute;
-  inset: -0.1em;
+  inset: -0.1875em;
   background-color: var(--alpha-10);
   border-radius: var(--radius-sm);
   transform: scale(0.8);
@@ -379,6 +549,16 @@ button { font: inherit; background: none; border: none; cursor: none; }
   padding: 0;
   gap: 0;
   line-height: 1;
+}
+
+/* Proportional interior padding (15% of icon size) on every icon rendered
+   inside a button — leading, trailing, or icon-only — compensates for the
+   Micro Solid set's smaller, denser glyphs so icons read at the same visual
+   weight as before. Button icons are always size="em", so 0.15em scales
+   automatically with the button's font-size (e.g. heading-md's 24px gets
+   3.6px padding, heading-2xs's 14px gets 2.1px). */
+.btn .icon {
+  padding: 0.15em;
 }
 
 /* Button size variants — Figma parity (May 2026).
@@ -409,6 +589,7 @@ button { font: inherit; background: none; border: none; cursor: none; }
   outline: none;
 }
 .btn:focus-visible::before {
+  background-color: var(--alpha-10);
   transform: scale(1);
   opacity: 1;
 }
@@ -472,6 +653,15 @@ button { font: inherit; background: none; border: none; cursor: none; }
 }
 /* Active state — slight opacity drop on press, mirroring buttons */
 .link:active { opacity: var(--opacity-80); }
+
+/* Proportional interior padding (15% of icon size) on every icon rendered
+   inside a link — compensates for the Micro Solid set's smaller, denser
+   glyphs so icons read at the same visual weight as before. Link icons are
+   always size="em", so 0.15em scales automatically with the link's
+   font-size. */
+.link .icon {
+  padding: 0.15em;
+}
 
 /* Focus ring — 2px outline at 2px offset; also activates hover fills so
    keyboard-focused links are visually consistent with the hovered state. */
@@ -1116,6 +1306,7 @@ html.cursor--focused .cursor { opacity: 0; }
 }
 .preview-frame[data-state="focus"] .btn::before,
 .component-card-preview[data-state="focus"] .btn::before {
+  background-color: var(--alpha-10);
   transform: scale(1);
   opacity: 1;
 }
@@ -1246,7 +1437,14 @@ html.cursor--focused .cursor { opacity: 0; }
   align-items: center;
   justify-content: center;
   min-height: 8em;
-  padding: var(--padding-card);
+  /* Figma spec: 0.5em more breathing room than the standard card padding. */
+  padding: calc(var(--padding-card) + 0.5em);
+}
+/* Inset the code block 1 unit (4px) from the card's left/right/bottom edges
+   so it reads as a nested surface rather than flush with the outer card. */
+.component-card .collapsible-code {
+  margin: 0 var(--space-1) var(--space-1);
+  width: auto;
 }
 /* Code snippet — monospace, 40% opacity, sits below the preview inside the card */
 .component-card-code {
@@ -1317,29 +1515,37 @@ html.cursor--focused .cursor { opacity: 0; }
 .code-snippet-copied .code-snippet-action { display: inline-flex; }
 
 /* ─── COLLAPSIBLE CODE — long-form copy-paste block ─────────────────────
-   Used on /implementation for skill files and prompt sources. Collapsed to
-   8 lines by default with a soft fade at the bottom edge. Mono body, system
-   radius, fill-secondary surface. Footer toggle expands/collapses; header
-   copy button writes the full body to clipboard. */
+   Figma "Code Snippet" (node 3904:6552). Fully collapsed by default — only
+   the header (label + icon-only actions) shows; the code body is hidden
+   until expanded via the icon toggle. Transparent at rest, --color-
+   transparent-weak (5% text-primary, theme-adaptive) on hover — works on
+   any surface rather than being pinned to a fixed panel colour. */
 .collapsible-code {
   display: flex;
   flex-direction: column;
-  border-radius: var(--radius-md);
-  background-color: var(--color-fill-secondary);
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  transition: background-color 150ms ease;
   overflow: hidden;
+}
+.collapsible-code:hover,
+.collapsible-code:focus-within {
+  background-color: var(--color-transparent-weak);
 }
 .collapsible-code-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--color-outline);
+  padding: var(--space-2);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: var(--tracking-n005);
   color: var(--color-text-primary);
   opacity: var(--opacity-40);
+}
+.collapsible-code.is-expanded .collapsible-code-header {
+  border-bottom: 1px solid var(--color-outline);
 }
 .collapsible-code:hover .collapsible-code-header,
 .collapsible-code:focus-within .collapsible-code-header { opacity: 1; }
@@ -1347,24 +1553,34 @@ html.cursor--focused .cursor { opacity: 0; }
   text-transform: uppercase;
   letter-spacing: var(--tracking-wider);
 }
-.collapsible-code-copy {
-  display: inline-flex;
+/* Icon-only action group — Copy, then Expand/Collapse immediately to its
+   right, per Figma. Each is its own small hover target, not a full-width
+   text button. */
+.collapsible-code-actions {
+  display: flex;
   align-items: center;
   gap: var(--space-1);
-  padding: 0 0.1em;
+  flex-shrink: 0;
+}
+.collapsible-code-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-1);
   border: none;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: inherit;
-  font: inherit;
   cursor: none;
   transition: background-color 150ms ease;
 }
-.collapsible-code-copy:hover,
-.collapsible-code-copy:focus-visible {
-  background-color: var(--color-overlay-core);
+.collapsible-code-action:hover,
+.collapsible-code-action:focus-visible {
+  background-color: var(--color-transparent-weak);
   outline: none;
 }
-.collapsible-code-copy:active { opacity: var(--opacity-40); }
+.collapsible-code-action:active { opacity: var(--opacity-40); }
+.collapsible-code-action .icon { padding: 0.15em; }
 .collapsible-code-body {
   position: relative;
   overflow: hidden;
@@ -1372,7 +1588,7 @@ html.cursor--focused .cursor { opacity: 0; }
 }
 .collapsible-code-pre {
   margin: 0;
-  padding: var(--space-4);
+  padding: 0 var(--space-2) var(--space-2);
   font-family: var(--font-mono);
   font-size: 0.8125rem;
   line-height: 1.5;
@@ -1380,33 +1596,14 @@ html.cursor--focused .cursor { opacity: 0; }
   color: var(--color-text-primary);
   white-space: pre-wrap;
   word-break: break-word;
-}
-.collapsible-code-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-1);
-  width: 100%;
-  padding: var(--space-3);
-  border: none;
-  border-top: 1px solid var(--color-outline);
+  /* Neutralise the global bare `pre` box treatment (background/border/
+     radius) — this block lives inside .collapsible-code, which already
+     owns its own container styling. */
   background: transparent;
-  color: var(--color-text-primary);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: var(--tracking-n005);
-  text-transform: uppercase;
-  opacity: var(--opacity-60);
-  cursor: none;
-  transition: background-color 150ms ease, opacity 150ms ease;
+  border: none;
+  border-radius: 0;
+  overflow-x: visible;
 }
-.collapsible-code-toggle:hover,
-.collapsible-code-toggle:focus-visible {
-  background-color: var(--color-overlay-core);
-  opacity: 1;
-  outline: none;
-}
-.collapsible-code-toggle:active { opacity: var(--opacity-40); }
 
 /* ─── LINK PAGE — 50/50 variant grid ─────────────────────────────────── */
 .link-variant-grid {
@@ -1562,6 +1759,12 @@ html.cursor--focused .cursor { opacity: 0; }
   text-overflow: ellipsis;
   white-space: nowrap;
   mix-blend-mode: difference;
+  /* Neutralise the global bare `code` chip treatment — this text sits
+     inside .colour-swatch-code, which already owns the hover/pill bg. */
+  font-size: 1em;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
 }
 .colour-swatch-code-icon {
   flex-shrink: 0;
@@ -1600,6 +1803,14 @@ html.cursor--focused .cursor { opacity: 0; }
   background: var(--color-transparent-weak);
   border-radius: var(--radius-xs);
   color: var(--color-text-tertiary);
+}
+/* The pill lives on the wrapper above — neutralise the global bare `code`
+   chip on the nested <code> so it doesn't double up. */
+.colour-row-hex code {
+  font: inherit;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
 }
 
 /* ─── FULL-WIDTH CATALOGUE PAGES ─────────────────────────────────────────
@@ -1909,9 +2120,14 @@ html.cursor--focused .cursor { opacity: 0; }
   pointer-events: none;
 }
 .choice:hover::before { transform: scale(1); opacity: 1; }
+/* pointer-events: none so hover always resolves to the parent label
+   (data-cursor="btn") — without this, hovering the text itself makes the
+   custom cursor system treat the <span> as a text node and swap to the
+   I-beam, since label activation doesn't need the span to receive events. */
 .choice-label {
   font-size: 1rem;
   letter-spacing: var(--tracking-n010);
+  pointer-events: none;
 }
 
 /* ─── TABS ───────────────────────────────────────────────────────────── */
@@ -2003,10 +2219,6 @@ html.cursor--focused .cursor { opacity: 0; }
 .rich-text-md { font-size: 1.25rem;  letter-spacing: var(--tracking-n015); }
 .rich-text-lg { font-size: 1.5rem;   letter-spacing: var(--tracking-n020); }
 .rich-text > * + * { margin-top: var(--space-4); }
-.rich-text h1, .rich-text h2, .rich-text h3, .rich-text h4, .rich-text h5, .rich-text h6 {
-  line-height: var(--leading-heading);
-  font-weight: var(--fw-normal);
-}
 .rich-text > h1 + *, .rich-text > h2 + *, .rich-text > h3 + *,
 .rich-text > h4 + *, .rich-text > h5 + *, .rich-text > h6 + * {
   margin-top: var(--space-4);
@@ -2015,51 +2227,51 @@ html.cursor--focused .cursor { opacity: 0; }
 .rich-text > * + h4, .rich-text > * + h5, .rich-text > * + h6 {
   margin-top: var(--space-10);
 }
-.rich-text h1 { font-size: 2.5rem;  letter-spacing: var(--tracking-n040); }
-.rich-text h2 { font-size: 2rem;    letter-spacing: var(--tracking-n035); }
-.rich-text h3 { font-size: 1.5rem;  letter-spacing: var(--tracking-n030); }
-.rich-text h4 { font-size: 1.25rem; letter-spacing: var(--tracking-n025); }
-.rich-text h5 { font-size: 1rem;    letter-spacing: var(--tracking-n020); }
-.rich-text h6 { font-size: 0.875rem; letter-spacing: var(--tracking-n015); opacity: var(--opacity-60); text-transform: uppercase; }
-.rich-text p { line-height: var(--leading-body-md); }
-.rich-text strong { font-weight: var(--fw-medium); }
-.rich-text em { font-style: italic; }
-.rich-text a {
-  color: inherit;
-  text-decoration: underline;
-  text-decoration-color: color-mix(in srgb, currentColor 20%, transparent);
-  text-underline-offset: 0.25em;
-  transition: text-decoration-color 200ms ease;
+/* h1–h6, p, strong, em, blockquote, code/pre all inherit their type values
+   from the GLOBAL ELEMENT DEFAULTS section above — .rich-text just adds the
+   flow-specific extras: colour hierarchy (titles stay full-strength, running
+   copy drops to --color-text-secondary so prose reads as a distinct voice
+   from headings — see leon.work/word reference), the "eyebrow" treatment on
+   h6, the underlined-link pattern (bare <a> is deliberately left unstyled
+   globally), and the prose versions of lists/hr (also excluded from the
+   global section — see note above; those tags double as UI-chrome
+   primitives elsewhere in the app). */
+.rich-text h1, .rich-text h2, .rich-text h3,
+.rich-text h4, .rich-text h5, .rich-text h6 {
+  color: var(--color-text-primary);
 }
-.rich-text a:hover { text-decoration-color: currentColor; }
+.rich-text h6 { opacity: var(--opacity-60); text-transform: uppercase; }
+.rich-text p, .rich-text li, .rich-text blockquote {
+  color: var(--color-text-secondary);
+}
 .rich-text ul, .rich-text ol { padding-left: var(--space-6); }
 .rich-text ul { list-style: disc; }
 .rich-text ol { list-style: decimal; }
 .rich-text li { margin-top: var(--space-2); line-height: var(--leading-body-md); }
 .rich-text li::marker { color: var(--color-text-tertiary); }
-.rich-text blockquote {
-  padding-left: var(--space-4);
-  border-left: var(--border-md) solid var(--color-text-primary);
-  font-style: italic;
+.rich-text hr { margin-block: var(--space-8); }
+/* Links mirror the .plainlink component (PlainLink.tsx) exactly — the
+   dedicated "inline in body copy" link variant — so prose links and
+   catalogue PlainLink usages never drift apart. Text jumps back up to
+   full-strength primary (against the secondary-coloured body copy around
+   it) with a border-bottom underline at 20% opacity, brightening to
+   currentColor on hover/focus. */
+.rich-text a {
+  color: var(--color-text-primary);
+  display: inline;
+  position: relative;
+  padding: 0 0 0.2em;
+  border-bottom: var(--border-md) solid color-mix(in srgb, currentColor 20%, transparent);
+  text-decoration: none;
+  transition: border-bottom-color 150ms ease;
 }
-.rich-text code {
-  font-family: var(--font-mono);
-  font-size: 0.9em;
-  padding: 0.1em 0.3em;
-  background: var(--color-transparent-weak);
-  border-radius: var(--radius-xs);
+.rich-text a:hover { border-bottom-color: currentColor; }
+.rich-text a:focus-visible {
+  outline: var(--border-md) solid var(--color-text-primary);
+  outline-offset: var(--border-md);
+  border-radius: 2px;
+  border-bottom-color: currentColor;
 }
-.rich-text pre {
-  font-family: var(--font-mono);
-  font-size: 0.9em;
-  padding: var(--space-4);
-  background: var(--color-fill-primary);
-  border: var(--border-sm) solid var(--color-outline);
-  border-radius: var(--radius-md);
-  overflow-x: auto;
-}
-.rich-text pre code { background: transparent; padding: 0; }
-.rich-text hr { border: none; height: 1px; background: var(--color-text-primary); opacity: var(--opacity-divider); margin-block: var(--space-8); }
 /* Images embedded in a rich-text flow — 16px corner radius per May 2026 spec.
    Use <figure><img/><figcaption/></figure> for captioned images. */
 .rich-text figure { margin-block: var(--space-6); }
@@ -2167,7 +2379,11 @@ html.cursor--focused .cursor { opacity: 0; }
 .alert-green   { --alert-accent: var(--accent-green); }
 .alert-blue    { --alert-accent: var(--accent-blue); }
 
-.alert-icon { display: inline-flex; flex-shrink: 0; color: var(--alert-accent); }
+/* Proportional interior padding (15% of icon size) compensates for the
+   Micro Solid set's smaller, denser glyphs so the icon reads at the same
+   visual weight as before. Alert icon is always size="sm" (--icon-sm,
+   16px), so 15% resolves to 2.4px. */
+.alert-icon { display: inline-flex; flex-shrink: 0; padding: calc(var(--icon-sm) * 0.15); color: var(--alert-accent); }
 .alert-body { flex: 1; display: flex; flex-direction: column; gap: var(--space-1); }
 /* Title, content, and dismiss all share body-sm (1.125rem). Hierarchy is
    colour, not weight or scale — title at 100% accent, body at 60%, dismiss
@@ -2257,12 +2473,17 @@ html.cursor--focused .cursor { opacity: 0; }
   white-space: normal;
   word-break: break-word;
 }
-/* Icon slot — caret or any 12px icon beside the label */
+/* Icon slot — caret or any 12px icon beside the label. Proportional
+   interior padding (15% of icon size) compensates for the Micro Solid
+   set's smaller, denser glyphs so the icon reads at the same visual weight
+   as before. Tooltip icon is always size="2xs" (--icon-2xs, 12px), so 15%
+   resolves to 1.8px. */
 .tooltip-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  padding: calc(var(--icon-2xs) * 0.15);
   color: inherit;
 }
 .tooltip-hidden { opacity: 0; pointer-events: none; }
@@ -2316,11 +2537,20 @@ html.cursor--focused .cursor { opacity: 0; }
   flex-direction: column;
   gap: var(--space-6);
   position: relative;
-  animation: dialog-slide-up 220ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  animation: dialog-slide-up 220ms cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 @keyframes dialog-slide-up {
   from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  /* No `both`/`forwards` fill-mode on the animation above: with a fill-mode
+     holding, the browser keeps applying the *interpolated* transform after
+     the animation ends — which resolves to matrix(1,0,0,1,0,0), not the
+     literal `none` written here — and any non-`none` transform value (even
+     an identity matrix) makes the element a new containing block for
+     position:fixed descendants, which would misplace the cursor if it's
+     ever portaled inside this subtree. Dropping the fill-mode lets the
+     property revert to the base cascade's `transform: none` once the
+     animation finishes, so the element never becomes a containing block. */
+  to   { opacity: 1; transform: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .dialog-content { animation: none; }
@@ -2351,7 +2581,10 @@ html.cursor--focused .cursor { opacity: 0; }
 
 /* Bare variant — strips the card surface so the dialog is a positioning
    frame only. Children (title row + card) compose the visible chrome. */
-.dialog.dialog--bare {
+/* display:flex is scoped to [open] — without it, this rule would override
+   the native `dialog:not([open]) { display: none }` UA default and force
+   the dialog to render permanently regardless of open state. */
+.dialog.dialog--bare[open] {
   background: transparent;
   border: none;
   padding: 0;
@@ -2361,16 +2594,31 @@ html.cursor--focused .cursor { opacity: 0; }
   flex-direction: column;
   /* Title row → card spacing follows the card-padding rhythm (32px on sm). */
   gap: var(--padding-card);
-  animation: dialog-card-in var(--motion-modal-card-in) both;
+  animation: dialog-card-in var(--motion-modal-card-in);
 }
 .dialog.dialog--bare::backdrop {
   background-color: color-mix(in srgb, var(--alpha-strong, var(--color-text-primary)) 55%, transparent);
   backdrop-filter: blur(var(--blur-md));
   -webkit-backdrop-filter: blur(var(--blur-md));
+  /* Without this, the scrim (darken + blur) pops in on the very first frame
+     while only the card animates — reads as instant rather than smooth. */
+  animation: dialog-backdrop-in var(--motion-modal-card-in) both;
 }
 @keyframes dialog-card-in {
   from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
+  /* `none`, not `translateY(0)` — this animation runs on the <dialog>
+     element itself for the bare variant, with no `both`/`forwards`
+     fill-mode above. A lingering fill-mode would hold the interpolated
+     transform (resolves to matrix(1,0,0,1,0,0), not literal `none`) after
+     the animation ends, making the element a containing block for
+     position:fixed descendants — breaking the cursor's viewport-relative
+     coordinates once it's portaled inside an open dialog (see
+     dialogStack.ts). */
+  to   { opacity: 1; transform: none; }
+}
+@keyframes dialog-backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* Title row — sits on the scrim above the card. White, regardless of theme,
@@ -2416,7 +2664,8 @@ html.cursor--focused .cursor { opacity: 0; }
 
 /* Drawer variant — full-viewport overlay, slide-up panel with top-rounded
    card extending to viewport bottom. */
-.dialog.dialog--drawer {
+/* display:flex is scoped to [open] — see .dialog--bare[open] above for why. */
+.dialog.dialog--drawer[open] {
   inset: 0;
   width: 100vw;
   max-width: none;
@@ -2435,6 +2684,9 @@ html.cursor--focused .cursor { opacity: 0; }
   background-color: color-mix(in srgb, var(--alpha-strong, var(--color-text-primary)) 55%, transparent);
   backdrop-filter: blur(var(--blur-md));
   -webkit-backdrop-filter: blur(var(--blur-md));
+  /* See .dialog--bare::backdrop above — fades the scrim in alongside the
+     panel's slide-up instead of popping in on the first frame. */
+  animation: dialog-backdrop-in var(--motion-modal-in) both;
 }
 .dialog--drawer .dialog-panel {
   position: relative;
@@ -2445,11 +2697,13 @@ html.cursor--focused .cursor { opacity: 0; }
   flex-direction: column;
   min-height: 0;
   gap: var(--padding-card);
-  animation: dialog-drawer-in var(--motion-modal-in) both;
+  animation: dialog-drawer-in var(--motion-modal-in);
 }
 @keyframes dialog-drawer-in {
   from { opacity: 0; transform: translateY(100%); }
-  to   { opacity: 1; transform: translateY(0); }
+  /* `none`, not `translateY(0)`, and no `both`/`forwards` fill-mode above —
+     see dialog-card-in's comment above. */
+  to   { opacity: 1; transform: none; }
 }
 .dialog--drawer .dialog-card--drawer {
   flex: 1;
@@ -2462,7 +2716,9 @@ html.cursor--focused .cursor { opacity: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   .dialog.dialog--bare,
-  .dialog--drawer .dialog-panel { animation: none; }
+  .dialog--drawer .dialog-panel,
+  .dialog.dialog--bare::backdrop,
+  .dialog.dialog--drawer::backdrop { animation: none; }
 }
 
 /* ─── CONFIRM DIALOG — message + action row composed on dialog-card ───────────
@@ -2479,7 +2735,7 @@ html.cursor--focused .cursor { opacity: 0; }
   line-height: var(--leading-title);
   color: var(--color-text-primary);
 }
-.dialog-confirm-actions { display: flex; gap: var(--space-2); align-items: center; }
+.dialog-confirm-actions { display: flex; gap: var(--space-2); align-items: center; justify-content: flex-end; }
 .dialog-confirm-btn {
   position: relative;
   display: inline-flex;
@@ -2499,6 +2755,10 @@ html.cursor--focused .cursor { opacity: 0; }
   transition: opacity 120ms ease;
 }
 .dialog-confirm-btn > span { white-space: nowrap; }
+/* Proportional interior padding (15% of icon size) compensates for the
+   Micro Solid set's denser glyphs, matching the same treatment on .btn/.link
+   icons — without it the icon reads oversized next to the label. */
+.dialog-confirm-btn .icon { padding: 0.15em; }
 .dialog-confirm-btn::before {
   content: '';
   position: absolute;
@@ -2520,6 +2780,51 @@ html.cursor--focused .cursor { opacity: 0; }
 .dialog-confirm-btn--cancel:hover > * { opacity: var(--opacity-80); }
 .dialog-confirm-btn--confirm { color: var(--color-status-error); }
 .dialog-confirm-btn--confirm.dialog-confirm-btn--default { color: var(--color-text-primary); }
+
+/* ─── CHANGELOG DIALOG — bottom drawer, scrollable entry list ───────────────
+   Opened from the footer bar's "Changelog" trigger (ChangelogDialog.tsx).
+   Figma node 4030:2209 — drawer variant, card extends to the viewport
+   bottom and scrolls internally so the scrim/title row stay put. */
+.changelog-card {
+  overflow-y: auto;
+}
+.changelog-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  /* Divider-split rhythm between updates — 8 units (32px). */
+  gap: var(--space-8);
+}
+.changelog-entry {
+  display: flex;
+  flex-direction: column;
+  /* Heading (date/badges + title) to body (bullet list) — 4 units (16px). */
+  gap: var(--space-4);
+}
+.changelog-entry:not(:last-child) {
+  padding-bottom: var(--space-8);
+  border-bottom: var(--border-sm) solid color-mix(in srgb, var(--color-text-primary) 10%, transparent);
+}
+.changelog-entry-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.changelog-entry-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.changelog-entry-title { color: var(--color-text-primary); }
+.changelog-entry-changes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-width: var(--container-lg);
+  padding-left: var(--space-4);
+  color: var(--color-text-tertiary);
+}
+.changelog-entry-changes > li { list-style: disc; }
 
 /* ─── SHEET — left/right only, inset 8px to become a floating card ──────────
    Scrim uses the same blur + darken treatment as Dialog. The sheet panel is
@@ -2837,7 +3142,7 @@ html.cursor--focused .cursor { opacity: 0; }
   gap: var(--space-1);
   border-radius: var(--radius-lg);
   background: var(--color-fill-base);
-  box-shadow: 0 12px 24px 0 rgba(0, 0, 0, 0.10);
+  box-shadow: var(--shadow-xl);
 }
 
 /* Search area — 12px padding, column. Houses the icon + input + clear row. */
@@ -2872,6 +3177,65 @@ html.cursor--focused .cursor { opacity: 0; }
   transition: opacity 120ms ease;
 }
 .command-search-clear:hover { opacity: var(--opacity-80); }
+
+/* Back-navigation header — shown only when 1+ levels deep in the palette
+   (Figma 4030:948). Sits above the search input as its own white/fill-base
+   card. Only the back icon is an interactive control (icon-button hover +
+   gravity, like any other .btn); the level label beside it is a plain,
+   non-interactive heading — a <div> rather than a text-flow tag so the
+   global cursor system's plain-text detection (p/span/h1-6/etc., see
+   shinoda-interactions.js) never assigns it the I-beam cursor. */
+.command-header {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: var(--space-1);
+  border-radius: var(--radius-md);
+  background: white;
+}
+@media (prefers-color-scheme: dark) {
+  .command-header { background: var(--color-fill-primary); }
+}
+[data-theme="dark"] .command-header { background: var(--color-fill-primary); }
+[data-theme="light"] .command-header { background: white; }
+.command-header-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-2);
+}
+.command-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  /* body-xs (1rem) — matches .command-header-label so the chevron icon
+     (size="em") reads at 16px instead of inheriting body's 24px default. */
+  font-size: 1rem;
+  padding: var(--space-2);
+  background: transparent;
+  border: none;
+  cursor: none;
+  border-radius: var(--radius-sm);
+  opacity: var(--opacity-40);
+  transition: opacity 100ms ease, background-color 100ms ease;
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+}
+.command-back:hover,
+.command-back:focus-visible {
+  opacity: var(--opacity-80);
+  background-color: var(--color-transparent-weak);
+  outline: none;
+}
+.command-back .icon { padding: 0.15em; }
+.command-header-label {
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n010);
+  line-height: var(--leading-body-xs);
+  color: var(--color-text-primary);
+  opacity: var(--opacity-40);
+}
 
 /* Items card — white elevated surface, 4px padding, 8px gap between groups. */
 .command-list {
@@ -2934,21 +3298,28 @@ html.cursor--focused .cursor { opacity: 0; }
 .command-item:hover,
 .command-item:focus { background-color: var(--color-transparent-weak); outline: none; }
 .command-item-disabled { opacity: var(--opacity-40); }
+/* Single-select value indicator (e.g. SearchDropdown's current option) —
+   same tint as :hover, so a selected-and-hovered item reads identically. */
+.command-item-selected { background-color: var(--color-transparent-weak); }
 /* Leading icon — inherits size from item font */
 .command-item-icon { display: inline-flex; align-items: center; flex-shrink: 0; }
 /* Submenu chevron — pushed to far right */
 .command-item-chevron { margin-left: auto; display: inline-flex; align-items: center; flex-shrink: 0; opacity: var(--opacity-40); }
-.command-separator {
-  height: var(--border-sm);
-  width: 100%;
-  background-color: var(--color-text-primary);
-  opacity: var(--opacity-divider);
-  margin: var(--space-1) 0;
-}
-
+.command-item .icon { padding: 0.15em; }
+/* Two-line item content (label + secondary description) — e.g. SearchDropdown's
+   city + country rows. Stacks vertically inside the item's row flex layout;
+   min-width: 0 lets the label truncate instead of forcing the row to overflow. */
+.command-item-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.command-item-label { font-size: 1rem; }
+.command-item-description { font-size: 0.875rem; letter-spacing: var(--tracking-n010); opacity: var(--opacity-60); }
 /* ─── COMMAND DIALOG — modal palette portal ──────────────────────────────────
    .command-overlay sits above the nav (z-index 999). The scrim is the full
-   inset:0 backdrop (close-on-click); the dialog is the centered card. */
+   inset:0 backdrop (close-on-click); the dialog is the centered card.
+   Scrim uses --color-scrim (a static dark fill, same token as Dialog/Scrim)
+   rather than --color-transparent-strong — that token flips to a *light*
+   wash in dark mode (it's meant for hover overlays on dark surfaces), which
+   read as a pale backdrop instead of a dimmed one. Card motion reuses
+   --motion-modal-card-in, the same centred-modal lift used by dialog--bare. */
 .command-overlay {
   position: fixed;
   inset: 0;
@@ -2957,21 +3328,34 @@ html.cursor--focused .cursor { opacity: 0; }
 .command-scrim {
   position: absolute;
   inset: 0;
-  background-color: var(--color-transparent-strong);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background-color: var(--color-scrim);
+  backdrop-filter: blur(var(--blur-xs));
+  -webkit-backdrop-filter: blur(var(--blur-xs));
+  opacity: 0;
+  transition: opacity var(--motion-modal-card-in);
 }
+.command-scrim-visible { opacity: 1; }
 .command-dialog {
   position: absolute;
   top: 15vh;
   left: 50%;
-  transform: translateX(-50%);
-  width: min(560px, calc(100vw - var(--space-8)));
+  width: min(var(--container-sm), calc(100vw - var(--space-8)));
   max-width: 100%;
+  opacity: 0;
+  transform: translate(-50%, 12px) scale(0.98);
+  transition: opacity var(--motion-modal-card-in), transform var(--motion-modal-card-in);
+}
+.command-dialog-visible {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
 }
 .command-palette { width: 100%; }
 @media (max-width: 640px) {
   .command-dialog { top: 8vh; width: calc(100vw - var(--space-6)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .command-scrim,
+  .command-dialog { transition: none; }
 }
 
 /* ─── TABLE ──────────────────────────────────────────────────────────────── */
@@ -3111,45 +3495,20 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
 }
 
 /* ─── SEARCH DROPDOWN ────────────────────────────────────────────────────── */
+/* Reuses the exact <CommandList>/<CommandItem> "MenuItem" row from the
+   site-wide search palette (Command.tsx) — SearchDropdown just supplies its
+   own CommandContext (built from its own query/activeIndex/itemRefs state)
+   instead of mounting a full <Command>+<CommandInput>, since its own always-
+   visible text field already performs the search-input role. Only the
+   positioning wrapper and the card-width override below are unique to this
+   component; everything else (.command, .command-list, .command-item…)
+   is shared with CommandPalette. */
 .search-dropdown { position: relative; width: 100%; }
-.search-dropdown-list {
+.search-dropdown-popover {
   position: absolute;
   z-index: 997;
-  background-color: var(--color-fill-base);
-  border: var(--border-sm) solid var(--color-transparent-weak);
-  border-radius: var(--radius-md);
-  padding: var(--space-1) 0;
-  max-height: 280px;
-  overflow-y: auto;
 }
-.search-dropdown-item {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  width: 100%;
-  padding: var(--space-3) var(--space-4);
-  font: inherit;
-  font-size: 1rem;
-  letter-spacing: var(--tracking-n015);
-  color: var(--color-text-primary);
-  background: transparent;
-  border: none;
-  text-align: left;
-  cursor: none;
-  transition: background-color 100ms ease;
-}
-.search-dropdown-item:hover,
-.search-dropdown-item:focus { background-color: var(--color-transparent-weak); outline: none; }
-.search-dropdown-item-selected { background-color: var(--color-transparent-weak); }
-.search-dropdown-item-label { font-size: 1rem; }
-.search-dropdown-item-description { font-size: 0.875rem; letter-spacing: var(--tracking-n010); opacity: var(--opacity-60); }
-.search-dropdown-empty {
-  padding: var(--space-4);
-  font-size: 0.875rem;
-  letter-spacing: var(--tracking-n010);
-  opacity: var(--opacity-40);
-  text-align: center;
-}
+.search-dropdown-command { width: 100%; }
 
 /* ─── CONTENT CARD ───────────────────────────────────────────────────────── */
 .content-card {
@@ -3304,6 +3663,11 @@ select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor:
   color: var(--color-text-primary);
   display: flex;
   align-items: center;
+  /* Proportional interior padding (15% of icon size) compensates for the
+     Micro Solid set's smaller, denser glyphs so the icon reads at the same
+     visual weight as before. The file icon is a fixed 16px svg, so 15%
+     resolves to 2.4px. */
+  padding: calc(16px * 0.15);
 }
 .file-chip-name {
   flex: 1;

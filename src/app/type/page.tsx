@@ -188,7 +188,7 @@ export default function TypePage(): React.ReactElement {
               <h1>Heading 1</h1>
               <p>The grain of a system is felt in the longest paragraph, not the loudest button.</p>
               <h2>Heading 2</h2>
-              <p>Tracking eases at smaller sizes. Opacity carries hierarchy where size cannot.</p>
+              <p>Tracking eases at smaller sizes. Opacity carries hierarchy where size cannot. Links inside a paragraph, like <a href="/components/link">this one</a>, share the underline pattern of the plain link component.</p>
               <ul>
                 <li>Tokens before components.</li>
                 <li>Opacity before colour.</li>

@@ -16,12 +16,12 @@ import {
 } from '@/components/controls/Accordion';
 import {
   Command,
+  CommandHeader,
   CommandInput,
   CommandList,
   CommandGroup,
   CommandItem,
   CommandEmpty,
-  CommandSeparator,
 } from '@/components/controls/Command';
 import { Icon } from '@/components/icons/Icon';
 
@@ -152,50 +152,50 @@ export default function ControlsPage(): React.ReactElement {
 
           <ComponentSection
             name="Command"
-            description="Filterable command palette with icon items, sub-level chevrons, and a clearable search. Groups live in a white card; empty state only shows after a query."
-            code={`<Command>\n  <CommandInput placeholder="Search…" />\n  <CommandList>\n    <CommandGroup label="Navigation">\n      <CommandItem icon={<Icon name="Swatches" size="em" />}>Colour</CommandItem>\n      <CommandItem icon={<Icon name="PuzzlePiece" size="em" />} hasSubmenu>Components</CommandItem>\n    </CommandGroup>\n    <CommandSeparator />\n    <CommandGroup label="Actions">\n      <CommandItem icon={<Icon name="Copy" size="em" />}>Copy token</CommandItem>\n    </CommandGroup>\n    <CommandEmpty />\n  </CommandList>\n</Command>`}
+            description="Filterable command palette with icon items and sub-level chevrons. Groups live in a white card, separated by spacing rather than divider lines. Drilling into a sub-level swaps the search field's neighbour for a persistent header with a back button — not an in-list item. Empty state only shows after a query."
+            code={`<Command>\n  <CommandInput placeholder="Search…" />\n  <CommandList>\n    <CommandGroup label="Navigation">\n      <CommandItem icon={<Icon name="color-palette" size="em" />}>Colour</CommandItem>\n      <CommandItem icon={<Icon name="module-puzzle" size="em" />} hasSubmenu>Components</CommandItem>\n    </CommandGroup>\n    <CommandGroup label="Actions">\n      <CommandItem icon={<Icon name="copy-paste" size="em" />}>Copy token</CommandItem>\n    </CommandGroup>\n    <CommandEmpty />\n  </CommandList>\n</Command>\n\n// Drilled into a sub-level — header replaces the in-list "Back" item:\n<Command key="components">\n  <CommandHeader label="Components" onBack={goBack} />\n  <CommandInput placeholder="Search components…" onBackspaceEmpty={goBack} />\n  <CommandList>…</CommandList>\n</Command>`}
             sizes={SIZES}
             states={['default']}
             render={(): React.ReactNode => (
-              <Command>
-                <CommandInput placeholder="Search commands…" />
+              <Command key={commandPanel}>
+                {commandPanel === 'components' && (
+                  <CommandHeader label="Components" onBack={(): void => setCommandPanel('root')} />
+                )}
+                <CommandInput
+                  placeholder={commandPanel === 'root' ? 'Search commands…' : 'Search components…'}
+                  onBackspaceEmpty={commandPanel === 'components' ? (): void => setCommandPanel('root') : undefined}
+                />
                 <CommandList>
                   {commandPanel === 'root' ? (
                     <>
                       <CommandGroup label="Navigation">
-                        <CommandItem icon={<Icon name="Swatches" size="em" />}>Colour</CommandItem>
-                        <CommandItem icon={<Icon name="TextT" size="em" />}>Typography</CommandItem>
+                        <CommandItem icon={<Icon name="color-palette" size="em" />}>Colour</CommandItem>
+                        <CommandItem icon={<Icon name="type-cursor-1" size="em" />}>Typography</CommandItem>
                         <CommandItem
-                          icon={<Icon name="PuzzlePiece" size="em" />}
+                          icon={<Icon name="module-puzzle" size="em" />}
                           hasSubmenu
                           onSelect={(): void => setCommandPanel('components')}
                         >
                           Components
                         </CommandItem>
                       </CommandGroup>
-                      <CommandSeparator />
                       <CommandGroup label="Actions">
-                        <CommandItem icon={<Icon name="Copy" size="em" />}>Copy token</CommandItem>
-                        <CommandItem icon={<Icon name="Export" size="em" />} disabled>Export</CommandItem>
+                        <CommandItem icon={<Icon name="copy-paste" size="em" />}>Copy token</CommandItem>
+                        <CommandItem icon={<Icon name="export-output" size="em" />} disabled>Export</CommandItem>
                       </CommandGroup>
                     </>
                   ) : (
                     <>
-                      <CommandGroup label="Components">
-                        <CommandItem icon={<Icon name="CaretLeft" size="em" />} onSelect={(): void => setCommandPanel('root')}>Back</CommandItem>
-                      </CommandGroup>
-                      <CommandSeparator />
                       <CommandGroup label="Primitives">
-                        <CommandItem icon={<Icon name="CursorClick" size="em" />}>Button</CommandItem>
-                        <CommandItem icon={<Icon name="TextCursor" size="em" />}>Input</CommandItem>
-                        <CommandItem icon={<Icon name="ToggleLeft" size="em" />}>Switch</CommandItem>
-                        <CommandItem icon={<Icon name="SlidersHorizontal" size="em" />}>Slider</CommandItem>
+                        <CommandItem icon={<Icon name="cursor-click" size="em" />}>Button</CommandItem>
+                        <CommandItem icon={<Icon name="edit-frame-textbox" size="em" />}>Input</CommandItem>
+                        <CommandItem icon={<Icon name="horizontal-toggle-button-single-left" size="em" />}>Switch</CommandItem>
+                        <CommandItem icon={<Icon name="slider-horizontal-1" size="em" />}>Slider</CommandItem>
                       </CommandGroup>
-                      <CommandSeparator />
                       <CommandGroup label="Overlay">
-                        <CommandItem icon={<Icon name="FrameCorners" size="em" />}>Dialog</CommandItem>
-                        <CommandItem icon={<Icon name="SidebarSimple" size="em" />}>Sheet</CommandItem>
-                        <CommandItem icon={<Icon name="ChatCircle" size="em" />}>Tooltip</CommandItem>
+                        <CommandItem icon={<Icon name="layout-border-frame" size="em" />}>Dialog</CommandItem>
+                        <CommandItem icon={<Icon name="layout-border-right" size="em" />}>Sheet</CommandItem>
+                        <CommandItem icon={<Icon name="chat-bubble-square" size="em" />}>Tooltip</CommandItem>
                       </CommandGroup>
                     </>
                   )}

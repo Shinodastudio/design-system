@@ -59,7 +59,7 @@ export function CodeSnippet({
         {copied ? 'Copied to Clipboard' : code}
       </span>
       <span className="code-snippet-action" aria-hidden="true">
-        <Icon name={copied ? 'CheckCircle' : 'Copy'} size="sm" />
+        <Icon name={copied ? 'check-circle-2' : 'copy-paste'} size="sm" />
       </span>
     </button>
   );

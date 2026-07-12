@@ -33,7 +33,7 @@ export default function CardPage(): React.ReactElement {
           <ComponentSection
             name="GridTile"
             description="Square aspect, no outline at rest. A dashed outline lights when any action button inside the tile is hovered or keyboard-focused. The inner content dims to 20% while a button is hovered so the action row stays legible. Meta text sits in the grid gap and only appears on hover."
-            code={`<GridTile\n  meta="12:34 PM"\n  actions={\n    <>\n      <GridTileAction ariaLabel="Delete" variant="danger" onClick={fn}>\n        <Icon name="Trash" size="sm" />\n      </GridTileAction>\n      <GridTileAction ariaLabel="Download" onClick={fn}>\n        <Icon name="DownloadSimple" size="sm" />\n      </GridTileAction>\n    </>\n  }\n>\n  {/* tile content */}\n</GridTile>`}
+            code={`<GridTile\n  meta="12:34 PM"\n  actions={\n    <>\n      <GridTileAction ariaLabel="Delete" variant="danger" onClick={fn}>\n        <Icon name="delete-bin-1" size="sm" />\n      </GridTileAction>\n      <GridTileAction ariaLabel="Download" onClick={fn}>\n        <Icon name="download-box-1" size="sm" />\n      </GridTileAction>\n    </>\n  }\n>\n  {/* tile content */}\n</GridTile>`}
             sizes={SIZES}
             states={['default']}
             render={(): React.ReactNode => (
@@ -54,10 +54,10 @@ export default function CardPage(): React.ReactElement {
                     actions={
                       <>
                         <GridTileAction ariaLabel="Delete" variant="danger" onClick={(): void => {}}>
-                          <Icon name="Trash" size="sm" />
+                          <Icon name="delete-bin-1" size="sm" />
                         </GridTileAction>
                         <GridTileAction ariaLabel="Download" onClick={(): void => {}}>
-                          <Icon name="DownloadSimple" size="sm" />
+                          <Icon name="download-box-1" size="sm" />
                         </GridTileAction>
                       </>
                     }

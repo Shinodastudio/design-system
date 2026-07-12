@@ -1,0 +1,148 @@
+export type ChangelogType =
+  | 'Feature'
+  | 'Improvement'
+  | 'Fix'
+  | 'Docs'
+  | 'Sync'
+  | 'Infrastructure';
+
+export interface ChangelogEntry {
+  readonly title: string;
+  readonly type: ChangelogType;
+  /** ISO date (YYYY-MM-DD). */
+  readonly date: string;
+  readonly version?: string;
+  readonly changes: readonly string[];
+}
+
+/**
+ * Static snapshot of the Shinoda design system Changelog, sourced from the
+ * live Notion database (collection 05b8938e-42b7-456f-ac67-7b46d87276d4).
+ *
+ * This is a point-in-time copy, not a live integration — the app has no
+ * Notion dependency, API key, or env var, consistent with "don't add
+ * dependencies without flagging first". Update by re-fetching the database
+ * and pasting new/changed entries in, newest first.
+ */
+export const CHANGELOG: readonly ChangelogEntry[] = [
+  {
+    title: 'Icon system overhaul, command palette rebuild, changelog + dialog polish',
+    type: 'Feature',
+    date: '2026-07-12',
+    version: 'v0.2.0',
+    changes: [
+      'Replaced 1512 Phosphor icons with 2018 Micro Solid glyphs across the app; per-icon viewBox capture in codegen, proportional 15% padding compensation on buttons/links/alerts/tooltips/chips',
+      'Added an 8-step shadow scale (--shadow-none → --shadow-2xl) with .shadow-* utilities, sourced directly from Figma',
+      'Global bare-tag typography defaults added for h1–h6/p/strong/em/blockquote/code/pre; .rich-text now layers a colour hierarchy on top — titles stay full-strength, body copy drops to --color-text-secondary, and prose links match the PlainLink component (border-bottom underline, 20% → 100% opacity on hover)',
+      'Command palette (⌘K) rebuilt: persistent back-button header replaces breadcrumbs, groups separated by spacing only (no dividers), deep-search flattened across all component slugs, smoother scrim + card open animation, gravity removed from individual menu item rows',
+      'Command primitive (/components/controls) brought in line with the palette: dropped CommandSeparator, added CommandHeader, groups now spacing-only',
+      'New ChangelogDialog drawer backed by a static Notion snapshot (src/data/changelog.ts), with an 8-unit gap between entries and a 4-unit gap between title and body',
+      'Footer bar rebuilt: left-aligned breadcrumb, "Made by Shinoda" / year / changelog trigger on the right, transparent background, width now matches nav and main exactly',
+      'Collapsible code blocks now do a true max-height collapse/expand with icon-only controls and a hover-only background tint',
+      'Dialog fixes: cursor now portals into the open <dialog> via a new dialogStack.ts (was rendering underneath the scrim); removed fill-mode: both from the slide/card/drawer keyframes, fixing a fixed-positioning bug after the animation completed',
+      'Button spec corrected back to 10% hover fill / 0.80 active opacity (had drifted to 20%/0.40) and 0.1875em inset padding; both shinoda-SKILL.md copies updated to match',
+      'Gravity system reduced 30% (radius 80 → 56, strength 0.25 → 0.175) across the React hook and the vanilla shinoda-interactions.js mirror, which had drifted out of sync',
+      'Select and all multi-size components (Select, Text Link, External Link) now default to heading-md, matching catalogue convention',
+    ],
+  },
+  {
+    title: 'Package rename to @shinodastudio/ds, CI publish workflow',
+    type: 'Infrastructure',
+    date: '2026-07-10',
+    version: 'v0.1.2',
+    changes: [
+      'Corrected package scope from @shinoda to @shinodastudio to match the GitHub org — any consuming project must update its .npmrc scope and install reference accordingly',
+      'Publishing is now fully automated: pushing a v* git tag triggers a GitHub Actions workflow that builds the library and publishes to GitHub Packages',
+      'Replaces the manual npm publish step',
+    ],
+  },
+  {
+    title: 'Webflow review: PlainLink, BackToTop, nav group-fade, radius/opacity rules',
+    type: 'Feature',
+    date: '2026-06-03',
+    version: 'v0.1.1',
+    changes: [
+      'Introduced PlainLink component',
+      'Introduced BackToTop component',
+      'Added nav group-fade behaviour',
+      'Audited and corrected radius and opacity values to system spec throughout',
+    ],
+  },
+  {
+    title: 'Focus states, nav, progressive blur, card radii, icon page UX',
+    type: 'Improvement',
+    date: '2026-05-21',
+    changes: [
+      'Standardised focus states to a 2px --color-text-primary outline at 2px offset across buttons and links (links previously had no focus ring at all)',
+      'Button ::before spring-bg now activates on focus to match hover',
+      'System OS dark/light preference now respected on first load via a rewritten ThemeScript that always sets data-theme, with a matchMedia listener added to useTheme for mid-session OS changes',
+      'Nav hover chip corrected to inset: -3px / --alpha-10 fill (was far too wide at -0.8em); rest opacity lowered to --opacity-40 per system spec',
+      'Replaced the 8-layer JS-computed progressive blur below the nav with a 3-layer CSS pseudo-element approach using overlapping gradient masks — no seams, fully reusable as .progressive-blur',
+      'Moved nav backdrop-filter off .nav-inner entirely into the progressive blur element (starting at top: 0) to eliminate the hard rectangular clipping edge',
+      'Component page code blocks now use CollapsibleCode instead of the ad-hoc inline <code> + copy button',
+      'Icon page: removed the "Search" label, replaced the size picker with Tabs, moved it above the icon grid',
+      'Back arrow on catalogue pages now hangs outside the text column via negative margin so titles align with body content',
+      'Card radii updated to --radius-md (12px) across 17 surface/panel elements; buttons, tooltips, chips, and focus rings remain at --radius-sm (8px)',
+    ],
+  },
+  {
+    title: 'Git staging rules, cursor consistency, sync-design-system skill',
+    type: 'Docs',
+    date: '2026-05-10',
+    changes: [
+      'Replaced the sweep-all-into-commit PR rule with deliberate staging behaviour: changes are staged per logical unit, and push requires explicit instruction',
+      'Corrected cursor spec in shinoda-README.md to match shinoda-SKILL.md (single .cursor element, not the old two-element dot/ring system)',
+      'Removed stray "commit and push next-env.d.ts" line from Engineering Conventions',
+      'Wrote the sync-design-system skill from scratch — the file had been overwritten with a duplicate of init-labs-project and the actual sync logic was absent',
+    ],
+  },
+  {
+    title: 'Added init-labs-project skill + CLAUDE.md corrections',
+    type: 'Docs',
+    date: '2026-04-28',
+    changes: [
+      'Wrote the project initialisation skill — the single entry point for every new Shinoda Labs project',
+      'Covers: three-question brief, stack audit (greenfield vs existing), /system/ scaffold from canonical disk source, .claude/ setup with settings.json and project-level CLAUDE.md, Next.js App Router wiring (layout, providers, tsconfig), design system skill load, session brief output',
+      'Corrected CLAUDE.md on disk: removed stale "New Genre Labs" reference (it\u2019s just Labs)',
+      'Confirmed British spellings already in place',
+    ],
+  },
+  {
+    title: 'Added sync-design-system skill',
+    type: 'Docs',
+    date: '2026-04-28',
+    changes: [
+      'Drafted the maintenance skill that closes the loop on the disk → Notion mirror',
+      'Manual invocation only — no hooks, no schedules',
+      'Diffs each canonical file against its Notion page, asks for a one-paragraph rationale, and writes a new entry here',
+      'Intentionally one-way (disk is source of truth) and intentionally manual — the act of writing the rationale is itself the point',
+      'The mapping table inside the skill is where to add new files when the system grows',
+    ],
+  },
+  {
+    title: 'Full v3 sync: disk → Notion for CSS/JS, merge for SKILL.md',
+    type: 'Sync',
+    date: '2026-04-28',
+    changes: [
+      'Notion was two major versions behind on all three CSS/JS files (v2 → v3)',
+      'Tokens lost the old tracking/leading naming convention in favour of explicit numeric tokens (--tracking-n040 etc.)',
+      'Opacity scale formalised and canonicalised (20/40/60/80/5% only)',
+      'Base lost scroll-behavior: smooth and the two-element cursor (dot + ring) in favour of the single inverted .cursor element',
+      'Interactions updated to left/top positioning from transform: translate(calc()), lerp tightened from 0.12 to 0.22, chip cursor state added',
+      'SKILL.md merged: kept Notion\u2019s cleaner philosophical structure and file-import section, reinstated disk\u2019s full type scale table, cursor context table, and component checklist',
+      'Canonical disk backup location noted: /Users/leon/Documents/Studio Guidelines/Design System/Claude/',
+    ],
+  },
+  {
+    title: 'Restructure of source files',
+    type: 'Docs',
+    date: '2026-04-28',
+    changes: [
+      'Collapsed duplicate design-system specification out of CLAUDE.md — shinoda-SKILL.md is now the single living source for opacity scale, typography, cursor, layout, and refused patterns',
+      'CLAUDE.md keeps identity, voice, and code standards, and points to SKILL for anything visual',
+      'Lifted the PR format and review preferences onto a dedicated Engineering Conventions page so the parent index stays clean',
+      'Removed the claude.json backup — that file is Claude Code\u2019s runtime state, not configuration, and shouldn\u2019t have been mirrored',
+      'Moved the legacy Development Project Framework and website checklist pages into Archive — neither matches the current stack or philosophy',
+    ],
+  },
+] as const;

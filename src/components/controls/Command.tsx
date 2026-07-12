@@ -12,8 +12,17 @@ import {
 import { cn } from '@/lib/cn';
 import { Icon } from '@/components/icons/Icon';
 import { Input } from '@/components/primitives/Input';
+import { useGravity } from '@/hooks/useGravity';
 
-interface CommandContextValue {
+/**
+ * Exported (alongside the type) so consumers that want the exact same
+ * <CommandItem> row used by the site-wide search palette — but driven by
+ * their own search field instead of <CommandInput> — can supply their own
+ * provider value. See SearchDropdown for the reference usage: it renders
+ * <CommandItem> straight off its own query/activeIndex/itemRefs state,
+ * with no <Command> or <CommandInput> in the tree at all.
+ */
+export interface CommandContextValue {
   readonly query: string;
   readonly setQuery: (q: string) => void;
   readonly activeIndex: number;
@@ -23,12 +32,21 @@ interface CommandContextValue {
   readonly onClose: (() => void) | null;
 }
 
-const CommandContext = createContext<CommandContextValue | null>(null);
+export const CommandContext = createContext<CommandContextValue | null>(null);
 
 function useCommandContext(): CommandContextValue {
   const ctx = useContext(CommandContext);
   if (ctx == null) throw new Error('Command subcomponents must be inside <Command>');
   return ctx;
+}
+
+/**
+ * Current search query, for consumers that need to branch on it directly —
+ * e.g. rendering a group of results only while the user is actively
+ * searching. Must be called from a component mounted inside <Command>.
+ */
+export function useCommandQuery(): string {
+  return useCommandContext().query;
 }
 
 interface CommandProps {
@@ -59,9 +77,15 @@ interface CommandInputProps {
   readonly placeholder?: string;
   readonly className?: string;
   readonly autoFocus?: boolean;
+  /**
+   * Invoked when Backspace is pressed while the query is already empty —
+   * lets a drilled-down level pop back up via the keyboard, mirroring the
+   * click behaviour of <CommandHeader>'s back button. Omit at the top level.
+   */
+  readonly onBackspaceEmpty?: () => void;
 }
 
-export function CommandInput({ placeholder = 'Search…', className, autoFocus = false }: CommandInputProps): React.ReactElement {
+export function CommandInput({ placeholder = 'Search…', className, autoFocus = false, onBackspaceEmpty }: CommandInputProps): React.ReactElement {
   const { query, setQuery, activeIndex, setActiveIndex, itemRefs, inputId, onClose } = useCommandContext();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -73,6 +97,11 @@ export function CommandInput({ placeholder = 'Search…', className, autoFocus =
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const items = itemRefs.current.filter((el): el is HTMLButtonElement => el != null);
+    if (e.key === 'Backspace' && query === '' && onBackspaceEmpty != null) {
+      e.preventDefault();
+      onBackspaceEmpty();
+      return;
+    }
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       const nextDown = activeIndex < items.length - 1 ? activeIndex + 1 : 0;
@@ -140,6 +169,39 @@ export function CommandInput({ placeholder = 'Search…', className, autoFocus =
   );
 }
 
+interface CommandHeaderProps {
+  /** Label of the level currently being browsed, e.g. "Components". */
+  readonly label: string;
+  readonly onBack: () => void;
+}
+
+/**
+ * Back-navigation row shown above <CommandInput> once the palette has
+ * drilled 1+ levels deep (Figma 4030:948). Distinct from an in-list
+ * "← Back" item — this is a persistent header, not a filterable option.
+ */
+export function CommandHeader({ label, onBack }: CommandHeaderProps): React.ReactElement {
+  const backRef = useRef<HTMLButtonElement | null>(null);
+  useGravity(backRef);
+
+  return (
+    <div className="command-header">
+      <div className="command-header-row">
+        <button
+          ref={backRef}
+          type="button"
+          className="command-back"
+          onClick={onBack}
+          aria-label={`Back to ${label}`}
+        >
+          <Icon name="arrows-button-left" size="em" />
+        </button>
+        <div className="command-header-label">{label}</div>
+      </div>
+    </div>
+  );
+}
+
 interface CommandListProps {
   readonly children: React.ReactNode;
   readonly className?: string;
@@ -196,8 +258,10 @@ interface CommandItemProps {
   readonly value?: string;
   /** Leading icon — typically <Icon name="..." size="em" /> */
   readonly icon?: React.ReactNode;
-  /** Shows a CaretRight chevron on the trailing edge to signal a sub-level. */
+  /** Shows a right-pointing caret chevron on the trailing edge to signal a sub-level. */
   readonly hasSubmenu?: boolean;
+  /** Marks the item as the current value of a single-select list (e.g. SearchDropdown). */
+  readonly selected?: boolean;
 }
 
 export function CommandItem({
@@ -208,6 +272,7 @@ export function CommandItem({
   value,
   icon,
   hasSubmenu = false,
+  selected = false,
 }: CommandItemProps): React.ReactElement | null {
   const { query, itemRefs, activeIndex, setActiveIndex, inputId, onClose } = useCommandContext();
   const indexRef = useRef<number | null>(null);
@@ -236,8 +301,9 @@ export function CommandItem({
       ref={registerRef}
       type="button"
       role="option"
+      aria-selected={selected}
       disabled={disabled}
-      className={cn('command-item', disabled && 'command-item-disabled', className)}
+      className={cn('command-item', selected && 'command-item-selected', disabled && 'command-item-disabled', className)}
       onClick={(): void => { if (!disabled) onSelect?.(); }}
       onKeyDown={(e): void => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -282,17 +348,10 @@ export function CommandItem({
       {children}
       {hasSubmenu && (
         <span className="command-item-chevron" aria-hidden="true">
-          <Icon name="CaretRight" size="em" />
+          <Icon name="arrows-button-right" size="em" />
         </span>
       )}
     </button>
   );
 }
 
-interface CommandSeparatorProps {
-  readonly className?: string;
-}
-
-export function CommandSeparator({ className }: CommandSeparatorProps): React.ReactElement {
-  return <div className={cn('command-separator', className)} role="separator" />;
-}

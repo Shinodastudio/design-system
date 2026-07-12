@@ -11,6 +11,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/lib/cn';
+import { popDialog, pushDialog } from '@/lib/dialogStack';
 
 /**
  * Dialog — three composable layouts on a single native <dialog>:
@@ -143,9 +144,15 @@ export function DialogContent({
     if (el == null) return;
     if (open) {
       if (!el.open) el.showModal();
+      // Register as the active top-layer host so the custom cursor (which
+      // otherwise renders underneath a modal's top-layer scrim/content
+      // regardless of its own z-index) can portal itself inside.
+      pushDialog(el);
     } else {
       if (el.open) el.close();
+      popDialog(el);
     }
+    return (): void => popDialog(el);
   }, [open]);
 
   useEffect(() => {

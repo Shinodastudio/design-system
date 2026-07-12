@@ -2,8 +2,10 @@
 
 import { useEffect } from 'react';
 
-const GRAVITY_RADIUS   = 80;
-const GRAVITY_STRENGTH = 0.25;
+/* Radius and strength reduced 30% from the original 80 / 0.25 — pull now
+ * activates closer to the element and displaces less per pixel of distance. */
+const GRAVITY_RADIUS   = 56;
+const GRAVITY_STRENGTH = 0.175;
 /** Caps displacement so wide/tall elements (e.g. full-width inputs) don't
  *  shift by hundreds of px. Small buttons never approach this limit (~5px max). */
 const GRAVITY_MAX      = 6;

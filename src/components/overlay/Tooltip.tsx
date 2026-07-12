@@ -50,7 +50,7 @@ interface TooltipProps {
    */
   readonly width?: 'variable' | 'fixed';
   /**
-   * Renders a `CaretDown` icon beside the label. Only applies in `variable`
+   * Renders a downward caret icon beside the label. Only applies in `variable`
    * mode; ignored when `width="fixed"`. Matches Figma icon=true variant.
    */
   readonly icon?: boolean;
@@ -67,9 +67,20 @@ export function Tooltip({
   const id = useId();
   const [visible, setVisible] = useState(false);
   const [position, setPosition] = useState<TooltipPosition>({ top: 0, left: 0 });
+  // Portal must not render on the server, and must not render during the
+  // client's initial hydration pass either — `document` already exists at
+  // that point even though the SSR output didn't include the portal, which
+  // is exactly the server/client branch hydration mismatch. Gating on state
+  // that starts `false` on both server and first client render (and only
+  // flips after mount, via effect) keeps the two passes identical.
+  const [mounted, setMounted] = useState(false);
   const triggerRef = useRef<HTMLElement | null>(null);
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const computePosition = useCallback(() => {
     const trigger = triggerRef.current;
@@ -147,7 +158,7 @@ export function Tooltip({
   return (
     <TooltipContext.Provider value={{ id, visible, position, side, triggerRef, show, hide }}>
       {triggerEl}
-      {typeof document !== 'undefined' &&
+      {mounted &&
         ReactDOM.createPortal(
           <div
             ref={tooltipRef}
@@ -165,7 +176,7 @@ export function Tooltip({
             {content}
             {icon && width !== 'fixed' && (
               <span className="tooltip-icon">
-                <Icon name="CaretDown" size="2xs" />
+                <Icon name="arrows-button-down" size="2xs" />
               </span>
             )}
           </div>,

@@ -1,6 +1,6 @@
 {
   "name": "@shinodastudio/ds",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Shinoda Design System — components, styles, and tokens",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
