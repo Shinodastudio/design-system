@@ -37,7 +37,7 @@ export function SwatchCode({ value }: SwatchCodeProps): React.ReactElement {
         {copied ? 'Copied to Clipboard' : value}
       </code>
       <span className="colour-swatch-code-icon" aria-hidden="true">
-        <Icon name={copied ? 'CheckCircle' : 'Copy'} size="em" />
+        <Icon name={copied ? 'check-circle-2' : 'copy-paste'} size="em" />
       </span>
     </button>
   );

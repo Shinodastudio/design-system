@@ -645,12 +645,13 @@ declare function DownloadTile({ filename, description, fileSize, fileType, onDow
  * AUTO-GENERATED — do not edit by hand.
  * Source: /assets/icons
  * Run `bun run icons:generate` to refresh.
- * 1512 icons.
+ * 2018 icons.
  */
 interface IconRecord {
     readonly id: string;
     readonly displayName: string;
     readonly tags: readonly string[];
+    readonly viewBox: string;
     readonly body: string;
 }
 declare const ICONS: readonly IconRecord[];
@@ -665,7 +666,7 @@ interface IconProps extends Omit<React.SVGAttributes<SVGSVGElement>, 'dangerousl
 }
 /**
  * Inline SVG icon from the Shinoda icon set.
- * `name` matches the source filename in PascalCase (e.g. "ArrowRight").
+ * `name` matches the source filename minus `.svg` (e.g. "arrow-right").
  */
 declare function Icon({ name, size, className, title, ...props }: IconProps): React.ReactElement | null;
 
@@ -717,6 +718,10 @@ interface CommandDialogProps {
  * Floating modal wrapper for the Command palette.
  * Portals to document.body so it layers above the nav (z-index 999).
  * Renders a scrim that closes the dialog on click.
+ *
+ * Mount is deferred a frame and unmount is deferred past the exit transition
+ * (same lifecycle as the Scrim primitive) so open/close fades and lifts the
+ * card smoothly instead of popping in/out instantly.
  */
 declare function CommandDialog({ open, onClose, children }: CommandDialogProps): React.ReactElement | null;
 
@@ -743,7 +748,8 @@ declare function CommandPaletteHost(): React.ReactElement;
 
 /**
  * Single source of truth for primary navigation items.
- * Consumed by the CommandPalette (top-level sections) and Footer (vertical list, ≤768).
+ * Consumed by the CommandPalette (top-level sections) and Footer (mobile
+ * vertical list, ≤767, and the desktop footer bar's page-name lookup).
  */
 declare const NAV_ITEMS: readonly [{
     readonly label: "Colour";
@@ -845,11 +851,16 @@ interface StickyColProps {
 declare function StickyCol({ children, className, narrow, style }: StickyColProps): React.ReactElement;
 
 /**
- * Footer — only shown ≤768px (CSS-controlled). Renders the same NAV_ITEMS
- * as the top nav, but as a vertical list. This mirrors the Webflow design
- * pattern where the nav collapses entirely into the footer at small viewports.
+ * Site footer — one <footer> landmark, two responsive layouts (Figma 3932:13432):
  *
- * Above 768px the footer is hidden (display: none in shinoda-base.css).
+ *   .footer-bar  Persistent bar, ≥768px only. Current page name on the left;
+ *                "Made by Shinoda · {year} · Changelog" + theme toggle on the
+ *                right. Changelog opens a modal (<ChangelogDialog>).
+ *
+ *   .footer-nav  Mobile-only (≤767px) vertical list of NAV_ITEMS — the sole
+ *                navigation surface at that breakpoint, since <Nav> hides
+ *                entirely there (all other nav happens through the Command
+ *                palette).
  */
 declare function Footer(): React.ReactElement;
 
@@ -1020,7 +1031,7 @@ interface TooltipProps {
      */
     readonly width?: 'variable' | 'fixed';
     /**
-     * Renders a `CaretDown` icon beside the label. Only applies in `variable`
+     * Renders a downward caret icon beside the label. Only applies in `variable`
      * mode; ignored when `width="fixed"`. Matches Figma icon=true variant.
      */
     readonly icon?: boolean;
@@ -1324,8 +1335,25 @@ interface CommandInputProps {
     readonly placeholder?: string;
     readonly className?: string;
     readonly autoFocus?: boolean;
+    /**
+     * Invoked when Backspace is pressed while the query is already empty —
+     * lets a drilled-down level pop back up via the keyboard, mirroring the
+     * click behaviour of <CommandHeader>'s back button. Omit at the top level.
+     */
+    readonly onBackspaceEmpty?: () => void;
 }
-declare function CommandInput({ placeholder, className, autoFocus }: CommandInputProps): React.ReactElement;
+declare function CommandInput({ placeholder, className, autoFocus, onBackspaceEmpty }: CommandInputProps): React.ReactElement;
+interface CommandHeaderProps {
+    /** Label of the level currently being browsed, e.g. "Components". */
+    readonly label: string;
+    readonly onBack: () => void;
+}
+/**
+ * Back-navigation row shown above <CommandInput> once the palette has
+ * drilled 1+ levels deep (Figma 4030:948). Distinct from an in-list
+ * "← Back" item — this is a persistent header, not a filterable option.
+ */
+declare function CommandHeader({ label, onBack }: CommandHeaderProps): React.ReactElement;
 interface CommandListProps {
     readonly children: React.ReactNode;
     readonly className?: string;
@@ -1355,14 +1383,12 @@ interface CommandItemProps {
     readonly value?: string;
     /** Leading icon — typically <Icon name="..." size="em" /> */
     readonly icon?: React.ReactNode;
-    /** Shows a CaretRight chevron on the trailing edge to signal a sub-level. */
+    /** Shows a right-pointing caret chevron on the trailing edge to signal a sub-level. */
     readonly hasSubmenu?: boolean;
+    /** Marks the item as the current value of a single-select list (e.g. SearchDropdown). */
+    readonly selected?: boolean;
 }
-declare function CommandItem({ children, onSelect, disabled, className, value, icon, hasSubmenu, }: CommandItemProps): React.ReactElement | null;
-interface CommandSeparatorProps {
-    readonly className?: string;
-}
-declare function CommandSeparator({ className }: CommandSeparatorProps): React.ReactElement;
+declare function CommandItem({ children, onSelect, disabled, className, value, icon, hasSubmenu, selected, }: CommandItemProps): React.ReactElement | null;
 
 interface TableProps {
     readonly children: React.ReactNode;
@@ -1503,15 +1529,17 @@ interface CollapsibleCodeProps {
 /**
  * Long-form code/text block intended for copy-paste of prompts and skill files.
  *
- * Collapsed by default to {@link COLLAPSED_LINES} lines with a soft fade at the
- * bottom edge. The whole footer row is the expand/collapse affordance; a
- * separate copy button writes the entire body to the clipboard.
+ * Fully collapsed by default — only the header (language label + action
+ * icons) is visible, the code body itself is hidden. Both actions are
+ * icon-only per the Figma "Code Snippet" component (node 3904:6552):
+ * Copy always writes the full body to clipboard; the expand/collapse toggle
+ * sits immediately to its right and reveals or hides the code below.
  *
  * Visual contract:
- *   - Mono font, 1.5em line-height, fill-secondary background
+ *   - Mono font, 1.5em line-height, transparent at rest, --color-transparent-weak
+ *     (5% text-primary — theme-adaptive, works on any surface) on hover
  *   - Border-radius: --radius-sm (system maximum on primary elements)
- *   - Fade overlay only while collapsed
- *   - No drop shadow, no gradient fill — overlay fade is fill-base → transparent
+ *   - No drop shadow, no gradient fill
  */
 declare function CollapsibleCode({ code, language, className, }: CollapsibleCodeProps): React.ReactElement;
 
@@ -1545,4 +1573,4 @@ declare function useTheme(): readonly [Theme, () => void];
 
 declare function cn(...inputs: readonly ClassValue[]): string;
 
-export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, type AlertVariant, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, BackToTop, Badge, type BadgeVariant, type BodyVariant, Button, ButtonGroup, COMPONENT_CATEGORIES, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandPalette, CommandPaletteHost, CommandSeparator, type ComponentCategory, ConfirmDialog, type ConfirmDialogIntent, ContentCard, Cursor, type CursorRef, DateInput, Dialog, DialogCard, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogPanel, DialogTitle, DialogTitleRow, DialogTrigger, type DialogVariant, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, type DropdownMenuItemVariant, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, type EditableColumn, EditableTable, FONT_WEIGHT_TOKENS, FileChip, type FileChipProps, FileDropzone, type FileDropzoneProps, Footer, Grid, GridTile, GridTileAction, HEADING_VARIANTS, type HeadingVariant, ICONS, ICONS_BY_ID, Icon, type IconProps, type IconRecord, type IconSize, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, type LinkSize, MainWrapper, NAV_ITEMS, Nav, type NavItem, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, type OpacityLevel, PADDING_TOKENS, PageWrapper, PlainLink, Popover, PopoverContent, PopoverTrigger, Progress, type ProgressSize, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, Scrim, type ScrimBlur, SearchButton, SearchDropdown, type SearchOption, SectionTile, Select, type SemanticColor, Sheet, SheetContent, SheetFooter, SheetHeader, type SheetSide, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, type SubheadingVariant, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, type TooltipSide, type TypeVariant, cn, componentLabel, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };
+export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, type AlertVariant, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, BackToTop, Badge, type BadgeVariant, type BodyVariant, Button, ButtonGroup, COMPONENT_CATEGORIES, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandDialog, CommandEmpty, CommandGroup, CommandHeader, CommandInput, CommandItem, CommandList, CommandPalette, CommandPaletteHost, type ComponentCategory, ConfirmDialog, type ConfirmDialogIntent, ContentCard, Cursor, type CursorRef, DateInput, Dialog, DialogCard, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogPanel, DialogTitle, DialogTitleRow, DialogTrigger, type DialogVariant, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, type DropdownMenuItemVariant, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, type EditableColumn, EditableTable, FONT_WEIGHT_TOKENS, FileChip, type FileChipProps, FileDropzone, type FileDropzoneProps, Footer, Grid, GridTile, GridTileAction, HEADING_VARIANTS, type HeadingVariant, ICONS, ICONS_BY_ID, Icon, type IconProps, type IconRecord, type IconSize, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, type LinkSize, MainWrapper, NAV_ITEMS, Nav, type NavItem, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, type OpacityLevel, PADDING_TOKENS, PageWrapper, PlainLink, Popover, PopoverContent, PopoverTrigger, Progress, type ProgressSize, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, Scrim, type ScrimBlur, SearchButton, SearchDropdown, type SearchOption, SectionTile, Select, type SemanticColor, Sheet, SheetContent, SheetFooter, SheetHeader, type SheetSide, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, type SubheadingVariant, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, type TooltipSide, type TypeVariant, cn, componentLabel, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };

@@ -4,10 +4,12 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import {
   Command,
+  CommandHeader,
   CommandInput,
   CommandList,
   CommandGroup,
   CommandItem,
+  useCommandQuery,
 } from '@/components/controls/Command';
 import { NAV_ITEMS, COMPONENT_CATEGORIES, componentLabel } from './navItems';
 
@@ -18,6 +20,44 @@ interface CommandPaletteProps {
 type Level = 'sections' | 'categories' | 'components';
 
 const COMPONENTS_LABEL = 'Components';
+
+interface DeepSearchResultsProps {
+  readonly navigate: (href: string) => void;
+}
+
+/**
+ * Surfaces component pages nested two levels below the top-level "Navigate"
+ * list (Components → category → component) directly against the sections
+ * query — so typing "button" at the top level finds the Button component
+ * page without drilling into Components first. Only mounts while the user
+ * is actively searching; returns null on an empty query (nothing to add to
+ * the plain Navigate list) or when nothing matches (avoids a dangling
+ * "Components" group heading with no items beneath it).
+ */
+function DeepSearchResults({ navigate }: DeepSearchResultsProps): React.ReactElement | null {
+  const query = useCommandQuery();
+  if (query === '') return null;
+
+  const q = query.toLowerCase();
+  const matches = COMPONENT_CATEGORIES.flatMap((cat) => cat.items).filter((slug) =>
+    componentLabel(slug).toLowerCase().includes(q),
+  );
+  if (matches.length === 0) return null;
+
+  return (
+    <CommandGroup label="Components">
+      {matches.map((slug) => (
+        <CommandItem
+          key={slug}
+          value={componentLabel(slug)}
+          onSelect={() => navigate(`/components/${slug}`)}
+        >
+          {componentLabel(slug)}
+        </CommandItem>
+      ))}
+    </CommandGroup>
+  );
+}
 
 /**
  * Navigation-aware Command palette with three drill-down levels:
@@ -53,75 +93,81 @@ export function CommandPalette({ onClose }: CommandPaletteProps): React.ReactEle
     : level === 'categories' ? 'Search component groups…'
     : `Search ${activeCategory?.toLowerCase() ?? ''} components…`;
 
+  // Header only appears once the palette has drilled 1+ levels deep; its
+  // label names the level currently being browsed (matches Figma 4030:948).
+  const headerLabel = level === 'categories' ? COMPONENTS_LABEL : activeCategory;
+
   return (
     <Command
       key={`${level}:${activeCategory ?? ''}`}
       className="command-palette"
       onClose={onClose}
     >
-      <CommandInput placeholder={placeholder} autoFocus />
+      {level !== 'sections' && headerLabel != null && (
+        <CommandHeader label={headerLabel} onBack={goBack} />
+      )}
+      <CommandInput
+        placeholder={placeholder}
+        autoFocus
+        onBackspaceEmpty={level !== 'sections' ? goBack : undefined}
+      />
       <CommandList>
         {level === 'sections' && (
-          <CommandGroup label="Navigate">
-            {NAV_ITEMS.map((item) => (
+          <>
+            <CommandGroup>
+              {NAV_ITEMS.map((item) => (
+                <CommandItem
+                  key={item.href}
+                  hasSubmenu={item.label === COMPONENTS_LABEL}
+                  onSelect={() => {
+                    if (item.label === COMPONENTS_LABEL) {
+                      setLevel('categories');
+                    } else {
+                      navigate(item.href);
+                    }
+                  }}
+                >
+                  {item.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+            <DeepSearchResults navigate={navigate} />
+          </>
+        )}
+
+        {level === 'categories' && (
+          <CommandGroup>
+            <CommandItem onSelect={() => navigate('/components')}>
+              All components
+            </CommandItem>
+            {COMPONENT_CATEGORIES.map((cat) => (
               <CommandItem
-                key={item.href}
+                key={cat.label}
+                hasSubmenu
                 onSelect={() => {
-                  if (item.label === COMPONENTS_LABEL) {
-                    setLevel('categories');
-                  } else {
-                    navigate(item.href);
-                  }
+                  setActiveCategory(cat.label);
+                  setLevel('components');
                 }}
               >
-                {item.label}
+                {cat.label}
               </CommandItem>
             ))}
           </CommandGroup>
         )}
 
-        {level === 'categories' && (
-          <>
-            <CommandGroup>
-              <CommandItem onSelect={goBack}>← Back</CommandItem>
-            </CommandGroup>
-            <CommandGroup label="Components">
-              <CommandItem onSelect={() => navigate('/components')}>
-                All components
-              </CommandItem>
-              {COMPONENT_CATEGORIES.map((cat) => (
+        {level === 'components' && activeCategory != null && (
+          <CommandGroup>
+            {COMPONENT_CATEGORIES
+              .find((c) => c.label === activeCategory)
+              ?.items.map((slug) => (
                 <CommandItem
-                  key={cat.label}
-                  onSelect={() => {
-                    setActiveCategory(cat.label);
-                    setLevel('components');
-                  }}
+                  key={slug}
+                  onSelect={() => navigate(`/components/${slug}`)}
                 >
-                  {cat.label}
+                  {componentLabel(slug)}
                 </CommandItem>
               ))}
-            </CommandGroup>
-          </>
-        )}
-
-        {level === 'components' && activeCategory != null && (
-          <>
-            <CommandGroup>
-              <CommandItem onSelect={goBack}>← Back</CommandItem>
-            </CommandGroup>
-            <CommandGroup label={`Components / ${activeCategory}`}>
-              {COMPONENT_CATEGORIES
-                .find((c) => c.label === activeCategory)
-                ?.items.map((slug) => (
-                  <CommandItem
-                    key={slug}
-                    onSelect={() => navigate(`/components/${slug}`)}
-                  >
-                    {componentLabel(slug)}
-                  </CommandItem>
-                ))}
-            </CommandGroup>
-          </>
+          </CommandGroup>
         )}
       </CommandList>
     </Command>

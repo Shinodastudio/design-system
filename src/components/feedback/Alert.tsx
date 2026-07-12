@@ -64,7 +64,7 @@ const VARIANT_ALIAS: Record<AlertVariant, AlertVariant> = {
 
 function renderIcon(icon: AlertProps['icon']): React.ReactNode {
   if (icon === null) return null;
-  if (icon === undefined) return <Icon name="Warning" size="sm" />;
+  if (icon === undefined) return <Icon name="warning-triangle" size="sm" />;
   if (typeof icon === 'string') return <Icon name={icon} size="sm" />;
   return icon;
 }

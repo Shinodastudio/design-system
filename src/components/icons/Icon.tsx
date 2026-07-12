@@ -22,7 +22,7 @@ const SIZE_CLASS: Record<IconSize, string> = {
 
 /**
  * Inline SVG icon from the Shinoda icon set.
- * `name` matches the source filename in PascalCase (e.g. "ArrowRight").
+ * `name` matches the source filename minus `.svg` (e.g. "arrow-right").
  */
 export function Icon({
   name,
@@ -40,7 +40,7 @@ export function Icon({
   }
   return (
     <svg
-      viewBox="0 0 32 32"
+      viewBox={record.viewBox}
       fill="currentColor"
       aria-hidden={title === undefined ? true : undefined}
       role={title === undefined ? undefined : 'img'}

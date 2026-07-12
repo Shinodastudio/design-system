@@ -121,8 +121,8 @@ document.addEventListener('focusout', () => {
 
 /* ─── GRAVITY ────────────────────────────────────────────────────────── */
 
-const GRAVITY_RADIUS   = 80;
-const GRAVITY_STRENGTH = 0.25;
+const GRAVITY_RADIUS   = 56;
+const GRAVITY_STRENGTH = 0.175;
 const GRAVITY_SELECTOR = '[data-gravity], .btn, a.link, .button-group-item, input.input, textarea.textarea, .input-float-field';
 
 // WeakSet prevents double-binding if React hook and this observer both fire

@@ -144,6 +144,19 @@
   --blur-3xl:  512px;
   --blur-4xl:  1024px;
 
+  /* ─── SHADOW (full Figma scale — node 4029:995–1009) ────────────────
+     Fixed black-based values, not theme-dependent — same convention
+     already used by the .command dropdown shadow. Elevation reads as
+     depth regardless of light/dark surface colour. */
+  --shadow-none: none;
+  --shadow-2xs:  0px 1px 0px rgba(0, 0, 0, 0.05);
+  --shadow-xs:   0px 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm:   0px 1px 3px rgba(0, 0, 0, 0.10), 0px 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md:   0px 2px 4px -1px rgba(0, 0, 0, 0.06), 0px 4px 6px -1px rgba(0, 0, 0, 0.10);
+  --shadow-lg:   0px 4px 6px -2px rgba(0, 0, 0, 0.05), 0px 10px 15px -3px rgba(0, 0, 0, 0.10);
+  --shadow-xl:   0px 10px 10px -5px rgba(0, 0, 0, 0.04), 0px 20px 25px -5px rgba(0, 0, 0, 0.10);
+  --shadow-2xl:  0px 25px 50px -12px rgba(0, 0, 0, 0.25);
+
   /* ─── SPACING (4px base scale) ─────────────────────────────────────── */
   --space-0: 0px; --space-px: 1px;
   --space-1: 4px;   --space-2: 8px;   --space-3: 12px;  --space-4: 16px;

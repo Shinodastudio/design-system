@@ -8,8 +8,8 @@
  * a small semantic synonyms map, and emits a generated TS module
  * the catalogue consumes at build time.
  *
- * Source SVGs (Phosphor "Fill" weight, 32x32) live in /assets/icons.
- * Run via `bun run icons:generate`.
+ * Source SVGs ("Micro Solid" set, kebab-case filenames, per-icon
+ * viewBox) live in /assets/icons. Run via `bun run icons:generate`.
  */
 
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -31,7 +31,7 @@ const SYNONYMS: ReadonlyArray<readonly [RegExp, readonly string[]]> = [
   [/magnifyingglass/i,  ['search', 'find', 'zoom', 'lookup']],
   [/pencil/i,           ['edit', 'write', 'compose']],
   [/floppydisk/i,       ['save', 'disk']],
-  [/x(?!Logo)|close/i,  ['close', 'dismiss', 'cancel']],
+  [/(?:^|-)x(?:-|$)|close/i, ['close', 'dismiss', 'cancel']],
   [/check/i,            ['tick', 'done', 'success', 'confirm', 'approve']],
   [/plus/i,             ['add', 'new', 'create']],
   [/minus/i,            ['subtract', 'remove']],
@@ -125,9 +125,10 @@ const SYNONYMS: ReadonlyArray<readonly [RegExp, readonly string[]]> = [
 const STOPWORDS = new Set(['the', 'a', 'an', 'of', 'and', 'or']);
 
 interface IconRecord {
-  readonly id: string;          // PascalCase, matches source filename minus .svg
+  readonly id: string;          // matches source filename minus .svg (kebab-case)
   readonly displayName: string; // Human-readable, space-separated
   readonly tags: readonly string[];
+  readonly viewBox: string;     // source SVG's own viewBox, e.g. "0 0 10 10"
   readonly body: string;        // Inner SVG markup, fills swapped to currentColor
 }
 
@@ -135,7 +136,10 @@ function splitCamel(name: string): readonly string[] {
   // ArrowLineUpRight -> ["arrow", "line", "up", "right"]
   // AppleLogo -> ["apple", "logo"]
   // Number3 -> ["number", "3"]
+  // new-folder -> ["new", "folder"]
+  // arrows-expand-1 -> ["arrows", "expand", "1"]
   return name
+    .replace(/[-_]+/g, ' ')
     .replace(/([a-z])([A-Z])/g, '$1 $2')
     .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
     .replace(/([a-zA-Z])([0-9])/g, '$1 $2')
@@ -156,14 +160,27 @@ function buildTags(id: string): readonly string[] {
   return [...set].sort();
 }
 
-function normaliseBody(raw: string): string {
+const DEFAULT_VIEWBOX = '0 0 10 10';
+
+interface NormalisedSvg {
+  readonly viewBox: string;
+  readonly body: string;
+}
+
+function normaliseBody(raw: string): NormalisedSvg {
   const open = raw.indexOf('>');
   const close = raw.lastIndexOf('</svg>');
   if (open === -1 || close === -1) {
     throw new Error('Malformed SVG');
   }
+  const openTag = raw.slice(0, open + 1);
+  const viewBoxMatch = openTag.match(/viewBox="([^"]+)"/i);
+  const viewBox = viewBoxMatch?.[1] ?? DEFAULT_VIEWBOX;
   const inner = raw.slice(open + 1, close).trim();
-  return inner.replace(/fill="#18181B"/g, 'fill="currentColor"');
+  // Swap any hard-coded black/near-black fill for currentColor so icons
+  // inherit text colour. Leaves fill="none" (masks/holes) untouched.
+  const body = inner.replace(/fill="#(?:000|18181B)"/gi, 'fill="currentColor"');
+  return { viewBox, body };
 }
 
 function escape(value: string): string {
@@ -179,11 +196,11 @@ function main(): void {
   for (const file of files) {
     const id = file.replace(/\.svg$/, '');
     const raw = readFileSync(join(SOURCE_DIR, file), 'utf8');
-    const body = normaliseBody(raw);
+    const { viewBox, body } = normaliseBody(raw);
     const displayName = splitCamel(id)
       .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
       .join(' ');
-    records.push({ id, displayName, tags: buildTags(id), body });
+    records.push({ id, displayName, tags: buildTags(id), viewBox, body });
   }
 
   const header = `/**
@@ -197,6 +214,7 @@ export interface IconRecord {
   readonly id: string;
   readonly displayName: string;
   readonly tags: readonly string[];
+  readonly viewBox: string;
   readonly body: string;
 }
 
@@ -206,7 +224,7 @@ export const ICONS: readonly IconRecord[] = [
   const body = records
     .map(
       (r) =>
-        `  { id: ${JSON.stringify(r.id)}, displayName: ${JSON.stringify(r.displayName)}, tags: ${JSON.stringify(r.tags)}, body: \`${escape(r.body)}\` },`,
+        `  { id: ${JSON.stringify(r.id)}, displayName: ${JSON.stringify(r.displayName)}, tags: ${JSON.stringify(r.tags)}, viewBox: ${JSON.stringify(r.viewBox)}, body: \`${escape(r.body)}\` },`,
     )
     .join('\n');
 

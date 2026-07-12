@@ -42,9 +42,9 @@ export default function LinkPage(): React.ReactElement {
           <ComponentSection
             name="Text Link"
             description="Underline is the semantic signal — always visible at 20%, lifts to full on hover. 2px thick across all sizes."
-            code={`<ShinodaLink href="/path" size="body-md">Visit the work</ShinodaLink>`}
+            code={`<ShinodaLink href="/path" size="heading-md">Visit the work</ShinodaLink>`}
             sizes={LINK_SIZES}
-            defaultSize="body-md"
+            defaultSize="heading-md"
             sizeLabel={(s): string => SIZE_LABELS[s]}
             states={LINK_STATES}
             render={({ state, size }): React.ReactNode => (
@@ -61,9 +61,9 @@ export default function LinkPage(): React.ReactElement {
           <ComponentSection
             name="External Link"
             description="Opens in a new tab. rel='noopener noreferrer' is applied automatically."
-            code={`<ShinodaLink href="https://example.com" size="body-md" external>\n  External site\n</ShinodaLink>`}
+            code={`<ShinodaLink href="https://example.com" size="heading-md" external>\n  External site\n</ShinodaLink>`}
             sizes={LINK_SIZES}
-            defaultSize="body-md"
+            defaultSize="heading-md"
             sizeLabel={(s): string => SIZE_LABELS[s]}
             states={['default', 'hover']}
             render={({ size }): React.ReactNode => (

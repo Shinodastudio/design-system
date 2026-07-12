@@ -14,7 +14,7 @@ import { Icon } from '@/components/icons';
  *   [◀ icon btn]  Title          ← heading-md, separate from button
  *                 Description    ← heading-md, 40% opacity
  *
- * The back button is icon-ONLY (CaretLeft, 24×24). Title and description live
+ * The back button is icon-ONLY (left-pointing caret, 24×24). Title and description live
  * in a sibling text block, not inside the button. Both sit in a flex row at
  * items-start so their tops align with the first row of right-column content.
  *
@@ -47,7 +47,7 @@ export function CatalogueIntro({
       <div className="catalogue-intro-header">
         <Button asChild size="heading-md" className="btn-icon catalogue-intro-back" aria-label="Back">
           <NextLink href={parent}>
-            <Icon name="CaretLeft" size="em" />
+            <Icon name="arrows-button-left" size="em" />
           </NextLink>
         </Button>
         <div className="catalogue-intro-text">

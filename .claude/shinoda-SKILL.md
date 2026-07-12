@@ -101,8 +101,8 @@ Single `1.25em` solid dot, `mix-blend-mode: difference`.
 
 - `0.1em` padding on all sides
 - Transparent at rest
-- Hover: `--color-overlay-core` (20% opacity fill)
-- Active: `opacity: 0.40`
+- Hover / focus: `--alpha-10` (10% opacity fill)
+- Active: `opacity: 0.80`
 - Never `cursor: pointer`
 
 ## Links
@@ -129,6 +129,6 @@ Inverted: `background: --color-text-primary; color: --color-fill-base`
 - [ ] Hierarchy via opacity (20/40/60/80), not size
 - [ ] `heading-md` as default — not `heading-xl`
 - [ ] Links: 20% underline at rest, 100% on hover
-- [ ] Buttons: 0.1em padding, 20% hover fill
+- [ ] Buttons: 0.1em padding, 10% hover fill
 - [ ] `::selection` inverted
 - [ ] No smooth scroll

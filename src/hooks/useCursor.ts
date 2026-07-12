@@ -22,14 +22,23 @@ export function useCursor(cursorRef: React.RefObject<CursorRef>): void {
   const hiddenByContext = useRef(false);
 
   useEffect(() => {
-    const html   = document.documentElement;
-    const cursor = cursorRef.current?.el;
-    const label  = cursorRef.current?.label;
+    const html = document.documentElement;
 
-    if (!cursor || !label) return;
+    if (!cursorRef.current?.el || !cursorRef.current?.label) return;
 
+    // Read the element fresh from cursorRef on every use rather than
+    // capturing it once above. `Cursor` portals its DOM node into the
+    // topmost open <dialog> while one is open (see dialogStack.ts) — React
+    // unmounts and remounts a new host node when a component's render
+    // output switches in/out of a portal, so a variable captured at effect
+    // setup would go stale the first time that happens. cursorRef's getters
+    // always resolve to whatever node is currently mounted.
     function animate() {
-      if (!cursor) return;
+      const cursor = cursorRef.current?.el;
+      if (!cursor) {
+        rafId.current = requestAnimationFrame(animate);
+        return;
+      }
       curX.current += (mouseX.current - curX.current) * LERP;
       curY.current += (mouseY.current - curY.current) * LERP;
       cursor.style.left = `${curX.current}px`;
@@ -42,19 +51,20 @@ export function useCursor(cursorRef: React.RefObject<CursorRef>): void {
       mouseX.current = e.clientX;
       mouseY.current = e.clientY;
       if (!hiddenByContext.current) {
-        cursor?.classList.remove('is-hidden');
+        cursorRef.current?.el?.classList.remove('is-hidden');
       }
     }
-    function onLeave() { cursor?.classList.add('is-hidden'); }
+    function onLeave() { cursorRef.current?.el?.classList.add('is-hidden'); }
     function onEnter() {
-      if (!hiddenByContext.current) cursor?.classList.remove('is-hidden');
+      if (!hiddenByContext.current) cursorRef.current?.el?.classList.remove('is-hidden');
     }
 
     function clearContext() {
       hiddenByContext.current = false;
       html.classList.remove('cursor--text', 'cursor--chip', 'cursor--active');
-      cursor?.style.removeProperty('--cursor-btn-w');
-      cursor?.style.removeProperty('--cursor-btn-h');
+      cursorRef.current?.el?.style.removeProperty('--cursor-btn-w');
+      cursorRef.current?.el?.style.removeProperty('--cursor-btn-h');
+      const label = cursorRef.current?.label;
       if (label) label.textContent = '';
     }
 
@@ -65,27 +75,34 @@ export function useCursor(cursorRef: React.RefObject<CursorRef>): void {
       const tag  = el.tagName.toLowerCase();
       const role = el.getAttribute('role');
 
-      // Buttons and slider controls: hide custom cursor
+      // Buttons and slider controls: hide custom cursor. Also honour an explicit
+      // data-cursor="btn" on the element or a nearest ancestor — used by controls
+      // that aren't semantic <button>s but should behave like one, e.g. Choice
+      // (checkbox/radio row) and Slider. Without the ancestor lookup, hovering a
+      // text node inside (like ChoiceLabel's <span>) falls through to the text
+      // I-beam check below instead of inheriting the parent's button context.
+      const btnAncestor = (el as HTMLElement).closest('[data-cursor="btn"]');
       if (
         tag === 'button' ||
         role === 'button' ||
         role === 'slider' ||
-        el.classList.contains('btn')
+        el.classList.contains('btn') ||
+        btnAncestor
       ) {
         hiddenByContext.current = true;
-        cursor?.classList.add('is-hidden');
+        cursorRef.current?.el?.classList.add('is-hidden');
         return;
       }
 
       // Links: cursor hides as background appears behind text
       if (tag === 'a' || el.classList.contains('link')) {
         hiddenByContext.current = true;
-        cursor?.classList.add('is-hidden');
+        cursorRef.current?.el?.classList.add('is-hidden');
         return;
       }
 
-      // Text inputs / textarea / select: cursor: none on element, hide custom cursor too
-      // Exclude checkbox + radio — they are controls, not text fields; cursor should stay.
+      // Text inputs / textarea / select: cursor: none on element, hide custom cursor too.
+      // (Checkbox/radio are covered above via Choice's data-cursor="btn" ancestor.)
       const inputType = (el as HTMLInputElement).type ?? '';
       const isTextInput =
         (tag === 'input' && inputType !== 'checkbox' && inputType !== 'radio') ||
@@ -93,13 +110,14 @@ export function useCursor(cursorRef: React.RefObject<CursorRef>): void {
         tag === 'select';
       if (isTextInput) {
         hiddenByContext.current = true;
-        cursor?.classList.add('is-hidden');
+        cursorRef.current?.el?.classList.add('is-hidden');
         return;
       }
 
       // Image expand chip
       if (tag === 'img' || tag === 'figure' || (el as HTMLElement).dataset['cursor'] === 'expand') {
         html.classList.add('cursor--chip');
+        const label = cursorRef.current?.label;
         if (label) label.textContent = (el as HTMLElement).dataset['cursorLabel'] ?? 'expand';
         return;
       }

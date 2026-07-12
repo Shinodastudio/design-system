@@ -60,7 +60,7 @@ export default function OverlayPage(): React.ReactElement {
 
           <ComponentSection
             name="Tooltip"
-            description="Appears on hover or focus after 400ms. Portalled to body. Four placement sides. Variable width (hugs content) or fixed 256px. Optional CaretDown icon."
+            description="Appears on hover or focus after 400ms. Portalled to body. Four placement sides. Variable width (hugs content) or fixed 256px. Optional downward caret icon."
             code={`<Tooltip content="Helpful hint" side="top">\n  <Button>Hover me</Button>\n</Tooltip>\n\n<Tooltip content="Fixed-width tooltip wraps long text" width="fixed" side="bottom">\n  <Button>Fixed width</Button>\n</Tooltip>\n\n<Tooltip content="With icon" icon side="top">\n  <Button>Icon</Button>\n</Tooltip>`}
             sizes={SIZES}
             states={['default']}
@@ -111,7 +111,7 @@ export default function OverlayPage(): React.ReactElement {
           <ComponentSection
             name="Dialog — centred with title-on-scrim"
             description="`variant='bare'` lets you compose a title row on the dark scrim above a white card. Use for export-style or modal task surfaces."
-            code={`<Dialog>\n  <DialogTrigger><Button>Open</Button></DialogTrigger>\n  <DialogContent variant="bare">\n    <DialogTitleRow icon={<Icon name="Trash" size="em"/>}>Delete</DialogTitleRow>\n    <DialogCard>{/* body */}</DialogCard>\n  </DialogContent>\n</Dialog>`}
+            code={`<Dialog>\n  <DialogTrigger><Button>Open</Button></DialogTrigger>\n  <DialogContent variant="bare">\n    <DialogTitleRow icon={<Icon name="delete-bin-1" size="em"/>}>Delete</DialogTitleRow>\n    <DialogCard>{/* body */}</DialogCard>\n  </DialogContent>\n</Dialog>`}
             sizes={SIZES}
             states={['default']}
             render={(): React.ReactNode => (
@@ -120,7 +120,7 @@ export default function OverlayPage(): React.ReactElement {
                   <Button size="heading-sm">Open centred dialog</Button>
                 </DialogTrigger>
                 <DialogContent variant="bare">
-                  <DialogTitleRow icon={<Icon name="DownloadSimple" size="em" />}>
+                  <DialogTitleRow icon={<Icon name="download-box-1" size="em" />}>
                     Export
                   </DialogTitleRow>
                   <DialogCard>
@@ -251,7 +251,7 @@ export default function OverlayPage(): React.ReactElement {
           <ComponentSection
             name="DropdownMenu"
             description="Keyboard-navigable list of actions. Supports icons, labels, separators, disabled items, and a danger variant for destructive actions."
-            code={`<DropdownMenu>\n  <DropdownMenuTrigger><Button>Actions</Button></DropdownMenuTrigger>\n  <DropdownMenuContent>\n    <DropdownMenuLabel>File</DropdownMenuLabel>\n    <DropdownMenuItem index={0} icon={<Icon name="FolderOpen" size="em" />}>Open</DropdownMenuItem>\n    <DropdownMenuItem index={1} icon={<Icon name="Copy" size="em" />}>Duplicate</DropdownMenuItem>\n    <DropdownMenuSeparator />\n    <DropdownMenuLabel>Danger zone</DropdownMenuLabel>\n    <DropdownMenuItem index={2} icon={<Icon name="Archive" size="em" />} disabled>Archive</DropdownMenuItem>\n    <DropdownMenuItem index={3} icon={<Icon name="Trash" size="em" />} variant="danger">Delete</DropdownMenuItem>\n  </DropdownMenuContent>\n</DropdownMenu>`}
+            code={`<DropdownMenu>\n  <DropdownMenuTrigger><Button>Actions</Button></DropdownMenuTrigger>\n  <DropdownMenuContent>\n    <DropdownMenuLabel>File</DropdownMenuLabel>\n    <DropdownMenuItem index={0} icon={<Icon name="folder" size="em" />}>Open</DropdownMenuItem>\n    <DropdownMenuItem index={1} icon={<Icon name="copy-paste" size="em" />}>Duplicate</DropdownMenuItem>\n    <DropdownMenuSeparator />\n    <DropdownMenuLabel>Danger zone</DropdownMenuLabel>\n    <DropdownMenuItem index={2} icon={<Icon name="archive-box" size="em" />} disabled>Archive</DropdownMenuItem>\n    <DropdownMenuItem index={3} icon={<Icon name="delete-bin-1" size="em" />} variant="danger">Delete</DropdownMenuItem>\n  </DropdownMenuContent>\n</DropdownMenu>`}
             sizes={SIZES}
             states={['default']}
             render={(): React.ReactNode => (
@@ -261,12 +261,12 @@ export default function OverlayPage(): React.ReactElement {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuLabel>File</DropdownMenuLabel>
-                  <DropdownMenuItem index={0} icon={<Icon name="FolderOpen" size="em" />}>Open</DropdownMenuItem>
-                  <DropdownMenuItem index={1} icon={<Icon name="Copy" size="em" />}>Duplicate</DropdownMenuItem>
+                  <DropdownMenuItem index={0} icon={<Icon name="folder" size="em" />}>Open</DropdownMenuItem>
+                  <DropdownMenuItem index={1} icon={<Icon name="copy-paste" size="em" />}>Duplicate</DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuLabel>Danger zone</DropdownMenuLabel>
-                  <DropdownMenuItem index={2} icon={<Icon name="Archive" size="em" />} disabled>Archive</DropdownMenuItem>
-                  <DropdownMenuItem index={3} icon={<Icon name="Trash" size="em" />} variant="danger">Delete</DropdownMenuItem>
+                  <DropdownMenuItem index={2} icon={<Icon name="archive-box" size="em" />} disabled>Archive</DropdownMenuItem>
+                  <DropdownMenuItem index={3} icon={<Icon name="delete-bin-1" size="em" />} variant="danger">Delete</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}

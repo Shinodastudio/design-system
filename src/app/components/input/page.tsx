@@ -19,7 +19,6 @@ import { SearchDropdown } from '@/components/search/SearchDropdown';
 import type { SearchOption } from '@/components/search/SearchDropdown';
 import { ComponentSection } from '@/components/catalogue/ComponentSection';
 import { ComponentFrame } from '@/components/catalogue/ComponentFrame';
-import { ComponentPreviewer } from '@/components/catalogue/ComponentPreviewer';
 import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
 
 const INPUT_SIZES = [
@@ -166,12 +165,15 @@ export default function InputPage(): React.ReactElement {
 
           <Divider />
 
-          <ComponentPreviewer
-            states={['default', 'hover', 'focus', 'disabled']}
+          <ComponentSection
+            name="Select"
+            description="Native select with a custom chevron. Same underline treatment as text input."
+            code={`<InputField>\n  <InputLabel htmlFor="role">Role</InputLabel>\n  <Select id="role" defaultValue="director">\n    <option value="director">Creative Director</option>\n    <option value="strategist">Strategist</option>\n    <option value="engineer">Engineer</option>\n  </Select>\n</InputField>`}
             sizes={INPUT_SIZES}
-            defaultSize="body-xs"
+            defaultSize="heading-md"
+            states={['default', 'hover', 'focus', 'disabled']}
             render={({ state, size }): React.ReactNode => (
-              <InputField className="w-full">
+              <InputField style={{ width: '100%', maxWidth: '24em' }}>
                 <InputLabel htmlFor="preview-select">Role</InputLabel>
                 <Select
                   id="preview-select"

@@ -34,8 +34,8 @@ const INTENT_DEFAULTS: Record<
   ConfirmDialogIntent,
   { readonly title: string; readonly icon: string; readonly confirm: string }
 > = {
-  default: { title: 'Confirm',  icon: 'Question', confirm: 'Confirm' },
-  danger:  { title: 'Delete',   icon: 'Trash',    confirm: 'Delete it' },
+  default: { title: 'Confirm',  icon: 'help-question-circle', confirm: 'Confirm' },
+  danger:  { title: 'Delete',   icon: 'delete-bin-1',         confirm: 'Delete it' },
 };
 
 /**
@@ -72,7 +72,7 @@ export function ConfirmDialog({
               className="dialog-confirm-btn dialog-confirm-btn--cancel"
               onClick={(): void => onOpenChange(false)}
             >
-              <Icon name="X" size="em" aria-hidden="true" />
+              <Icon name="delete-1" size="em" aria-hidden="true" />
               <span>{cancelLabel}</span>
             </button>
             <button
@@ -88,7 +88,7 @@ export function ConfirmDialog({
                 onOpenChange(false);
               }}
             >
-              <Icon name="Check" size="em" aria-hidden="true" />
+              <Icon name="check-thick" size="em" aria-hidden="true" />
               <span>{resolvedConfirm}</span>
             </button>
           </div>

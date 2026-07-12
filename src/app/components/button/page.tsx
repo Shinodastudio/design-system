@@ -116,14 +116,14 @@ export default function ButtonPage(): React.ReactElement {
           <ComponentSection
             name="Button with leading icon"
             description="Icon uses size='em' — scales with the button's font size across all tiers."
-            code={`<Button>\n  <Icon name="ArrowRight" size="em" />\n  Continue\n</Button>`}
+            code={`<Button>\n  <Icon name="arrow-last-page" size="em" />\n  Continue\n</Button>`}
             sizes={BUTTON_SIZES}
             defaultSize="heading-md"
             sizeLabel={(s): string => SIZE_LABELS[s]}
             states={['default', 'hover']}
             render={({ size }): React.ReactNode => (
               <Button size={size}>
-                <Icon name="ArrowRight" size="em" />
+                <Icon name="arrow-last-page" size="em" />
                 Continue
               </Button>
             )}
@@ -132,7 +132,7 @@ export default function ButtonPage(): React.ReactElement {
           <ComponentSection
             name="Button with trailing icon"
             description="Same em-sized glyph placed after the label — direction signals forward navigation."
-            code={`<Button>\n  Continue\n  <Icon name="ArrowRight" size="em" />\n</Button>`}
+            code={`<Button>\n  Continue\n  <Icon name="arrow-last-page" size="em" />\n</Button>`}
             sizes={BUTTON_SIZES}
             defaultSize="heading-md"
             sizeLabel={(s): string => SIZE_LABELS[s]}
@@ -140,7 +140,7 @@ export default function ButtonPage(): React.ReactElement {
             render={({ size }): React.ReactNode => (
               <Button size={size}>
                 Continue
-                <Icon name="ArrowRight" size="em" />
+                <Icon name="arrow-last-page" size="em" />
               </Button>
             )}
           />
@@ -163,14 +163,14 @@ export default function ButtonPage(): React.ReactElement {
           <ComponentSection
             name="Icon only"
             description="No label — icon footprint only. Use for toolbars and compact UI."
-            code={`<Button className="btn-icon" size={size}>\n  <Icon name="ArrowRight" size="em" />\n</Button>`}
+            code={`<Button className="btn-icon" size={size}>\n  <Icon name="arrow-last-page" size="em" />\n</Button>`}
             sizes={BUTTON_SIZES}
             defaultSize="heading-md"
             sizeLabel={(s): string => SIZE_LABELS[s]}
             states={['default', 'hover']}
             render={({ size }): React.ReactNode => (
               <Button className="btn-icon" size={size}>
-                <Icon name="ArrowRight" size="em" />
+                <Icon name="arrow-last-page" size="em" />
               </Button>
             )}
           />
@@ -178,7 +178,7 @@ export default function ButtonPage(): React.ReactElement {
           <ComponentSection
             name="ButtonGroup"
             description="Single-select pill. Each item shows its icon; the selected item also reveals its label inline. The label sits in a 0fr→1fr grid column so the pill resizes fluidly (280ms easeInOutQuint). Inactive items expose their label via Tooltip on hover."
-            code={`<ButtonGroup value={tool} onValueChange={setTool}>\n  <ButtonGroup.Item value="cursor" icon={<Icon name="ArrowsOut" size="em"/>}>Cursor</ButtonGroup.Item>\n  <ButtonGroup.Item value="pen"    icon={<Icon name="PencilSimple" size="em"/>}>Pen</ButtonGroup.Item>\n  <ButtonGroup.Item value="text"   icon={<Icon name="TextT" size="em"/>}>Text</ButtonGroup.Item>\n</ButtonGroup>`}
+            code={`<ButtonGroup value={tool} onValueChange={setTool}>\n  <ButtonGroup.Item value="cursor" icon={<Icon name="arrows-expand-1" size="em"/>}>Cursor</ButtonGroup.Item>\n  <ButtonGroup.Item value="pen"    icon={<Icon name="pencil-edit" size="em"/>}>Pen</ButtonGroup.Item>\n  <ButtonGroup.Item value="text"   icon={<Icon name="type-cursor-1" size="em"/>}>Text</ButtonGroup.Item>\n</ButtonGroup>`}
             sizes={['default']}
             states={['default']}
             render={(): React.ReactNode => (
@@ -187,13 +187,13 @@ export default function ButtonPage(): React.ReactElement {
                 onValueChange={setGroupValue}
                 ariaLabel="Tool"
               >
-                <ButtonGroup.Item value="cursor" icon={<Icon name="ArrowsOut" size="em" />}>
+                <ButtonGroup.Item value="cursor" icon={<Icon name="arrows-expand-1" size="em" />}>
                   Cursor
                 </ButtonGroup.Item>
-                <ButtonGroup.Item value="pen" icon={<Icon name="PencilSimple" size="em" />}>
+                <ButtonGroup.Item value="pen" icon={<Icon name="pencil-edit" size="em" />}>
                   Pen
                 </ButtonGroup.Item>
-                <ButtonGroup.Item value="text" icon={<Icon name="TextT" size="em" />}>
+                <ButtonGroup.Item value="text" icon={<Icon name="type-cursor-1" size="em" />}>
                   Text
                 </ButtonGroup.Item>
               </ButtonGroup>

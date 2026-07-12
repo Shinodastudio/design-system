@@ -45,7 +45,7 @@ export default function IconPage(): React.ReactElement {
         <StickyCol>
           <CatalogueIntro
             title="Icon"
-            description={`${ICONS.length} icons — filled weight, 32px viewBox, currentColor. Search by name or tag.`}
+            description={`${ICONS.length} icons — Micro Solid weight, currentColor. Search by name or tag.`}
           />
 
           <div style={{ marginTop: 'var(--space-8)' }}>
@@ -80,7 +80,7 @@ export default function IconPage(): React.ReactElement {
               icons fit per row at small viewports. */}
           <div className="icon-grid">
             {filtered.map((icon) => {
-              const svgMarkup = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor">${icon.body}</svg>`;
+              const svgMarkup = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${icon.viewBox}" fill="currentColor">${icon.body}</svg>`;
               return (
                 <CopyValue key={icon.id} value={svgMarkup} className="icon-grid-cell">
                   <span className="icon-grid-glyph">
