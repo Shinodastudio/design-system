@@ -33,7 +33,7 @@ export const COMPONENT_CATEGORIES = [
   { label: 'Layout',   items: ['card', 'content', 'divider']             },
   { label: 'Data',     items: ['data', 'map']                            },
   { label: 'Feedback', items: ['feedback', 'overlay']                    },
-  { label: 'Display',  items: ['icon', 'cursor', 'sticker']              },
+  { label: 'Display',  items: ['icon', 'cursor', 'sticker', 'media']     },
 ] as const;
 
 export type ComponentCategory = (typeof COMPONENT_CATEGORIES)[number];

@@ -33,6 +33,7 @@ const COMPONENTS = [
   { label: 'Card',        href: '/components/card',       description: 'Square tiles with hover-revealed actions and timestamp meta.' },
 { label: 'Content',     href: '/components/content',    description: 'ContentCard and CodeSnippet for structured copy.' },
 { label: 'Upload',      href: '/components/upload',     description: 'File dropzone, file chips, and download tiles.' },
+{ label: 'Media',       href: '/components/media',      description: 'Scroll-bent image/video — WebGL peel effect on hero media.' },
 ] as const;
 
 interface ComponentTileProps {

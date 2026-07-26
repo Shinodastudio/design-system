@@ -40,10 +40,6 @@ export default function ButtonPage(): React.ReactElement {
   const accentSelectId = useId();
   const [groupValue, setGroupValue] = useState<string>('cursor');
 
-  const accentCode = accent != null
-    ? `<Button size="heading-md" accent="${accent}">Label</Button>`
-    : `<Button size="heading-md">Label</Button>`;
-
   const accentChip = accent != null ? (
     <button
       type="button"
@@ -95,7 +91,14 @@ export default function ButtonPage(): React.ReactElement {
           <ComponentSection
             name="Text Button"
             description="Transparent at rest — 10% overlay fill reveals on hover via ::before scale-up. Accent tints text and background at 10%."
-            code={accentCode}
+            code={({ state, size }): string => {
+              const props = [
+                `size="${size}"`,
+                accent != null ? `accent="${accent}"` : null,
+                state === 'disabled' ? 'disabled' : null,
+              ].filter((p): p is string => p != null).join(' ');
+              return `<Button ${props}>Label</Button>`;
+            }}
             sizes={BUTTON_SIZES}
             defaultSize="heading-md"
             sizeLabel={(s): string => SIZE_LABELS[s]}
@@ -116,7 +119,9 @@ export default function ButtonPage(): React.ReactElement {
           <ComponentSection
             name="Button with leading icon"
             description="Icon uses size='em' — scales with the button's font size across all tiers."
-            code={`<Button>\n  <Icon name="arrow-last-page" size="em" />\n  Continue\n</Button>`}
+            code={({ size }): string =>
+              `<Button size="${size}">\n  <Icon name="arrow-last-page" size="em" />\n  Continue\n</Button>`
+            }
             sizes={BUTTON_SIZES}
             defaultSize="heading-md"
             sizeLabel={(s): string => SIZE_LABELS[s]}
@@ -132,7 +137,9 @@ export default function ButtonPage(): React.ReactElement {
           <ComponentSection
             name="Button with trailing icon"
             description="Same em-sized glyph placed after the label — direction signals forward navigation."
-            code={`<Button>\n  Continue\n  <Icon name="arrow-last-page" size="em" />\n</Button>`}
+            code={({ size }): string =>
+              `<Button size="${size}">\n  Continue\n  <Icon name="arrow-last-page" size="em" />\n</Button>`
+            }
             sizes={BUTTON_SIZES}
             defaultSize="heading-md"
             sizeLabel={(s): string => SIZE_LABELS[s]}
@@ -148,7 +155,9 @@ export default function ButtonPage(): React.ReactElement {
           <ComponentSection
             name="Link button (asChild)"
             description="Pass asChild to render as an anchor while keeping all button styles and gravity."
-            code={`<Button asChild>\n  <a href="/path">Navigate</a>\n</Button>`}
+            code={({ size }): string =>
+              `<Button size="${size}" asChild>\n  <a href="/path">Navigate</a>\n</Button>`
+            }
             sizes={BUTTON_SIZES}
             defaultSize="heading-md"
             sizeLabel={(s): string => SIZE_LABELS[s]}
@@ -163,7 +172,9 @@ export default function ButtonPage(): React.ReactElement {
           <ComponentSection
             name="Icon only"
             description="No label — icon footprint only. Use for toolbars and compact UI."
-            code={`<Button className="btn-icon" size={size}>\n  <Icon name="arrow-last-page" size="em" />\n</Button>`}
+            code={({ size }): string =>
+              `<Button className="btn-icon" size="${size}">\n  <Icon name="arrow-last-page" size="em" />\n</Button>`
+            }
             sizes={BUTTON_SIZES}
             defaultSize="heading-md"
             sizeLabel={(s): string => SIZE_LABELS[s]}

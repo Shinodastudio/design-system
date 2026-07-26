@@ -313,42 +313,66 @@ hr { border: none; height: 1px; background: var(--color-text-primary); opacity: 
 }
 
 /* ─── PROGRESSIVE BLUR — smooth scroll fadeout covering nav + below ──────
-   Sits at top:0 inside .nav, spanning the full nav bar height plus a taper
-   zone beneath it. No backdrop-filter on .nav-inner — this element handles
-   all blurring so there is no clipped rectangle edge.
+   Spans the full nav bar height plus a taper zone beneath it. No
+   backdrop-filter on .nav-inner — this element (+ its two pseudo-elements)
+   handles all blurring so there is no clipped rectangle edge.
    Three layers with overlapping gradient masks; Layer A is held solid
    through the nav height (~40% of default 140px = 56px) before fading.
-   Reusable: --pb-height, --pb-blur-a/b/c are overridable. */
+   Reusable: --pb-height, --pb-blur-a/b/c are overridable.
+
+   useTopPeel (see NavProgressiveBlur.tsx) bends each layer's bottom edge
+   with scroll velocity by swapping --top-peel-mask-a/b/c to an SVG <mask>
+   reference — each mask paints a shared wave <path> with a gradient that
+   duplicates that layer's own fade stops, so the wave replaces the plain
+   gradient without changing the fade profile. Unset (rest state) falls
+   back to the original flat gradients below, so idle pages render
+   identically to before this existed.
+
+   Deliberately masked on THESE elements directly, not a wrapping parent:
+   Chromium breaks backdrop-filter's backdrop sampling entirely (blur
+   silently disappears, not just an unsmoothed edge) when the mask sits on
+   an ANCESTOR of the backdrop-filter element — confirmed empirically.
+   Masking the backdrop-filter element itself does not have this problem
+   and composites correctly. Also NOT clip-path: Chromium doesn't
+   anti-alias clip-path edges on backdrop-filter elements either, producing
+   a hard seam instead of a soft curve. */
 .progressive-blur {
   position: absolute;
   inset-inline: 0;
+  top: 0;
   height: var(--pb-height, 140px);
   pointer-events: none;
   /* Layer A — heaviest blur; solid through nav, then fades */
-  backdrop-filter: blur(var(--pb-blur-a, 16px));
   -webkit-backdrop-filter: blur(var(--pb-blur-a, 16px));
-  mask-image: linear-gradient(to bottom, black 0%, black 40%, transparent 65%);
-  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 40%, transparent 65%);
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur(var(--pb-blur-a, 16px));
+  }
+  mask-image: var(--top-peel-mask-a, linear-gradient(to bottom, black 0%, black 40%, transparent 65%));
+  -webkit-mask-image: var(--top-peel-mask-a, linear-gradient(to bottom, black 0%, black 40%, transparent 65%));
 }
 /* Layer B — medium blur, mid zone; overlaps A above and C below */
 .progressive-blur::before {
   content: '';
   position: absolute;
   inset: 0;
-  backdrop-filter: blur(var(--pb-blur-b, 8px));
   -webkit-backdrop-filter: blur(var(--pb-blur-b, 8px));
-  mask-image: linear-gradient(to bottom, transparent 25%, black 40%, black 62%, transparent 82%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 25%, black 40%, black 62%, transparent 82%);
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur(var(--pb-blur-b, 8px));
+  }
+  mask-image: var(--top-peel-mask-b, linear-gradient(to bottom, transparent 25%, black 40%, black 62%, transparent 82%));
+  -webkit-mask-image: var(--top-peel-mask-b, linear-gradient(to bottom, transparent 25%, black 40%, black 62%, transparent 82%));
 }
 /* Layer C — lightest blur, bottom zone; overlaps B */
 .progressive-blur::after {
   content: '';
   position: absolute;
   inset: 0;
-  backdrop-filter: blur(var(--pb-blur-c, 4px));
   -webkit-backdrop-filter: blur(var(--pb-blur-c, 4px));
-  mask-image: linear-gradient(to bottom, transparent 55%, black 68%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 55%, black 68%, transparent 100%);
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur(var(--pb-blur-c, 4px));
+  }
+  mask-image: var(--top-peel-mask-c, linear-gradient(to bottom, transparent 55%, black 68%, transparent 100%));
+  -webkit-mask-image: var(--top-peel-mask-c, linear-gradient(to bottom, transparent 55%, black 68%, transparent 100%));
 }
 
 /* Nav links — body-xs (0.875rem) text buttons.
@@ -616,13 +640,23 @@ hr { border: none; height: 1px; background: var(--color-text-primary); opacity: 
   color: var(--color-text-primary);
   cursor: none;
   display: inline;
-  padding: 0.1em 0.15em;
+  /* Bottom padding is deliberately larger than the rest — it's the room the
+     underline (painted below, not real text-decoration) needs to clear the
+     text's descenders. Was 0.1em all round, which — combined with the old
+     0.15em background-position offset and the fixed 2px stroke — put the
+     stripe's top edge ABOVE the content box's bottom edge, so it visibly cut
+     through descenders (g/p/y) once deployed. See the gap math below. */
+  padding: 0.1em 0.15em 0.25em;
   border-radius: var(--radius-sm);
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
   /* Two stacked background-images at the underline position:
      Layer 1 (top) — full opacity, starts at 0 width, wipes to 100% on hover.
-     Layer 2 (bottom) — 20% opacity base, always 100% wide. */
+     Layer 2 (bottom) — 20% opacity base, always 100% wide.
+     Position sits almost flush with the padding box's bottom edge — the
+     visible gap above the stripe comes from padding-bottom, not from this
+     offset. Gap ≈ padding-bottom − position − stroke-width, so keep
+     position small; raising it eats back into the gap this fix creates. */
   background-image:
     linear-gradient(to right, currentColor, currentColor),
     linear-gradient(to right,
@@ -630,7 +664,7 @@ hr { border: none; height: 1px; background: var(--color-text-primary); opacity: 
       color-mix(in srgb, currentColor 20%, transparent)
     );
   background-size: 0% 2px, 100% 2px;
-  background-position: bottom 0.15em left, bottom 0.15em left;
+  background-position: bottom 0.02em left, bottom 0.02em left;
   background-repeat: no-repeat, no-repeat;
   text-decoration: none;
   background-color: transparent;
@@ -966,6 +1000,41 @@ html.cursor--focused .cursor { opacity: 0; }
 
 /* ─── BUTTON ROW ─────────────────────────────────────────────────────── */
 .button-row { display: inline-flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+
+/* ─── SCROLL BEND MEDIA — WebGL peel effect (ScrollBendMedia.tsx) ───────────
+   Container reserves its final box via the `ratio` prop (inline aspect-ratio)
+   so nothing shifts before the media or the GL context is ready.
+
+   .scroll-bend-media-source is the real <img>/<video> — present for a11y/SEO
+   and as the static fallback under prefers-reduced-motion or a failed WebGL
+   init. Once the canvas starts drawing, useScrollBend adds
+   .scroll-bend-media-source-hidden so the plane's own transparent "peel" gaps
+   reveal the page background rather than the flat source underneath.
+
+   Canvas starts display:none — useScrollBend flips it to block only after
+   the first successful frame, so a slow/failed GL init never blanks the media. */
+.scroll-bend-media {
+  position: relative;
+  width: 100%;
+  overflow: visible;
+}
+.scroll-bend-media-source {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.scroll-bend-media-source-hidden { opacity: 0; pointer-events: none; }
+.scroll-bend-media-canvas {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-bend-media-canvas { display: none !important; }
+}
 
 /* ─── SECTION TILE — homepage card ───────────────────────────────────────
    Card chrome: hairline border at 5% opacity, radius-sm, padding-card.
@@ -1902,6 +1971,122 @@ html.cursor--focused .cursor { opacity: 0; }
   .home-tiles { grid-template-columns: 1fr; }
 }
 
+/* ─── HOMEPAGE GALLERY — colour chips + icon showcase panels ────────────
+   Three full-width 16:9 panels below the intro divider (see src/app/page.tsx).
+   Panels 1–2 are interactive: a scroll-position-eased strip (useScrollDrift,
+   NOT the velocity-decay feel of useTopPeel/useScrollBend) rendered 20%
+   wider than the panel and centred at rest, so it only ever pans within
+   content it already renders — never reveals empty space. Panel 3 is a
+   plain theme-mapped static image, no link, no motion. */
+.home-gallery-panel {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background-color: var(--color-fill-secondary);
+}
+.home-gallery-panel-link {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+/* Panel 1 — colour chips */
+.home-gallery-chip-track {
+  position: relative;
+  width: 120%;
+  height: 100%;
+  display: flex;
+  transform: translateX(calc(-10% + var(--scroll-drift-x, 0px)));
+}
+.home-gallery-chip {
+  position: relative;
+  flex: 1 0 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.home-gallery-chip-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  text-align: center;
+  color: var(--color-core-contrast);
+  mix-blend-mode: difference;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+.home-gallery-chip:hover .home-gallery-chip-meta { opacity: var(--opacity-80); }
+.home-gallery-chip-hex-dark { display: none; }
+@media (prefers-color-scheme: dark) {
+  .home-gallery-chip-hex-light { display: none; }
+  .home-gallery-chip-hex-dark  { display: inline; }
+}
+[data-theme="dark"] .home-gallery-chip-hex-light { display: none; }
+[data-theme="dark"] .home-gallery-chip-hex-dark  { display: inline; }
+[data-theme="light"] .home-gallery-chip-hex-light { display: inline; }
+[data-theme="light"] .home-gallery-chip-hex-dark  { display: none; }
+
+/* Panel 2 — icon showcase. Mirrors .icon-grid's hover-to-name convention
+   (see the /icons catalogue) at a smaller cell floor, in a track sized
+   larger than the panel on both axes so it reads as a clipped canvas —
+   overflow is cropped by .home-gallery-panel, centred via flex on the anchor. */
+.home-gallery-panel-link--icons { align-items: center; }
+.home-gallery-icon-track {
+  position: relative;
+  width: 120%;
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+  gap: 1px;
+  background-color: var(--color-transparent-weak);
+  transform: translateX(calc(-10% + var(--scroll-drift-x, 0px)));
+}
+.home-gallery-icon-cell {
+  position: relative;
+  aspect-ratio: 1;
+  background-color: var(--color-fill-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.home-gallery-icon-glyph { transition: opacity 150ms ease; }
+.home-gallery-icon-name {
+  position: absolute;
+  inset: var(--space-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  hyphens: auto;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+.home-gallery-icon-cell:hover .home-gallery-icon-glyph { opacity: 0; }
+.home-gallery-icon-cell:hover .home-gallery-icon-name  { opacity: var(--opacity-80); }
+
+/* Panel 3 — static image, theme-mapped, no link/motion */
+.home-gallery-static-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.home-gallery-static-img-dark { display: none; }
+@media (prefers-color-scheme: dark) {
+  .home-gallery-static-img-light { display: none; }
+  .home-gallery-static-img-dark  { display: block; }
+}
+[data-theme="dark"] .home-gallery-static-img-light { display: none; }
+[data-theme="dark"] .home-gallery-static-img-dark  { display: block; }
+[data-theme="light"] .home-gallery-static-img-light { display: block; }
+[data-theme="light"] .home-gallery-static-img-dark  { display: none; }
+
 /* ─── RESPONSIVE VISIBILITY ──────────────────────────────────────────── */
 .hide { display: none !important; }
 @media (max-width: 991px) { .hide-tablet           { display: none !important; } }
@@ -2513,20 +2698,26 @@ html.cursor--focused .cursor { opacity: 0; }
 }
 .scrim-visible { opacity: 1; }
 .scrim-blur-xs {
-  backdrop-filter: blur(var(--blur-xs));
   -webkit-backdrop-filter: blur(var(--blur-xs));
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur(var(--blur-xs));
+  }
 }
 .scrim-blur-md {
-  backdrop-filter: blur(var(--blur-md));
   -webkit-backdrop-filter: blur(var(--blur-md));
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur(var(--blur-md));
+  }
 }
 
 /* Scrim — blur + darken behind the dialog. The dialog::backdrop sits between
    the page and the dialog, so backdrop-filter blurs the page underneath. */
 .dialog::backdrop {
   background-color: var(--color-scrim);
-  backdrop-filter: blur(var(--blur-xs));
   -webkit-backdrop-filter: blur(var(--blur-xs));
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur(var(--blur-xs));
+  }
 }
 .dialog-content {
   background-color: var(--color-fill-base);
@@ -2597,9 +2788,11 @@ html.cursor--focused .cursor { opacity: 0; }
   animation: dialog-card-in var(--motion-modal-card-in);
 }
 .dialog.dialog--bare::backdrop {
-  background-color: color-mix(in srgb, var(--alpha-strong, var(--color-text-primary)) 55%, transparent);
-  backdrop-filter: blur(var(--blur-md));
+  background-color: var(--color-scrim-strong);
   -webkit-backdrop-filter: blur(var(--blur-md));
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur(var(--blur-md));
+  }
   /* Without this, the scrim (darken + blur) pops in on the very first frame
      while only the card animates — reads as instant rather than smooth. */
   animation: dialog-backdrop-in var(--motion-modal-card-in) both;
@@ -2627,7 +2820,7 @@ html.cursor--focused .cursor { opacity: 0; }
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  color: var(--color-fill-base);
+  color: var(--color-text-contrast);
   font-family: var(--font-sans);
   font-size: 1.5rem;
   font-weight: var(--fw-normal);
@@ -2681,9 +2874,11 @@ html.cursor--focused .cursor { opacity: 0; }
   overflow: hidden;
 }
 .dialog.dialog--drawer::backdrop {
-  background-color: color-mix(in srgb, var(--alpha-strong, var(--color-text-primary)) 55%, transparent);
-  backdrop-filter: blur(var(--blur-md));
+  background-color: var(--color-scrim-strong);
   -webkit-backdrop-filter: blur(var(--blur-md));
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur(var(--blur-md));
+  }
   /* See .dialog--bare::backdrop above — fades the scrim in alongside the
      panel's slide-up instead of popping in on the first frame. */
   animation: dialog-backdrop-in var(--motion-modal-in) both;
@@ -2833,8 +3028,10 @@ html.cursor--focused .cursor { opacity: 0; }
   position: fixed;
   inset: 0;
   background-color: var(--color-scrim);
-  backdrop-filter: blur(var(--blur-xs));
   -webkit-backdrop-filter: blur(var(--blur-xs));
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur(var(--blur-xs));
+  }
   opacity: 0;
   z-index: 1000;
   transition: opacity 250ms ease;
@@ -3329,8 +3526,10 @@ html.cursor--focused .cursor { opacity: 0; }
   position: absolute;
   inset: 0;
   background-color: var(--color-scrim);
-  backdrop-filter: blur(var(--blur-xs));
   -webkit-backdrop-filter: blur(var(--blur-xs));
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur(var(--blur-xs));
+  }
   opacity: 0;
   transition: opacity var(--motion-modal-card-in);
 }

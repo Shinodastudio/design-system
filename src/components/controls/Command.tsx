@@ -286,6 +286,13 @@ export function CommandItem({
         } else {
           itemRefs.current[indexRef.current] = el;
         }
+      } else if (indexRef.current != null) {
+        // Item unmounted (filtered out by the query) — clear its slot so
+        // handleKeyDown's live-node filter doesn't keep focusing/counting a
+        // stale, detached button. The index stays reserved so a later
+        // remount (query matches again) refills the same slot and visual
+        // ordering stays stable.
+        itemRefs.current[indexRef.current] = null;
       }
     },
     [itemRefs],

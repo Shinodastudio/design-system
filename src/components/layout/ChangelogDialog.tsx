@@ -66,7 +66,7 @@ export function ChangelogDialog({ children }: ChangelogDialogProps): React.React
                 <li key={entry.title} className="changelog-entry">
                   <div className="changelog-entry-header">
                     <div className="changelog-entry-row">
-                      <span className="changelog-entry-date heading-md op-40">
+                      <span className="changelog-entry-date heading-md">
                         {formatEntryDate(entry.date)}
                       </span>
                       {entry.version != null && (
@@ -76,7 +76,7 @@ export function ChangelogDialog({ children }: ChangelogDialogProps): React.React
                     </div>
                     <h3 className="changelog-entry-title heading-md">{entry.title}</h3>
                   </div>
-                  <ul className="changelog-entry-changes body-sm">
+                  <ul className="changelog-entry-changes body-xs">
                     {entry.changes.map((change) => (
                       <li key={change}>{change}</li>
                     ))}

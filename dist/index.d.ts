@@ -697,15 +697,31 @@ declare function SearchButton(): React.ReactElement;
 
 /**
  * Smooth progressive blur rendered below the fixed nav bar.
- * All visual logic lives in the .progressive-blur CSS class —
+ * All visual layout lives in the .progressive-blur CSS class —
  * three backdrop-filter layers (16 → 8 → 4 px) with overlapping
  * gradient masks so no seams appear between blur zones.
  *
  * Customise via CSS custom properties on the element or a parent:
- *   --pb-height    (default 80px)
+ *   --pb-height    (default 140px)
  *   --pb-blur-a    (default 16px — heaviest, top zone)
  *   --pb-blur-b    (default  8px — mid zone)
  *   --pb-blur-c    (default  4px — lightest, bottom zone)
+ *
+ * useTopPeel bends the bottom edge of all three blur layers with scroll
+ * velocity (the raggededge.com-style top-only peel) by rewriting the shared
+ * <path> below every frame — flat and inert at rest, so this renders
+ * identically to before whenever the page isn't moving.
+ *
+ * Each layer gets its OWN <mask>, painting the same wave <path> (referenced
+ * via <use>, so one `d` update drives all three) with a <linearGradient>
+ * that duplicates that layer's own CSS fade stops. The mask is applied
+ * directly to .progressive-blur / ::before / ::after in CSS — never to a
+ * wrapping ancestor. Two Chromium bugs rule out the more obvious designs:
+ * clip-path on a backdrop-filter element doesn't get anti-aliased (hard
+ * seam instead of a soft curve), and — worse — masking an ANCESTOR of a
+ * backdrop-filter element severs its backdrop sampling entirely, so the
+ * blur silently disappears rather than just rendering with a hard edge.
+ * Masking the backdrop-filter element itself has neither problem.
  */
 declare function NavProgressiveBlur(): React.ReactElement;
 
@@ -811,7 +827,7 @@ declare const COMPONENT_CATEGORIES: readonly [{
     readonly items: readonly ["feedback", "overlay"];
 }, {
     readonly label: "Display";
-    readonly items: readonly ["icon", "cursor", "sticker"];
+    readonly items: readonly ["icon", "cursor", "sticker", "media"];
 }];
 type ComponentCategory = (typeof COMPONENT_CATEGORIES)[number];
 /** Title-case a component slug (e.g. "button" → "Button"). */
@@ -963,6 +979,42 @@ interface GridTileActionProps {
     readonly className?: string;
 }
 declare function GridTileAction({ children, onClick, ariaLabel, variant, className, }: GridTileActionProps): React.ReactElement;
+
+interface ScrollBendMediaBaseProps {
+    readonly className?: string;
+    /** width / height — sets the container's aspect-ratio up front so the layout never shifts once the media loads. */
+    readonly ratio: number;
+    /** Multiplier on the scroll-velocity-driven bend amount. Default 1. */
+    readonly bendStrength?: number;
+    /** Horizontal hump count in the peel edge. 2 = symmetric double-bulge (raggededge-style). Default 2. */
+    readonly waveFrequency?: number;
+    /** Render the plain media element only — no canvas, no scroll listener. */
+    readonly disabled?: boolean;
+}
+interface ScrollBendImageProps extends ScrollBendMediaBaseProps {
+    readonly type?: 'image';
+    readonly src: string;
+    readonly alt: string;
+}
+interface ScrollBendVideoProps extends ScrollBendMediaBaseProps {
+    readonly type: 'video';
+    readonly src: string;
+    readonly poster?: string;
+}
+type ScrollBendMediaProps = ScrollBendImageProps | ScrollBendVideoProps;
+/**
+ * Full-bleed image or video whose top/bottom edges bend away from the frame
+ * under scroll velocity, revealing the page background beneath — the
+ * raggededge.com-style "peel" effect. WebGL (via ogl), not CSS: the media is
+ * drawn onto a subdivided plane whose edge vertices displace based on an
+ * eased scroll-velocity uniform (see useScrollBend).
+ *
+ * Degrades to the plain <img>/<video> — no canvas, no motion — when
+ * `disabled` is set, under `prefers-reduced-motion: reduce`, or if WebGL
+ * fails to initialise. `ratio` is required so the container reserves its
+ * final size before the media (or the GL context) is ready — no CLS.
+ */
+declare function ScrollBendMedia(props: ScrollBendMediaProps): React.ReactElement;
 
 type BadgeVariant = 'neutral' | 'red' | 'orange' | 'yellow' | 'green' | 'blue';
 interface BadgeProps {
@@ -1571,6 +1623,28 @@ declare function useGravity(ref: React.RefObject<HTMLElement | null>): void;
 type Theme = 'light' | 'dark';
 declare function useTheme(): readonly [Theme, () => void];
 
+interface UseScrollBendOptions {
+    /** Multiplier on the scroll-velocity-driven bend amount. Default 1. */
+    readonly bendStrength?: number;
+    /** Number of horizontal humps in the peel edge. 2 = symmetric double-bulge. Default 2. */
+    readonly waveFrequency?: number;
+    /** Skip WebGL entirely and leave the plain media element visible. */
+    readonly disabled?: boolean;
+}
+/**
+ * Drives the ScrollBendMedia WebGL plane: eases the mesh's `uBend` uniform
+ * toward a scroll-velocity target every frame, keeps the cover-fit uniforms
+ * in sync with container/media size, and pauses rendering entirely off
+ * screen or under prefers-reduced-motion.
+ *
+ * Renders directly to `canvasRef` — pass refs to a positioned container, the
+ * canvas overlay, and the source <img>/<video> whose pixels become the
+ * texture. On success, hides the source element and reveals the canvas; on
+ * reduced motion (or if refs aren't ready) it does nothing, leaving the
+ * plain media element visible as the static fallback.
+ */
+declare function useScrollBend(containerRef: React.RefObject<HTMLDivElement | null>, canvasRef: React.RefObject<HTMLCanvasElement | null>, mediaRef: React.RefObject<HTMLImageElement | HTMLVideoElement | null>, options?: UseScrollBendOptions): void;
+
 declare function cn(...inputs: readonly ClassValue[]): string;
 
-export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, type AlertVariant, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, BackToTop, Badge, type BadgeVariant, type BodyVariant, Button, ButtonGroup, COMPONENT_CATEGORIES, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandDialog, CommandEmpty, CommandGroup, CommandHeader, CommandInput, CommandItem, CommandList, CommandPalette, CommandPaletteHost, type ComponentCategory, ConfirmDialog, type ConfirmDialogIntent, ContentCard, Cursor, type CursorRef, DateInput, Dialog, DialogCard, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogPanel, DialogTitle, DialogTitleRow, DialogTrigger, type DialogVariant, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, type DropdownMenuItemVariant, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, type EditableColumn, EditableTable, FONT_WEIGHT_TOKENS, FileChip, type FileChipProps, FileDropzone, type FileDropzoneProps, Footer, Grid, GridTile, GridTileAction, HEADING_VARIANTS, type HeadingVariant, ICONS, ICONS_BY_ID, Icon, type IconProps, type IconRecord, type IconSize, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, type LinkSize, MainWrapper, NAV_ITEMS, Nav, type NavItem, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, type OpacityLevel, PADDING_TOKENS, PageWrapper, PlainLink, Popover, PopoverContent, PopoverTrigger, Progress, type ProgressSize, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, Scrim, type ScrimBlur, SearchButton, SearchDropdown, type SearchOption, SectionTile, Select, type SemanticColor, Sheet, SheetContent, SheetFooter, SheetHeader, type SheetSide, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, type SubheadingVariant, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, type TooltipSide, type TypeVariant, cn, componentLabel, formatFileSize, useCursor, useGravity, useTheme, useThemeContext };
+export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, type AlertVariant, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, BackToTop, Badge, type BadgeVariant, type BodyVariant, Button, ButtonGroup, COMPONENT_CATEGORIES, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandDialog, CommandEmpty, CommandGroup, CommandHeader, CommandInput, CommandItem, CommandList, CommandPalette, CommandPaletteHost, type ComponentCategory, ConfirmDialog, type ConfirmDialogIntent, ContentCard, Cursor, type CursorRef, DateInput, Dialog, DialogCard, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogPanel, DialogTitle, DialogTitleRow, DialogTrigger, type DialogVariant, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, type DropdownMenuItemVariant, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, type EditableColumn, EditableTable, FONT_WEIGHT_TOKENS, FileChip, type FileChipProps, FileDropzone, type FileDropzoneProps, Footer, Grid, GridTile, GridTileAction, HEADING_VARIANTS, type HeadingVariant, ICONS, ICONS_BY_ID, Icon, type IconProps, type IconRecord, type IconSize, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, type LinkSize, MainWrapper, NAV_ITEMS, Nav, type NavItem, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, type OpacityLevel, PADDING_TOKENS, PageWrapper, PlainLink, Popover, PopoverContent, PopoverTrigger, Progress, type ProgressSize, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, Scrim, type ScrimBlur, ScrollBendMedia, type ScrollBendMediaProps, SearchButton, SearchDropdown, type SearchOption, SectionTile, Select, type SemanticColor, Sheet, SheetContent, SheetFooter, SheetHeader, type SheetSide, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, type SubheadingVariant, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, type TooltipSide, type TypeVariant, type UseScrollBendOptions, cn, componentLabel, formatFileSize, useCursor, useGravity, useScrollBend, useTheme, useThemeContext };

@@ -283,6 +283,10 @@
 
   /* ─── SCRIM — static dark overlay for dialogs/sheets (always dark) ─── */
   --color-scrim: rgba(0, 0, 0, 0.40);
+  /* Deeper variant for the bare/drawer dialog backdrops. Always dark in both
+     themes — do not derive this from --color-text-primary or any other
+     theme-flipping token, or the backdrop inverts to light in dark mode. */
+  --color-scrim-strong: rgba(0, 0, 0, 0.55);
 
   /* ─── STATUS — derived from accents (not in Figma) ─────────────────── */
   --color-status-error:   var(--accent-red);

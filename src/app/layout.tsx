@@ -3,6 +3,7 @@ import './globals.css';
 import { ClientShell } from '@/providers/ClientShell';
 import { PageWrapper } from '@/components/layout/PageWrapper';
 import { Footer } from '@/components/layout/Footer';
+import { ContentPeel } from '@/components/layout/ContentPeel';
 import { Nav } from '@/components/nav/Nav';
 import { SkipLink } from '@/components/nav/SkipLink';
 
@@ -37,6 +38,7 @@ export default function RootLayout({
         <ClientShell>
           <SkipLink />
           <Nav />
+          <ContentPeel />
           <PageWrapper>
             {children}
           </PageWrapper>

@@ -12,6 +12,7 @@ import {
   useCommandQuery,
 } from '@/components/controls/Command';
 import { NAV_ITEMS, COMPONENT_CATEGORIES, componentLabel } from './navItems';
+import { SEARCH_INDEX } from './data/searchIndex.generated';
 
 interface CommandPaletteProps {
   readonly onClose: () => void;
@@ -20,6 +21,9 @@ interface CommandPaletteProps {
 type Level = 'sections' | 'categories' | 'components';
 
 const COMPONENTS_LABEL = 'Components';
+// Cap nested-section matches so a broad query (e.g. a single common letter)
+// can't flood the palette with every section in the catalogue.
+const MAX_SECTION_RESULTS = 8;
 
 interface DeepSearchResultsProps {
   readonly navigate: (href: string) => void;
@@ -53,6 +57,40 @@ function DeepSearchResults({ navigate }: DeepSearchResultsProps): React.ReactEle
           onSelect={() => navigate(`/components/${slug}`)}
         >
           {componentLabel(slug)}
+        </CommandItem>
+      ))}
+    </CommandGroup>
+  );
+}
+
+/**
+ * Surfaces content nested *inside* a component page — every named
+ * <ComponentSection> across the catalogue (see scripts/generate-search-index.ts)
+ * — directly against the sections query. This is what lets typing e.g.
+ * "dialog" at the top level jump straight to the "Dialog — bottom drawer"
+ * variant on the Overlay page, not just to the Overlay page itself. Same
+ * mount/empty-query rules as DeepSearchResults.
+ */
+function DeepSectionResults({ navigate }: DeepSearchResultsProps): React.ReactElement | null {
+  const query = useCommandQuery();
+  if (query === '') return null;
+
+  const q = query.toLowerCase();
+  const matches = SEARCH_INDEX
+    .filter((entry) => entry.label.toLowerCase().includes(q))
+    .slice(0, MAX_SECTION_RESULTS);
+  if (matches.length === 0) return null;
+
+  return (
+    <CommandGroup label="In pages">
+      {matches.map((entry) => (
+        <CommandItem
+          key={entry.href}
+          value={entry.label}
+          onSelect={() => navigate(entry.href)}
+        >
+          {entry.label}
+          <span className="op-40"> — {entry.pageLabel}</span>
         </CommandItem>
       ))}
     </CommandGroup>
@@ -132,6 +170,7 @@ export function CommandPalette({ onClose }: CommandPaletteProps): React.ReactEle
               ))}
             </CommandGroup>
             <DeepSearchResults navigate={navigate} />
+            <DeepSectionResults navigate={navigate} />
           </>
         )}
 
