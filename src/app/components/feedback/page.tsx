@@ -29,7 +29,15 @@ export default function FeedbackPage(): React.ReactElement {
           <ComponentSection
             name="Badge"
             description="Single canonical size — body-2xs, 10% accent tint. Six colour variants. Hover drops to 40% opacity. Focus outlines in the variant's accent colour; disabled drops the chip to 40% and removes interactivity."
-            code={`<Badge variant="green">Published</Badge>\n<Badge variant="red" disabled>Archived</Badge>\n<Badge variant="blue" onClick={fn}>Clickable</Badge>`}
+            code={({ size, state }): string => {
+              const label = size.charAt(0).toUpperCase() + size.slice(1);
+              const props = [
+                `variant="${size}"`,
+                state === 'disabled' ? 'disabled' : null,
+                state !== 'disabled' ? 'onClick={fn}' : null,
+              ].filter((p): p is string => p != null).join(' ');
+              return `<Badge ${props}>${label}</Badge>`;
+            }}
             sizes={BADGE_VARIANTS}
             sizeLabel={(v): string => v}
             states={['default', 'hover', 'focus', 'disabled']}
@@ -48,7 +56,9 @@ export default function FeedbackPage(): React.ReactElement {
           <ComponentSection
             name="Alert"
             description="Pill banner with accent fill, leading icon, title, and optional text dismiss link. Six colour variants — semantic aliases (success/warning/error/info) resolve to the matching colour."
-            code={`<Alert variant="red" title="Submission failed" />\n<Alert variant="orange" title="Unsaved changes" onDismiss={fn} />\n<Alert variant="error" title="Same as 'red'" />`}
+            code={({ size }): string =>
+              `<Alert variant="${size}" title="Submission failed" onDismiss={fn} />`
+            }
             sizes={ALERT_VARIANTS}
             sizeLabel={(v): string => v}
             states={['default']}
@@ -65,7 +75,9 @@ export default function FeedbackPage(): React.ReactElement {
           <ComponentSection
             name="Alert with description"
             description="Pass children to render a secondary description line beneath the title at 80% opacity."
-            code={`<Alert title="Heads up">\n  Your session expires in 30 minutes.\n</Alert>`}
+            code={({ size }): string =>
+              `<Alert variant="${size}" title="Heads up">\n  Your session expires in 30 minutes.\n</Alert>`
+            }
             sizes={ALERT_VARIANTS}
             sizeLabel={(v): string => v}
             states={['default']}

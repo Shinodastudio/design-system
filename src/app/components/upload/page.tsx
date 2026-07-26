@@ -76,7 +76,11 @@ export default function UploadPage(): React.ReactElement {
           <ComponentSection<DropzoneSize>
             name="Dropzone"
             description="Click or drag to trigger the file picker. Drag-over lifts to fill-secondary; error applies status-error border."
-            code={`<FileDropzone\n  multiple\n  accept=".pdf,.png"\n  hint=".pdf .png — up to 10 MB"\n  onFilesAccepted={(files) => console.log(files)}\n/>`}
+            code={({ state }): string =>
+              state === 'disabled'
+                ? `<FileDropzone\n  multiple\n  accept=".pdf,.png"\n  hint=".pdf .png — up to 10 MB"\n  onFilesAccepted={(files) => console.log(files)}\n  disabled\n/>`
+                : `<FileDropzone\n  multiple\n  accept=".pdf,.png"\n  hint=".pdf .png — up to 10 MB"\n  onFilesAccepted={(files) => console.log(files)}\n/>`
+            }
             sizes={DROPZONE_SIZES}
             states={['default', 'active', 'disabled']}
             render={({ state }): React.ReactNode => (

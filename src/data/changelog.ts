@@ -26,6 +26,18 @@ export interface ChangelogEntry {
  */
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    title: 'Content peel effect, homepage gallery cleanup, dialog dark-mode contrast fixes',
+    type: 'Fix',
+    date: '2026-07-26',
+    version: 'v0.2.1',
+    changes: [
+      'Reworked the scroll-velocity peel effect: it was bending the nav\u2019s .progressive-blur strip itself, which read as broken/invisible in normal use. New ContentPeel component + useContentPeel hook instead pinch the top-left/top-right corners of the page content underneath as the page scrolls fast, easing back to flat at rest; the nav and its blur strip are no longer touched at all',
+      'Homepage gallery finalised: replaced the interactive colour-chip and icon-grid panels with static, theme-mapped design comp images (HomeGalleryPanel, CSS-only light/dark swap, no JS, no links); removed the third panel (its source image was an unrelated screenshot) and deleted its now-unused assets',
+      'Fixed dialog text silently rendering black in dark mode: native <dialog> elements don\u2019t inherit `color` from the page (Chromium\u2019s UA stylesheet sets CanvasText, not `inherit`), so any text inside a dialog without its own explicit colour \u2014 e.g. the changelog entry date \u2014 ignored the site theme entirely. .dialog now asserts `color: var(--color-text-primary)`',
+      'Fixed --color-text-tertiary in dark mode: was #494951 (grey-40), only ~2:1 contrast against --color-fill-base and effectively unreadable; corrected to #7A7A82 (grey-50), ~4:1, matching the legibility light mode\u2019s tertiary already had',
+    ],
+  },
+  {
     title: 'Icon system overhaul, command palette rebuild, changelog + dialog polish',
     type: 'Feature',
     date: '2026-07-12',

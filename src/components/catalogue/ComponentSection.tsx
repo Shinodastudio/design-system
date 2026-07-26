@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import { CollapsibleCode } from '@/components/content/CollapsibleCode';
+import { slugify } from '@/lib/slugify';
 
 /**
  * ComponentSection — one named variant row for component catalogue pages.
@@ -31,7 +32,15 @@ interface RenderContext<S extends string> {
 interface ComponentSectionProps<S extends string> {
   readonly name: string;
   readonly description: string;
-  readonly code: string;
+  /**
+   * JSX snippet shown under the preview. Pass a plain string for sections
+   * whose snippet never varies with the size/state chips (chip is hidden,
+   * or the prop it maps to isn't shown in the snippet either way). Pass a
+   * function when the snippet should reflect the currently selected size
+   * and/or state — e.g. a literal `size="heading-md"` or a `disabled` prop
+   * that should track the state chip.
+   */
+  readonly code: string | ((ctx: RenderContext<S>) => string);
   readonly sizes: readonly [S, ...S[]];
   readonly defaultSize?: S;
   readonly sizeLabel?: (s: S) => string;
@@ -87,7 +96,7 @@ export function ComponentSection<S extends string>({
   }, [state, size]);
 
   return (
-    <div className="component-section">
+    <div className="component-section" id={slugify(name)}>
       {/* ── Header: name + chips ── */}
       <div className="component-section-header">
         <div className="component-section-title">
@@ -163,7 +172,10 @@ export function ComponentSection<S extends string>({
         >
           {render({ state, size })}
         </div>
-        <CollapsibleCode code={code} language="jsx" />
+        <CollapsibleCode
+          code={typeof code === 'function' ? code({ state, size }) : code}
+          language="jsx"
+        />
       </div>
     </div>
   );

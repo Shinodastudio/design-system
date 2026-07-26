@@ -17,6 +17,9 @@ export * from './components/cursor';
 export { SectionTile } from './components/cards/SectionTile';
 export { GridTile, GridTileAction } from './components/cards/GridTile';
 
+// Media
+export * from './components/media';
+
 // Feedback
 export * from './components/feedback';
 
@@ -47,6 +50,8 @@ export { useCursor } from './hooks/useCursor';
 export type { CursorRef } from './hooks/useCursor';
 export { useGravity } from './hooks/useGravity';
 export { useTheme } from './hooks/useTheme';
+export { useScrollBend } from './hooks/useScrollBend';
+export type { UseScrollBendOptions } from './hooks/useScrollBend';
 
 // Lib
 export { cn } from './lib/cn';

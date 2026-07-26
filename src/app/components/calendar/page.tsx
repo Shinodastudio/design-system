@@ -29,7 +29,11 @@ export default function CalendarPage(): React.ReactElement {
           <ComponentSection
             name="CalendarPicker"
             description="Inline month grid. Monday-indexed. Today highlighted; selected date filled. Supports min/max bounds."
-            code={`<CalendarPicker\n  value={date}\n  onChange={setDate}\n/>`}
+            code={({ state }): string =>
+              state === 'disabled'
+                ? `<CalendarPicker\n  value={date}\n  onChange={setDate}\n  disabled\n/>`
+                : `<CalendarPicker\n  value={date}\n  onChange={setDate}\n/>`
+            }
             sizes={SIZES}
             states={['default', 'disabled']}
             render={({ state }): React.ReactNode => (
@@ -59,7 +63,11 @@ export default function CalendarPage(): React.ReactElement {
           <ComponentSection
             name="DateInput"
             description="Text field in DD MMM YYYY format. Focus opens a popover calendar. Blurring parses and validates the typed value."
-            code={`<DateInput\n  value={date}\n  onChange={setDate}\n  placeholder="DD MMM YYYY"\n/>`}
+            code={({ state }): string =>
+              state === 'disabled'
+                ? `<DateInput\n  value={date}\n  onChange={setDate}\n  placeholder="DD MMM YYYY"\n  disabled\n/>`
+                : `<DateInput\n  value={date}\n  onChange={setDate}\n  placeholder="DD MMM YYYY"\n/>`
+            }
             sizes={SIZES}
             states={['default', 'disabled']}
             render={({ state }): React.ReactNode => (

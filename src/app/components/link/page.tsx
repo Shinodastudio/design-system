@@ -42,7 +42,11 @@ export default function LinkPage(): React.ReactElement {
           <ComponentSection
             name="Text Link"
             description="Underline is the semantic signal — always visible at 20%, lifts to full on hover. 2px thick across all sizes."
-            code={`<ShinodaLink href="/path" size="heading-md">Visit the work</ShinodaLink>`}
+            code={({ state, size }): string =>
+              state === 'disabled'
+                ? `<ShinodaLink href="/path" size="${size}" disabled>Visit the work</ShinodaLink>`
+                : `<ShinodaLink href="/path" size="${size}">Visit the work</ShinodaLink>`
+            }
             sizes={LINK_SIZES}
             defaultSize="heading-md"
             sizeLabel={(s): string => SIZE_LABELS[s]}
@@ -61,7 +65,9 @@ export default function LinkPage(): React.ReactElement {
           <ComponentSection
             name="External Link"
             description="Opens in a new tab. rel='noopener noreferrer' is applied automatically."
-            code={`<ShinodaLink href="https://example.com" size="heading-md" external>\n  External site\n</ShinodaLink>`}
+            code={({ size }): string =>
+              `<ShinodaLink href="https://example.com" size="${size}" external>\n  External site\n</ShinodaLink>`
+            }
             sizes={LINK_SIZES}
             defaultSize="heading-md"
             sizeLabel={(s): string => SIZE_LABELS[s]}
@@ -76,12 +82,14 @@ export default function LinkPage(): React.ReactElement {
           <ComponentSection
             name="Inline in body copy"
             description="Links sit inline without disrupting rhythm — the underline holds so they read even when motionless."
-            code={`<p className="body-md">\n  Read more about the{' '}\n  <ShinodaLink href="#">design system</ShinodaLink>.\n</p>`}
+            code={({ size }): string =>
+              `<p className="${size}">\n  Read more about the{' '}\n  <ShinodaLink href="#">design system</ShinodaLink>.\n</p>`
+            }
             sizes={['body-md', 'body-sm', 'body-xs'] as const}
             defaultSize="body-md"
             states={['default', 'hover']}
-            render={(): React.ReactNode => (
-              <p className="body-md" style={{ maxWidth: '32em' }}>
+            render={({ size }): React.ReactNode => (
+              <p className={size} style={{ maxWidth: '32em' }}>
                 Read more about the{' '}
                 <ShinodaLink href="#">design system</ShinodaLink>{' '}
                 principles — the underline holds at rest.

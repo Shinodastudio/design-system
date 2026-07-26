@@ -84,7 +84,15 @@ export default function InputPage(): React.ReactElement {
           <ComponentSection
             name="Text Input"
             description="Underline sits at outline colour at rest — lifts to primary text colour on focus."
-            code={`<InputField>\n  <InputLabel htmlFor="name">Name</InputLabel>\n  <Input id="name" placeholder="Walter Benjamin" />\n</InputField>`}
+            code={({ state, size }): string => {
+              const props = [
+                'id="name"',
+                'placeholder="Walter Benjamin"',
+                `style={{ fontSize: '${INPUT_FONT[size]}' }}`,
+                state === 'disabled' ? 'disabled' : null,
+              ].filter((p): p is string => p != null).join(' ');
+              return `<InputField>\n  <InputLabel htmlFor="name">Name</InputLabel>\n  <Input ${props} />\n</InputField>`;
+            }}
             sizes={INPUT_SIZES}
             defaultSize="heading-md"
             states={['default', 'hover', 'focus', 'disabled']}
@@ -105,7 +113,9 @@ export default function InputPage(): React.ReactElement {
           <ComponentSection
             name="Input with help text"
             description="Help text sits below the field at 40% opacity — always visible, not just on error."
-            code={`<InputField>\n  <InputLabel htmlFor="email">Email</InputLabel>\n  <Input id="email" type="email" placeholder="you@studio.com" />\n  <InputHelp>Used only for transactional mail.</InputHelp>\n</InputField>`}
+            code={({ size }): string =>
+              `<InputField>\n  <InputLabel htmlFor="email">Email</InputLabel>\n  <Input id="email" type="email" placeholder="you@studio.com" style={{ fontSize: '${INPUT_FONT[size]}' }} />\n  <InputHelp>Used only for transactional mail.</InputHelp>\n</InputField>`
+            }
             sizes={INPUT_SIZES}
             defaultSize="heading-md"
             states={['default', 'focus']}
@@ -126,7 +136,9 @@ export default function InputPage(): React.ReactElement {
           <ComponentSection
             name="Error state"
             description="Underline and error message both use status-error. Never use red on the field fill."
-            code={`<InputField>\n  <InputLabel htmlFor="slug">Slug</InputLabel>\n  <Input id="slug" hasError defaultValue="bad slug" />\n  <InputError>Slug may not contain spaces.</InputError>\n</InputField>`}
+            code={({ size }): string =>
+              `<InputField>\n  <InputLabel htmlFor="slug">Slug</InputLabel>\n  <Input id="slug" hasError defaultValue="bad slug" style={{ fontSize: '${INPUT_FONT[size]}' }} />\n  <InputError>Slug may not contain spaces.</InputError>\n</InputField>`
+            }
             sizes={INPUT_SIZES}
             defaultSize="heading-md"
             states={['default']}
@@ -147,7 +159,9 @@ export default function InputPage(): React.ReactElement {
           <ComponentSection
             name="Textarea"
             description="Vertical resize only. Same underline treatment as single-line input."
-            code={`<InputField>\n  <InputLabel htmlFor="note">Note</InputLabel>\n  <Textarea id="note" placeholder="A short paragraph..." />\n</InputField>`}
+            code={({ size }): string =>
+              `<InputField>\n  <InputLabel htmlFor="note">Note</InputLabel>\n  <Textarea id="note" placeholder="A short paragraph..." style={{ fontSize: '${INPUT_FONT[size]}' }} />\n</InputField>`
+            }
             sizes={INPUT_SIZES}
             defaultSize="heading-md"
             states={['default', 'focus']}
@@ -168,7 +182,15 @@ export default function InputPage(): React.ReactElement {
           <ComponentSection
             name="Select"
             description="Native select with a custom chevron. Same underline treatment as text input."
-            code={`<InputField>\n  <InputLabel htmlFor="role">Role</InputLabel>\n  <Select id="role" defaultValue="director">\n    <option value="director">Creative Director</option>\n    <option value="strategist">Strategist</option>\n    <option value="engineer">Engineer</option>\n  </Select>\n</InputField>`}
+            code={({ state, size }): string => {
+              const props = [
+                'id="role"',
+                'defaultValue="director"',
+                `style={{ fontSize: '${SELECT_FONT[size]}' }}`,
+                state === 'disabled' ? 'disabled' : null,
+              ].filter((p): p is string => p != null).join(' ');
+              return `<InputField>\n  <InputLabel htmlFor="role">Role</InputLabel>\n  <Select ${props}>\n    <option value="director">Creative Director</option>\n    <option value="strategist">Strategist</option>\n    <option value="engineer">Engineer</option>\n  </Select>\n</InputField>`;
+            }}
             sizes={INPUT_SIZES}
             defaultSize="heading-md"
             states={['default', 'hover', 'focus', 'disabled']}
@@ -236,7 +258,11 @@ export default function InputPage(): React.ReactElement {
           <ComponentSection
             name="SearchDropdown"
             description="Filters options as you type. Keyboard navigable with arrow keys and Enter."
-            code={`<SearchDropdown\n  options={options}\n  value={value}\n  onChange={setValue}\n  placeholder="Search tokens…"\n/>`}
+            code={({ state }): string =>
+              state === 'disabled'
+                ? `<SearchDropdown\n  options={options}\n  value={value}\n  onChange={setValue}\n  placeholder="Search tokens…"\n  disabled\n/>`
+                : `<SearchDropdown\n  options={options}\n  value={value}\n  onChange={setValue}\n  placeholder="Search tokens…"\n/>`
+            }
             sizes={SEARCH_SIZES}
             states={['default', 'disabled']}
             render={({ state }): React.ReactNode => (

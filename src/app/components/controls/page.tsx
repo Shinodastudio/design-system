@@ -43,7 +43,11 @@ export default function ControlsPage(): React.ReactElement {
           <ComponentSection
             name="Switch"
             description="Toggle switch with optional label. Controlled or uncontrolled."
-            code={`<Switch label="Notifications" defaultChecked />`}
+            code={({ state }): string =>
+              state === 'disabled'
+                ? `<Switch label="Notifications" defaultChecked disabled />`
+                : `<Switch label="Notifications" defaultChecked />`
+            }
             sizes={SIZES}
             states={['default', 'disabled']}
             render={({ state }): React.ReactNode => (
@@ -122,7 +126,11 @@ export default function ControlsPage(): React.ReactElement {
           <ComponentSection
             name="Slider"
             description="Stepped range input with snapping. Gravity on the thumb. Tooltip on drag and focus. Optional min/max labels."
-            code={`<Slider defaultValue={40} step={10} showLabels />`}
+            code={({ state }): string =>
+              state === 'disabled'
+                ? `<Slider defaultValue={40} step={10} showLabels disabled />`
+                : `<Slider defaultValue={40} step={10} showLabels />`
+            }
             sizes={SIZES}
             states={['default', 'disabled']}
             render={({ state }): React.ReactNode => (

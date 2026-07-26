@@ -114,6 +114,13 @@ export function useCursor(cursorRef: React.RefObject<CursorRef>): void {
         return;
       }
 
+      // Explicit opt-out — plain static images that aren't expandable/clickable
+      // (e.g. homepage gallery panels) skip the chip entirely and fall through
+      // to the default dot cursor.
+      if ((el as HTMLElement).dataset['cursor'] === 'none') {
+        return;
+      }
+
       // Image expand chip
       if (tag === 'img' || tag === 'figure' || (el as HTMLElement).dataset['cursor'] === 'expand') {
         html.classList.add('cursor--chip');

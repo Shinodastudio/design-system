@@ -179,7 +179,11 @@ function normaliseBody(raw: string): NormalisedSvg {
   const inner = raw.slice(open + 1, close).trim();
   // Swap any hard-coded black/near-black fill for currentColor so icons
   // inherit text colour. Leaves fill="none" (masks/holes) untouched.
-  const body = inner.replace(/fill="#(?:000|18181B)"/gi, 'fill="currentColor"');
+  // Catches both hex ("#000", "#18181B") and named ("black") exports —
+  // some source SVGs use the CSS colour keyword instead of a hex value,
+  // and without this branch those icons ship with a literal black fill
+  // baked in, breaking on dark surfaces/dark mode regardless of theme.
+  const body = inner.replace(/fill="(?:#(?:000|18181B)|black)"/gi, 'fill="currentColor"');
   return { viewBox, body };
 }
 
