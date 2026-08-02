@@ -26,6 +26,21 @@ export interface ChangelogEntry {
  */
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    title: 'Crawler exclusion, favicon set, footer/nav rebuild, responsive fixes',
+    type: 'Improvement',
+    date: '2026-08-02',
+    changes: [
+      'Search engines and AI scrapers now excluded at three layers: a blanket Disallow in src/app/robots.ts, `robots`/`referrer` metadata in the root layout, and an X-Robots-Tag HTTP header applied to every route in next.config.ts \u2014 the header matters because \u003cmeta name="robots"\u003e only reaches crawlers that parse HTML, while the header reaches anything that issues a request, assets included. Referrer-Policy: no-referrer and X-Content-Type-Options: nosniff ride along',
+      'Added a favicon set \u2014 multi-resolution favicon.ico plus icon.png and apple-icon.png in src/app/',
+      'Footer rebuilt to shinoda.studio parity: divider above, --padding-section-sm clearance top and bottom, everything at heading-md, 40% opacity lifting to 100% on hover. Opacity is applied per leaf rather than on containers \u2014 nested opacity compounds silently (40% on 40% is 16%), which would land off the system scale',
+      'Breadcrumb is now a clickable trail rather than static text: getBreadcrumbSegments() returns { label, href } pairs, always opening with "Design System" \u2192 /, with aria-current="page" on the final crumb',
+      'Nav stripped back to a single search icon at heading-md \u2014 wordmark and theme toggle removed (the breadcrumb is the home route now, the toggle lives in the footer). The nav is no longer hidden below 767px: a nine-item link strip needed collapsing, one icon does not, so search now sits in the same top-right slot at every width',
+      'One footer at every breakpoint instead of a separate mobile list. The vertical NAV_ITEMS list is gone \u2014 the command palette does that job. Stack-to-row switches at 992px rather than 768: the row technically fits at tablet, but the attribution wrapped mid-phrase. Above that the breadcrumb is the half that gives, pinned by flex-shrink: 0 on the meta cluster, because a breadcrumb breaking at a slash is a legible seam and a sentence breaking at a middot is not',
+      'Fixed the changelog drawer occasionally opening offset upward by exactly the scroll distance: position: fixed was only reaching the \u003cdialog\u003e through the UA stylesheet\u2019s dialog:modal rule, which depends on top-layer promotion having landed in style resolution \u2014 the same frame showModal() is called in the mount effect. .dialog now states position/inset/height itself. The drawer\u2019s 100vw/100vh also became 100%: vw includes the scrollbar gutter, and vh resolves to the large viewport',
+      'Mobile two-column pages: .grid-2col gains a --padding-section-lg row gap when stacked (the horizontal gutter was doing that work implicitly, so stacked columns ran straight into each other), and .col-sticky\u2019s 8em right padding now zeroes out \u2014 it was eating 192px of a 342px line',
+    ],
+  },
+  {
     title: 'Content peel effect, homepage gallery cleanup, dialog dark-mode contrast fixes',
     type: 'Fix',
     date: '2026-07-26',

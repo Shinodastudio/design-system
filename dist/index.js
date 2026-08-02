@@ -3223,6 +3223,9 @@ function useCursor(cursorRef) {
         (_g = (_f = cursorRef.current) == null ? void 0 : _f.el) == null ? void 0 : _g.classList.add("is-hidden");
         return;
       }
+      if (el.dataset["cursor"] === "none") {
+        return;
+      }
       if (tag === "img" || tag === "figure" || el.dataset["cursor"] === "expand") {
         html.classList.add("cursor--chip");
         const label = (_h = cursorRef.current) == null ? void 0 : _h.label;
@@ -3912,122 +3915,15 @@ function SearchButton() {
     }
   );
 }
-var VELOCITY_DIVISOR = 60;
-var VELOCITY_DECAY = 0.92;
-var BEND_LERP = 0.09;
-var MAX_PEEL_FRACTION = 0.55;
-var WAVE_FREQUENCY = 2;
-var SEGMENTS = 12;
-var SETTLE_EPSILON = 2e-3;
-var MASK_LAYERS = [
-  { cssVar: "--top-peel-mask-a", url: "url(#shinoda-nav-peel-mask-a)" },
-  { cssVar: "--top-peel-mask-b", url: "url(#shinoda-nav-peel-mask-b)" },
-  { cssVar: "--top-peel-mask-c", url: "url(#shinoda-nav-peel-mask-c)" }
-];
-var RECT_PATH = "M0,0 L1,0 L1,1 L0,1 Z";
-function waveShape(x) {
-  return 0.5 + 0.5 * Math.sin(x * Math.PI * WAVE_FREQUENCY - Math.PI / 2);
-}
-function useTopPeel(wrapperRef, pathRef, options = {}) {
-  const { disabled = false } = options;
-  react.useEffect(() => {
-    if (disabled) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const wrapper = wrapperRef.current;
-    const path = pathRef.current;
-    if (wrapper == null || path == null) return;
-    let raf = 0;
-    let lastScrollY = window.scrollY;
-    let velocity = 0;
-    let bend = 0;
-    let maskActive = false;
-    const applyPeel = () => {
-      if (bend <= SETTLE_EPSILON) {
-        if (maskActive) {
-          for (const { cssVar } of MASK_LAYERS) wrapper.style.removeProperty(cssVar);
-          path.setAttribute("d", RECT_PATH);
-          maskActive = false;
-        }
-        return;
-      }
-      if (!maskActive) {
-        for (const { cssVar, url } of MASK_LAYERS) wrapper.style.setProperty(cssVar, url);
-        maskActive = true;
-      }
-      const amplitude = bend * MAX_PEEL_FRACTION;
-      const points = ["0,0", "1,0"];
-      for (let i = SEGMENTS; i >= 0; i -= 1) {
-        const x = i / SEGMENTS;
-        const y = Math.min(1, amplitude * waveShape(x));
-        points.push(`${x.toFixed(4)},${(1 - y).toFixed(4)}`);
-      }
-      path.setAttribute("d", `M${points.join(" L")} Z`);
-    };
-    const loop = () => {
-      const scrollY = window.scrollY;
-      const delta = scrollY - lastScrollY;
-      lastScrollY = scrollY;
-      const impulse = Math.min(Math.abs(delta) / VELOCITY_DIVISOR, 1);
-      velocity = Math.max(velocity * VELOCITY_DECAY, impulse);
-      bend += (velocity - bend) * BEND_LERP;
-      if (velocity > SETTLE_EPSILON || bend > SETTLE_EPSILON) {
-        applyPeel();
-        raf = requestAnimationFrame(loop);
-      } else {
-        velocity = 0;
-        bend = 0;
-        applyPeel();
-        raf = 0;
-      }
-    };
-    const kickstart = () => {
-      if (raf === 0) raf = requestAnimationFrame(loop);
-    };
-    window.addEventListener("scroll", kickstart, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", kickstart);
-      cancelAnimationFrame(raf);
-      for (const { cssVar } of MASK_LAYERS) wrapper.style.removeProperty(cssVar);
-      path.setAttribute("d", RECT_PATH);
-    };
-  }, [wrapperRef, pathRef, disabled]);
-}
-var WAVE_PATH_ID = "shinoda-nav-peel-wave";
-var MASK_IDS = {
-  a: "shinoda-nav-peel-mask-a",
-  b: "shinoda-nav-peel-mask-b",
-  c: "shinoda-nav-peel-mask-c"
-};
-var RECT_PATH2 = "M0,0 L1,0 L1,1 L0,1 Z";
 function NavProgressiveBlur() {
-  const pathRef = react.useRef(null);
-  const wrapperRef = react.useRef(null);
-  useTopPeel(wrapperRef, pathRef);
-  return /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx("svg", { width: "0", height: "0", style: { position: "absolute" }, "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntime.jsxs("defs", { children: [
-      /* @__PURE__ */ jsxRuntime.jsx("path", { id: WAVE_PATH_ID, ref: pathRef, d: RECT_PATH2 }),
-      /* @__PURE__ */ jsxRuntime.jsxs("linearGradient", { id: "shinoda-nav-peel-grad-a", gradientUnits: "userSpaceOnUse", x1: "0", y1: "0", x2: "0", y2: "1", children: [
-        /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "0", stopColor: "white" }),
-        /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "0.4", stopColor: "white" }),
-        /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "0.65", stopColor: "white", stopOpacity: "0" })
-      ] }),
-      /* @__PURE__ */ jsxRuntime.jsxs("linearGradient", { id: "shinoda-nav-peel-grad-b", gradientUnits: "userSpaceOnUse", x1: "0", y1: "0", x2: "0", y2: "1", children: [
-        /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "0.25", stopColor: "white", stopOpacity: "0" }),
-        /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "0.4", stopColor: "white" }),
-        /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "0.62", stopColor: "white" }),
-        /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "0.82", stopColor: "white", stopOpacity: "0" })
-      ] }),
-      /* @__PURE__ */ jsxRuntime.jsxs("linearGradient", { id: "shinoda-nav-peel-grad-c", gradientUnits: "userSpaceOnUse", x1: "0", y1: "0", x2: "0", y2: "1", children: [
-        /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "0.55", stopColor: "white", stopOpacity: "0" }),
-        /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "0.68", stopColor: "white" }),
-        /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "1", stopColor: "white", stopOpacity: "0" })
-      ] }),
-      /* @__PURE__ */ jsxRuntime.jsx("mask", { id: MASK_IDS.a, maskContentUnits: "objectBoundingBox", children: /* @__PURE__ */ jsxRuntime.jsx("use", { href: `#${WAVE_PATH_ID}`, fill: "url(#shinoda-nav-peel-grad-a)" }) }),
-      /* @__PURE__ */ jsxRuntime.jsx("mask", { id: MASK_IDS.b, maskContentUnits: "objectBoundingBox", children: /* @__PURE__ */ jsxRuntime.jsx("use", { href: `#${WAVE_PATH_ID}`, fill: "url(#shinoda-nav-peel-grad-b)" }) }),
-      /* @__PURE__ */ jsxRuntime.jsx("mask", { id: MASK_IDS.c, maskContentUnits: "objectBoundingBox", children: /* @__PURE__ */ jsxRuntime.jsx("use", { href: `#${WAVE_PATH_ID}`, fill: "url(#shinoda-nav-peel-grad-c)" }) })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntime.jsx("div", { ref: wrapperRef, "aria-hidden": "true", className: "progressive-blur", style: { zIndex: 0 } })
-  ] });
+  return /* @__PURE__ */ jsxRuntime.jsx(
+    "div",
+    {
+      "aria-hidden": "true",
+      className: "progressive-blur",
+      style: { top: 0, zIndex: 0 }
+    }
+  );
 }
 function Nav() {
   return /* @__PURE__ */ jsxRuntime.jsxs("header", { className: "nav", children: [
@@ -4266,6 +4162,18 @@ function Badge({
 // src/data/changelog.ts
 var CHANGELOG = [
   {
+    title: "Content peel effect, homepage gallery cleanup, dialog dark-mode contrast fixes",
+    type: "Fix",
+    date: "2026-07-26",
+    version: "v0.2.1",
+    changes: [
+      "Reworked the scroll-velocity peel effect: it was bending the nav\u2019s .progressive-blur strip itself, which read as broken/invisible in normal use. New ContentPeel component + useContentPeel hook instead pinch the top-left/top-right corners of the page content underneath as the page scrolls fast, easing back to flat at rest; the nav and its blur strip are no longer touched at all",
+      "Homepage gallery finalised: replaced the interactive colour-chip and icon-grid panels with static, theme-mapped design comp images (HomeGalleryPanel, CSS-only light/dark swap, no JS, no links); removed the third panel (its source image was an unrelated screenshot) and deleted its now-unused assets",
+      "Fixed dialog text silently rendering black in dark mode: native <dialog> elements don\u2019t inherit `color` from the page (Chromium\u2019s UA stylesheet sets CanvasText, not `inherit`), so any text inside a dialog without its own explicit colour \u2014 e.g. the changelog entry date \u2014 ignored the site theme entirely. .dialog now asserts `color: var(--color-text-primary)`",
+      "Fixed --color-text-tertiary in dark mode: was #494951 (grey-40), only ~2:1 contrast against --color-fill-base and effectively unreadable; corrected to #7A7A82 (grey-50), ~4:1, matching the legibility light mode\u2019s tertiary already had"
+    ]
+  },
+  {
     title: "Icon system overhaul, command palette rebuild, changelog + dialog polish",
     type: "Feature",
     date: "2026-07-12",
@@ -4422,13 +4330,13 @@ function ChangelogDialog({ children }) {
       /* @__PURE__ */ jsxRuntime.jsx(DialogCard, { variant: "drawer", className: "changelog-card", children: /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "changelog-list", children: CHANGELOG.map((entry) => /* @__PURE__ */ jsxRuntime.jsxs("li", { className: "changelog-entry", children: [
         /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "changelog-entry-header", children: [
           /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "changelog-entry-row", children: [
-            /* @__PURE__ */ jsxRuntime.jsx("span", { className: "changelog-entry-date heading-md op-40", children: formatEntryDate(entry.date) }),
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: "changelog-entry-date heading-md", children: formatEntryDate(entry.date) }),
             entry.version != null && /* @__PURE__ */ jsxRuntime.jsx(Badge, { variant: "neutral", children: entry.version }),
             /* @__PURE__ */ jsxRuntime.jsx(Badge, { variant: TYPE_BADGE[entry.type], children: entry.type })
           ] }),
           /* @__PURE__ */ jsxRuntime.jsx("h3", { className: "changelog-entry-title heading-md", children: entry.title })
         ] }),
-        /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "changelog-entry-changes body-sm", children: entry.changes.map((change) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: change }, change)) })
+        /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "changelog-entry-changes body-xs", children: entry.changes.map((change) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: change }, change)) })
       ] }, entry.title)) }) })
     ] }) })
   ] });
@@ -4608,9 +4516,9 @@ var SCROLL_BEND_FRAGMENT = (
 );
 
 // src/hooks/useScrollBend.ts
-var VELOCITY_DIVISOR2 = 60;
-var VELOCITY_DECAY2 = 0.92;
-var BEND_LERP2 = 0.09;
+var VELOCITY_DIVISOR = 60;
+var VELOCITY_DECAY = 0.92;
+var BEND_LERP = 0.09;
 var MAX_BEND = 0.22;
 var HEIGHT_SEGMENTS = 48;
 function isVideoElement(el) {
@@ -4693,9 +4601,9 @@ function useScrollBend(containerRef, canvasRef, mediaRef, options = {}) {
       const scrollY = window.scrollY;
       const delta = scrollY - lastScrollY;
       lastScrollY = scrollY;
-      const impulse = Math.min(Math.abs(delta) / VELOCITY_DIVISOR2, 1);
-      velocity = Math.max(velocity * VELOCITY_DECAY2, impulse);
-      bend += (velocity * bendStrength - bend) * BEND_LERP2;
+      const impulse = Math.min(Math.abs(delta) / VELOCITY_DIVISOR, 1);
+      velocity = Math.max(velocity * VELOCITY_DECAY, impulse);
+      bend += (velocity * bendStrength - bend) * BEND_LERP;
       program.uniforms.uBend.value = bend * MAX_BEND;
       if (isVideoElement(media)) texture.needsUpdate = true;
       renderer.render({ scene: mesh });

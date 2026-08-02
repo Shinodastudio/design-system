@@ -226,8 +226,21 @@ hr { border: none; height: 1px; background: var(--color-text-primary); opacity: 
 /* Collapse to single column at Webflow's mobile-landscape cutoff (767) to
    match the design canvas — keeps two columns at tablet (1024 canvas, ≤991). */
 @media (max-width: 767px) {
-  .grid-2col { grid-template-columns: 1fr; }
-  .col-sticky { position: static; max-width: none; }
+  .grid-2col {
+    grid-template-columns: 1fr;
+    /* Stacked, the two halves need vertical separation doing the work the
+       column gutter did horizontally — otherwise the left column's copy runs
+       straight into the right column's content and reads as one block. */
+    row-gap: var(--padding-section-lg);
+  }
+  .col-sticky {
+    position: static;
+    max-width: none;
+    /* The 8em right gutter is a two-column device: it holds the left column
+       clear of the right one. Stacked, it's just 192px eaten out of a 342px
+       line, breaking the copy into 2–3 words per line. */
+    padding-right: 0;
+  }
 }
 
 /* Dividers — horizontal only, 10% opacity (token --opacity-divider) */
@@ -287,24 +300,9 @@ hr { border: none; height: 1px; background: var(--color-text-primary); opacity: 
   min-width: 0;
 }
 
-/* Brand link sits flush left. nav-actions cluster (search + theme toggle)
-   is pushed flush right via margin-left:auto. */
-.nav-brand.btn,
-.nav-brand {
-  font-size: 0.875rem;
-  letter-spacing: var(--tracking-n015);
-  opacity: 1;
-}
-/* Wordmark reads as a standalone chip rather than a plain text link, so its
-   hover pill gets more breathing room than the generic .btn 3px inset —
-   8px (--space-2) on all sides, still --radius-sm (8px) to match. Compound
-   selector (.nav-brand.btn) outranks the later, equally-specific .btn::before
-   rule in the cascade — Button renders both classes together on the anchor. */
-.nav-brand.btn::before,
-.nav-brand::before {
-  inset: calc(-1 * var(--space-2));
-  border-radius: var(--radius-sm);
-}
+/* Sole nav affordance — the search icon — pinned flush right. margin-left:auto
+   still does the work with no sibling to push against, so the cluster holds
+   its position if anything is ever added back to the left. */
 .nav-actions {
   display: flex;
   align-items: center;
@@ -424,65 +422,143 @@ hr { border: none; height: 1px; background: var(--color-text-primary); opacity: 
   .nav-links > li { flex-shrink: 0; }
 }
 
-/* Mobile-landscape and below (≤767): hide the nav entirely.
-   Items are rendered by <Footer> instead — see Footer.tsx. */
-@media (max-width: 767px) {
-  .nav { display: none; }
+/* The nav is a single search icon at every width — nothing to collapse, so no
+   mobile-hide rule. It used to disappear ≤767px because the link strip
+   couldn't fit; the footer then carried a vertical NAV_ITEMS list as the sole
+   navigation surface. Both are gone: the search icon (and the Command palette
+   behind it) is now the one navigation affordance on every breakpoint. */
+
+/* ─── SITE FOOTER — one layout at every width (Figma 3932:13432) ─────────────
+   A full-width divider opens the block, then --padding-section-sm above and
+   below the row separates it from page content (shinoda.studio parity).
+   Everything inside is heading-md — the system's primary type style — resting
+   at 40% opacity and lifting to 100% on hover.
+
+   Breadcrumb (left) / attribution + Changelog trigger + theme toggle (right).
+   Below 768px the two halves stack and each wraps internally; the content is
+   identical either side of the breakpoint. */
+.site-footer {
+  width: 100%;
+  max-width: var(--container-5xl);
+  margin-inline: auto;
+  padding-inline: var(--padding-page);
 }
 
-/* ─── SITE FOOTER — two layouts sharing one <footer> landmark (Figma 3932:13432) ──
-   .footer-bar  Persistent bar, ≥768px only: page name (left) / attribution +
-                Changelog trigger + theme toggle (right).
-   .footer-nav  Mobile-only (≤767px) vertical list of NAV_ITEMS — the sole nav
-                surface at that breakpoint, since .nav hides entirely there. */
-.site-footer { width: 100%; }
-
-.footer-bar { display: none; }
-@media (min-width: 768px) {
+/* Mobile-first: a stack. There isn't room for "Design System / Components /
+   Button" and the attribution on one 390px line at heading-md, and dropping
+   the type size to fit would break the footer's single-size rule — so the
+   halves stack and the breadcrumb wraps at its slashes instead. */
+.footer-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-6);
+  width: 100%;
+  padding-block: var(--padding-section-sm);
+  color: var(--color-text-primary);
+}
+/* 992px, not 768: the two halves together run ~750px at heading-md on a deep
+   route, so at tablet widths the row technically fits but the attribution
+   wraps mid-phrase. Stacking until there's real room keeps both halves on
+   one line each. */
+@media (min-width: 992px) {
   .footer-bar {
-    display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-4);
-    width: 100%;
-    max-width: var(--container-5xl);
-    margin-inline: auto;
-    padding-block: var(--space-4);
-    padding-inline: var(--padding-page);
-    color: var(--color-text-primary);
   }
 }
 
 /* Breadcrumb trail — segments joined by "/", 2-unit (--space-2) gap on
-   either side of the slash so "Components", "/", "Buttons" read as three
-   evenly-spaced flex items. */
+   either side of the slash so "Design System", "/", "Components" read as
+   evenly-spaced flex items. Every crumb is a link, so opacity sits on each
+   leaf (never on the row — 40% inside 40% compounds to 16%, off-scale) and
+   lifts to 100% on hover, matching the meta cluster opposite. */
 .footer-bar-page {
   display: flex;
   align-items: center;
+  /* Row gap matches the column gap so a wrapped second line sits on the same
+     rhythm as the space between crumbs. */
   gap: var(--space-2);
-  flex-shrink: 0;
+  /* Wrappable at every width, not just when stacked. In the row layout the
+     meta cluster holds its intrinsic width (it's a phrase, and breaking
+     "Made by Shinoda · 2026 · Changelog" mid-way reads as a mistake), so the
+     breadcrumb is the half that gives — it breaks at a slash, which is a
+     legible seam. Between 992 and ~1050px a deep trail does exactly that;
+     wider than that it never needs to. */
+  flex-wrap: wrap;
 }
-.footer-bar-slash { opacity: var(--opacity-40); }
 
+.footer-bar-crumb,
+.footer-bar-crumb-slash { opacity: var(--opacity-40); }
+
+.footer-bar-crumb {
+  color: inherit;
+  text-decoration: none;
+  cursor: none;
+  transition: opacity 150ms ease;
+}
+.footer-bar-crumb:hover,
+.footer-bar-crumb:focus-visible { opacity: 1; }
+.footer-bar-crumb:focus-visible { outline: none; }
+
+/* Stacked layout: the right-hand half spans the full width so the theme
+   toggle sits hard against the right edge, mirroring its desktop position
+   rather than trailing the attribution. */
 .footer-bar-right {
   display: flex;
-  align-items: center;
+  /* flex-start, not center: the attribution wraps to two lines on a narrow
+     screen, and a vertically centred toggle would then float between them
+     rather than sitting on the "Made by Shinoda" baseline it shares on
+     desktop. */
+  align-items: flex-start;
+  justify-content: space-between;
   gap: var(--space-4);
+  width: 100%;
+}
+@media (min-width: 992px) {
+  .footer-bar-right {
+    align-items: center;
+    width: auto;
+    /* The meta cluster is wrappable, so its min-content width is a fraction of
+       its one-line width — as a shrinkable flex item it would collapse and
+       break mid-phrase long before the row actually ran out of room. */
+    flex-shrink: 0;
+  }
 }
 
-/* Each item sets its own opacity directly (system rule: hierarchy through
-   opacity, not compounding parent opacity) — "Made by Shinoda" at 80%,
-   "{year}"/"Changelog" at 40%, the dot separators at 20%. */
 .footer-bar-meta {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--space-2);
 }
+@media (min-width: 992px) {
+  .footer-bar-meta { flex-wrap: nowrap; }
+}
+
+/* Each leaf sets its own opacity directly (system rule: hierarchy through
+   opacity, never compounded through a parent) — every item rests at 40%,
+   the dot separators at 20%. */
+.footer-bar-made,
 .footer-bar-meta-dim { opacity: var(--opacity-40); }
 
+/* Wraps "Made by Shinoda" so the whole phrase lifts together — hovering the
+   Shinoda link alone would otherwise leave "Made by" behind at 40%. */
+.footer-bar-made { transition: opacity 150ms ease; }
+.footer-bar-made:hover,
+.footer-bar-made:focus-within { opacity: 1; }
+
+/* The shared <ThemeToggle> hardcodes an 18px glyph, which reads undersized
+   against heading-md. .btn is already font-size: 1.5rem, so switching to em
+   lands it at 24px here without disturbing the same toggle up in the nav. */
+.footer-bar-toggle svg { width: 1em; height: 1em; }
+
+/* em-based so the separator scales with the heading-md type it sits beside. */
 .footer-bar-dot {
-  width: 4px;
-  height: 4px;
+  width: 0.25em;
+  height: 0.25em;
   flex-shrink: 0;
   border-radius: 50%;
   background-color: currentColor;
@@ -508,28 +584,6 @@ hr { border: none; height: 1px; background: var(--color-text-primary); opacity: 
   background-color: var(--alpha-10);
 }
 .footer-bar-changelog:focus-visible { outline: none; }
-
-.footer-nav { display: none; }
-@media (max-width: 767px) {
-  .site-footer {
-    display: block;
-    width: 100%;
-    max-width: var(--container-5xl);
-    margin-inline: auto;
-    padding-block: var(--padding-section-md) var(--padding-section-sm);
-    padding-inline: var(--padding-page);
-  }
-  .footer-nav {
-    display: flex;
-    list-style: none;
-    flex-direction: column;
-    gap: var(--space-4);
-    padding: 0;
-    margin: 0;
-  }
-  .footer-nav-link { display: inline-block; }
-  .footer-nav-link:hover { opacity: 1; }
-}
 
 /* ─── BUTTONS — no padding; bg extends 3px outside text bounds (Figma spec) ─
    The outer element is exactly the text's natural bounding box — no extra
@@ -2605,6 +2659,19 @@ html.cursor--focused .cursor { opacity: 0; }
   background: transparent;
   max-width: 90vw;
   width: 480px;
+  /* Position asserted here rather than inherited from the UA stylesheet.
+     `position: fixed` only reaches a <dialog> via the UA's `dialog:modal`
+     rule, and that match depends on top-layer promotion having been folded
+     into style resolution. When showModal() runs in the same frame the
+     element is portaled in (which is exactly what DialogContent does),
+     WebKit can lay the first frames out against the plain `dialog { position:
+     absolute }` default — document-relative, so on a scrolled page the modal
+     paints scrolled-off by exactly window.scrollY. Restating fixed/inset/
+     margin (Chromium's UA values for a modal dialog) makes the geometry
+     author-controlled and identical in every engine. */
+  position: fixed;
+  inset: 0;
+  height: fit-content;
   /* Native <dialog> is NOT a normal inheriting box for `color` — Chromium's
      UA stylesheet sets it to CanvasText (effectively black, ignoring our
      data-theme attribute) rather than `inherit`. Without this, any text
@@ -2793,9 +2860,14 @@ html.cursor--focused .cursor { opacity: 0; }
 /* display:flex is scoped to [open] — see .dialog--bare[open] above for why. */
 .dialog.dialog--drawer[open] {
   inset: 0;
-  width: 100vw;
+  /* 100% of the initial containing block, not 100vw/100vh: vw includes the
+     classic scrollbar gutter (horizontal overflow) and vh resolves to the
+     *large* viewport in browsers with retractable toolbars, which pushes the
+     card's bottom edge below the fold. With position:fixed + inset:0 these
+     percentages are the viewport by definition. */
+  width: 100%;
   max-width: none;
-  height: 100vh;
+  height: 100%;
   max-height: none;
   margin: 0;
   padding: var(--space-16) var(--space-16) 0;

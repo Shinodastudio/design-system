@@ -320,22 +320,9 @@ hr { border: none; height: 1px; background: var(--color-text-primary); opacity: 
    through the nav height (~40% of default 140px = 56px) before fading.
    Reusable: --pb-height, --pb-blur-a/b/c are overridable.
 
-   useTopPeel (see NavProgressiveBlur.tsx) bends each layer's bottom edge
-   with scroll velocity by swapping --top-peel-mask-a/b/c to an SVG <mask>
-   reference — each mask paints a shared wave <path> with a gradient that
-   duplicates that layer's own fade stops, so the wave replaces the plain
-   gradient without changing the fade profile. Unset (rest state) falls
-   back to the original flat gradients below, so idle pages render
-   identically to before this existed.
-
-   Deliberately masked on THESE elements directly, not a wrapping parent:
-   Chromium breaks backdrop-filter's backdrop sampling entirely (blur
-   silently disappears, not just an unsmoothed edge) when the mask sits on
-   an ANCESTOR of the backdrop-filter element — confirmed empirically.
-   Masking the backdrop-filter element itself does not have this problem
-   and composites correctly. Also NOT clip-path: Chromium doesn't
-   anti-alias clip-path edges on backdrop-filter elements either, producing
-   a hard seam instead of a soft curve. */
+   Static — no scroll-driven deformation. (See .content-peel below for the
+   scroll-velocity peel effect; it targets the page content underneath this
+   strip, not the blur strip itself, so the nav + blur stay undisturbed.) */
 .progressive-blur {
   position: absolute;
   inset-inline: 0;
@@ -347,8 +334,8 @@ hr { border: none; height: 1px; background: var(--color-text-primary); opacity: 
   @supports (backdrop-filter: blur(1px)) {
     backdrop-filter: blur(var(--pb-blur-a, 16px));
   }
-  mask-image: var(--top-peel-mask-a, linear-gradient(to bottom, black 0%, black 40%, transparent 65%));
-  -webkit-mask-image: var(--top-peel-mask-a, linear-gradient(to bottom, black 0%, black 40%, transparent 65%));
+  mask-image: linear-gradient(to bottom, black 0%, black 40%, transparent 65%);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 40%, transparent 65%);
 }
 /* Layer B — medium blur, mid zone; overlaps A above and C below */
 .progressive-blur::before {
@@ -359,8 +346,8 @@ hr { border: none; height: 1px; background: var(--color-text-primary); opacity: 
   @supports (backdrop-filter: blur(1px)) {
     backdrop-filter: blur(var(--pb-blur-b, 8px));
   }
-  mask-image: var(--top-peel-mask-b, linear-gradient(to bottom, transparent 25%, black 40%, black 62%, transparent 82%));
-  -webkit-mask-image: var(--top-peel-mask-b, linear-gradient(to bottom, transparent 25%, black 40%, black 62%, transparent 82%));
+  mask-image: linear-gradient(to bottom, transparent 25%, black 40%, black 62%, transparent 82%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 25%, black 40%, black 62%, transparent 82%);
 }
 /* Layer C — lightest blur, bottom zone; overlaps B */
 .progressive-blur::after {
@@ -371,9 +358,34 @@ hr { border: none; height: 1px; background: var(--color-text-primary); opacity: 
   @supports (backdrop-filter: blur(1px)) {
     backdrop-filter: blur(var(--pb-blur-c, 4px));
   }
-  mask-image: var(--top-peel-mask-c, linear-gradient(to bottom, transparent 55%, black 68%, transparent 100%));
-  -webkit-mask-image: var(--top-peel-mask-c, linear-gradient(to bottom, transparent 55%, black 68%, transparent 100%));
+  mask-image: linear-gradient(to bottom, transparent 55%, black 68%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 55%, black 68%, transparent 100%);
 }
+
+/* ─── CONTENT PEEL — scroll-velocity corner-pinch on page content ────────
+   The actual "peel at the top of the screen" effect: as the page scrolls
+   fast, the top corners of whatever content currently sits under the nav
+   pinch inward (paper-peel silhouette), easing back to a flat full-width
+   rectangle (i.e. no visible effect at all) once scrolling settles. Driven
+   by useContentPeel, which rewrites a two-subpath <path> — left flap +
+   right flap — in objectBoundingBox 0–1 units below every animation frame.
+   Solid-filled with --color-fill-base (the page background, theme-aware)
+   so it reads as the CONTENT narrowing, not as an overlay appearing.
+   Fixed at the top of the viewport (not tied to document scroll position),
+   sitting above ordinary page content (z-index) but below <nav> — the nav
+   bar and .progressive-blur strip above are never touched by this. */
+.content-peel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: var(--content-peel-height, 320px);
+  z-index: 500;
+  pointer-events: none;
+  display: block;
+}
+.content-peel path { fill: var(--color-fill-base); }
 
 /* Nav links — body-xs (0.875rem) text buttons.
    Group fade: the entire .nav-links strip dims to 40% at rest and lifts to
@@ -1971,13 +1983,10 @@ html.cursor--focused .cursor { opacity: 0; }
   .home-tiles { grid-template-columns: 1fr; }
 }
 
-/* ─── HOMEPAGE GALLERY — colour chips + icon showcase panels ────────────
-   Three full-width 16:9 panels below the intro divider (see src/app/page.tsx).
-   Panels 1–2 are interactive: a scroll-position-eased strip (useScrollDrift,
-   NOT the velocity-decay feel of useTopPeel/useScrollBend) rendered 20%
-   wider than the panel and centred at rest, so it only ever pans within
-   content it already renders — never reveals empty space. Panel 3 is a
-   plain theme-mapped static image, no link, no motion. */
+/* ─── HOMEPAGE GALLERY — 3 static, theme-mapped image panels ────────────
+   Full-width 16:9 panels below the intro divider (see src/app/page.tsx).
+   Each renders both light/dark variants (toggled via CSS) so there's no
+   hydration flash on load; no links, no motion. */
 .home-gallery-panel {
   position: relative;
   width: 100%;
@@ -1986,90 +1995,6 @@ html.cursor--focused .cursor { opacity: 0; }
   overflow: hidden;
   background-color: var(--color-fill-secondary);
 }
-.home-gallery-panel-link {
-  display: flex;
-  width: 100%;
-  height: 100%;
-}
-
-/* Panel 1 — colour chips */
-.home-gallery-chip-track {
-  position: relative;
-  width: 120%;
-  height: 100%;
-  display: flex;
-  transform: translateX(calc(-10% + var(--scroll-drift-x, 0px)));
-}
-.home-gallery-chip {
-  position: relative;
-  flex: 1 0 0;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.home-gallery-chip-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-1);
-  text-align: center;
-  color: var(--color-core-contrast);
-  mix-blend-mode: difference;
-  opacity: 0;
-  transition: opacity 150ms ease;
-}
-.home-gallery-chip:hover .home-gallery-chip-meta { opacity: var(--opacity-80); }
-.home-gallery-chip-hex-dark { display: none; }
-@media (prefers-color-scheme: dark) {
-  .home-gallery-chip-hex-light { display: none; }
-  .home-gallery-chip-hex-dark  { display: inline; }
-}
-[data-theme="dark"] .home-gallery-chip-hex-light { display: none; }
-[data-theme="dark"] .home-gallery-chip-hex-dark  { display: inline; }
-[data-theme="light"] .home-gallery-chip-hex-light { display: inline; }
-[data-theme="light"] .home-gallery-chip-hex-dark  { display: none; }
-
-/* Panel 2 — icon showcase. Mirrors .icon-grid's hover-to-name convention
-   (see the /icons catalogue) at a smaller cell floor, in a track sized
-   larger than the panel on both axes so it reads as a clipped canvas —
-   overflow is cropped by .home-gallery-panel, centred via flex on the anchor. */
-.home-gallery-panel-link--icons { align-items: center; }
-.home-gallery-icon-track {
-  position: relative;
-  width: 120%;
-  flex-shrink: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
-  gap: 1px;
-  background-color: var(--color-transparent-weak);
-  transform: translateX(calc(-10% + var(--scroll-drift-x, 0px)));
-}
-.home-gallery-icon-cell {
-  position: relative;
-  aspect-ratio: 1;
-  background-color: var(--color-fill-base);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-.home-gallery-icon-glyph { transition: opacity 150ms ease; }
-.home-gallery-icon-name {
-  position: absolute;
-  inset: var(--space-2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  hyphens: auto;
-  opacity: 0;
-  transition: opacity 150ms ease;
-}
-.home-gallery-icon-cell:hover .home-gallery-icon-glyph { opacity: 0; }
-.home-gallery-icon-cell:hover .home-gallery-icon-name  { opacity: var(--opacity-80); }
-
-/* Panel 3 — static image, theme-mapped, no link/motion */
 .home-gallery-static-img {
   position: absolute;
   inset: 0;
@@ -2680,6 +2605,14 @@ html.cursor--focused .cursor { opacity: 0; }
   background: transparent;
   max-width: 90vw;
   width: 480px;
+  /* Native <dialog> is NOT a normal inheriting box for `color` — Chromium's
+     UA stylesheet sets it to CanvasText (effectively black, ignoring our
+     data-theme attribute) rather than `inherit`. Without this, any text
+     inside the dialog that doesn't set its own color (e.g. .heading-md
+     spans with no explicit color, opacity utilities layered on top) renders
+     unthemed black in dark mode — confirmed on the changelog dialog's date
+     row. Reassert inheritance explicitly. */
+  color: var(--color-text-primary);
   /* Centre to viewport — native <dialog> already does this in modern browsers
      via auto margins, but reassert in case author overrides exist. */
   margin: auto;
@@ -3010,14 +2943,15 @@ html.cursor--focused .cursor { opacity: 0; }
   align-items: center;
   gap: 6px;
 }
-.changelog-entry-title { color: var(--color-text-primary); }
+.changelog-entry-date { color: var(--color-text-primary); }
+.changelog-entry-title { color: var(--color-text-tertiary); }
 .changelog-entry-changes {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
   max-width: var(--container-lg);
   padding-left: var(--space-4);
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
 }
 .changelog-entry-changes > li { list-style: disc; }
 

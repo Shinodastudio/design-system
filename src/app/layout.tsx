@@ -10,6 +10,18 @@ import { SkipLink } from '@/components/nav/SkipLink';
 export const metadata: Metadata = {
   title: 'Shinoda Design System',
   description: 'React component library and catalogue for the Shinoda brand system.',
+  // Private studio reference — kept out of every index, cache, and preview.
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+    },
+  },
+  referrer: 'no-referrer',
 };
 
 function ThemeScript(): React.ReactElement {
@@ -20,7 +32,6 @@ function ThemeScript(): React.ReactElement {
       document.documentElement.setAttribute('data-theme', t);
     })();
   `.trim();
-  // eslint-disable-next-line react/no-danger
   return <script dangerouslySetInnerHTML={{ __html: script }} />;
 }
 
