@@ -4,6 +4,10 @@
  * vertical list, ≤767, and the desktop footer bar's page-name lookup).
  */
 export const NAV_ITEMS = [
+  // Home leads the list because the nav wordmark that used to link to "/" has
+  // been removed — the palette and the mobile footer list are now the only
+  // routes back to the homepage.
+  { label: 'Home',       href: '/'           },
   { label: 'Colour',     href: '/colour'     },
   { label: 'Type',       href: '/type'       },
   { label: 'Icons',      href: '/icons'      },
@@ -64,23 +68,38 @@ export function getPageName(pathname: string): string {
   return componentLabel(lastSegment);
 }
 
+export type BreadcrumbSegment = {
+  readonly label: string;
+  readonly href: string;
+};
+
+/** Root crumb — the only route back to the homepage now the nav wordmark is gone. */
+const BREADCRUMB_ROOT: BreadcrumbSegment = { label: 'Design System', href: '/' };
+
 /**
  * Breadcrumb trail for the current route — used by the desktop footer bar's
- * left-hand "Page Name" slot (Figma 3932:13432). Single segment for
- * top-level routes ("Home", "Components"); two segments for the
- * `/components/[slug]` catalogue pages ("Components", "Button").
+ * left-hand slot (Figma 3932:13432). Every trail opens with "Design System"
+ * pointing at "/", then appends the route's own crumbs:
+ *   /                    → Design System
+ *   /colour              → Design System / Colour
+ *   /components/button   → Design System / Components / Button
+ * Each segment carries its own href so the whole trail is navigable.
  */
-export function getBreadcrumbSegments(pathname: string): readonly string[] {
-  if (pathname === '/') return ['Home'];
+export function getBreadcrumbSegments(pathname: string): readonly BreadcrumbSegment[] {
+  if (pathname === '/') return [BREADCRUMB_ROOT];
 
   const navMatch = NAV_ITEMS.find((item) => item.href === pathname);
-  if (navMatch != null) return [navMatch.label];
+  if (navMatch != null) return [BREADCRUMB_ROOT, { label: navMatch.label, href: navMatch.href }];
 
   if (pathname.startsWith('/components/')) {
     const slug = pathname.split('/')[2] ?? '';
-    return ['Components', componentLabel(slug)];
+    return [
+      BREADCRUMB_ROOT,
+      { label: 'Components', href: '/components' },
+      { label: componentLabel(slug), href: `/components/${slug}` },
+    ];
   }
 
   const lastSegment = pathname.split('/').filter(Boolean).pop() ?? '';
-  return [componentLabel(lastSegment)];
+  return [BREADCRUMB_ROOT, { label: componentLabel(lastSegment), href: pathname }];
 }

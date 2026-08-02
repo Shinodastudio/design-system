@@ -3,24 +3,28 @@
 import { Fragment } from 'react';
 import { usePathname } from 'next/navigation';
 import NextLink from 'next/link';
-import { NAV_ITEMS, getBreadcrumbSegments } from '@/components/nav/navItems';
+import { getBreadcrumbSegments } from '@/components/nav/navItems';
 import { ThemeToggle } from '@/components/nav/ThemeToggle';
 import { PlainLink } from '@/components/primitives/PlainLink';
+import { Divider } from '@/components/primitives/Divider';
 import { ChangelogDialog } from './ChangelogDialog';
 
 const STUDIO_URL = 'https://shinoda.studio';
 
 /**
- * Site footer — one <footer> landmark, two responsive layouts (Figma 3932:13432):
+ * Site footer — one layout at every width (Figma 3932:13432).
  *
- *   .footer-bar  Persistent bar, ≥768px only. Current page name on the left;
- *                "Made by Shinoda · {year} · Changelog" + theme toggle on the
- *                right. Changelog opens a modal (<ChangelogDialog>).
+ * A full-width <Divider> opens the block, with --padding-section-sm above and
+ * below the row beneath it, holding the footer clear of page content the way
+ * shinoda.studio does. All type is heading-md at 40% opacity, lifting to 100%
+ * on hover.
  *
- *   .footer-nav  Mobile-only (≤767px) vertical list of NAV_ITEMS — the sole
- *                navigation surface at that breakpoint, since <Nav> hides
- *                entirely there (all other nav happens through the Command
- *                palette).
+ * Clickable breadcrumb trail on the left, always opening with "Design System"
+ * → "/"; "Made by Shinoda · {year} · Changelog" + theme toggle on the right.
+ * Changelog opens a modal (<ChangelogDialog>). Below 768px the two halves
+ * stack and the breadcrumb wraps, but nothing is added or removed — <Nav>'s
+ * search icon is present at every width, so the Command palette is the sole
+ * navigation surface on both sides of the breakpoint.
  */
 export function Footer(): React.ReactElement {
   const pathname = usePathname();
@@ -29,19 +33,27 @@ export function Footer(): React.ReactElement {
 
   return (
     <footer className="site-footer">
+      <Divider />
+
       <div className="footer-bar">
-        <div className="footer-bar-page body-xs">
+        <nav className="footer-bar-page heading-md" aria-label="Breadcrumb">
           {breadcrumb.map((segment, index) => (
-            <Fragment key={segment}>
-              {index > 0 && <span className="footer-bar-slash" aria-hidden="true">/</span>}
-              <span>{segment}</span>
+            <Fragment key={segment.href}>
+              {index > 0 && <span className="footer-bar-crumb-slash" aria-hidden="true">/</span>}
+              <NextLink
+                href={segment.href}
+                className="footer-bar-crumb"
+                aria-current={index === breadcrumb.length - 1 ? 'page' : undefined}
+              >
+                {segment.label}
+              </NextLink>
             </Fragment>
           ))}
-        </div>
+        </nav>
 
         <div className="footer-bar-right">
-          <div className="footer-bar-meta body-xs">
-            <span className="op-80">
+          <div className="footer-bar-meta heading-md">
+            <span className="footer-bar-made">
               Made by <PlainLink href={STUDIO_URL} external>Shinoda</PlainLink>
             </span>
             <span className="footer-bar-dot" aria-hidden="true" />
@@ -53,19 +65,11 @@ export function Footer(): React.ReactElement {
               </button>
             </ChangelogDialog>
           </div>
-          <ThemeToggle />
+          <span className="footer-bar-toggle">
+            <ThemeToggle />
+          </span>
         </div>
       </div>
-
-      <ul className="footer-nav">
-        {NAV_ITEMS.map((item) => (
-          <li key={item.href}>
-            <NextLink href={item.href} className="footer-nav-link body-md op-40">
-              {item.label}
-            </NextLink>
-          </li>
-        ))}
-      </ul>
     </footer>
   );
 }

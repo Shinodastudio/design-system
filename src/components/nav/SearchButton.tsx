@@ -8,6 +8,7 @@ export function SearchButton(): React.ReactElement {
   const { openCommand } = useCommandState();
   return (
     <Button
+      size="heading-md"
       className="btn-icon op-40"
       onClick={openCommand}
       aria-label="Open command palette"

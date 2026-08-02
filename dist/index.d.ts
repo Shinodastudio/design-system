@@ -697,7 +697,7 @@ declare function SearchButton(): React.ReactElement;
 
 /**
  * Smooth progressive blur rendered below the fixed nav bar.
- * All visual layout lives in the .progressive-blur CSS class —
+ * All visual logic lives in the .progressive-blur CSS class —
  * three backdrop-filter layers (16 → 8 → 4 px) with overlapping
  * gradient masks so no seams appear between blur zones.
  *
@@ -707,21 +707,8 @@ declare function SearchButton(): React.ReactElement;
  *   --pb-blur-b    (default  8px — mid zone)
  *   --pb-blur-c    (default  4px — lightest, bottom zone)
  *
- * useTopPeel bends the bottom edge of all three blur layers with scroll
- * velocity (the raggededge.com-style top-only peel) by rewriting the shared
- * <path> below every frame — flat and inert at rest, so this renders
- * identically to before whenever the page isn't moving.
- *
- * Each layer gets its OWN <mask>, painting the same wave <path> (referenced
- * via <use>, so one `d` update drives all three) with a <linearGradient>
- * that duplicates that layer's own CSS fade stops. The mask is applied
- * directly to .progressive-blur / ::before / ::after in CSS — never to a
- * wrapping ancestor. Two Chromium bugs rule out the more obvious designs:
- * clip-path on a backdrop-filter element doesn't get anti-aliased (hard
- * seam instead of a soft curve), and — worse — masking an ANCESTOR of a
- * backdrop-filter element severs its backdrop sampling entirely, so the
- * blur silently disappears rather than just rendering with a hard edge.
- * Masking the backdrop-filter element itself has neither problem.
+ * Static — the scroll-velocity peel effect lives on the page content
+ * underneath (see ContentPeel), not on the nav or this blur strip.
  */
 declare function NavProgressiveBlur(): React.ReactElement;
 

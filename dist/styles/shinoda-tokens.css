@@ -331,7 +331,12 @@
     --color-fill-secondary: #333338; --color-fill-tertiary: #494951;
     --color-outline: #494951;
     --color-text-primary: #FAFAFA; --color-text-secondary: #A1A1AA;
-    --color-text-tertiary: #494951; --color-text-contrast: var(--color-core-contrast);
+    /* Was #494951 (grey-40) — only ~2:1 contrast against --color-fill-base
+       (#18181B), effectively unreadable (light mode's tertiary, #A1A1AA, is
+       grey-60 on its own ramp — a much bigger step off the background).
+       grey-50 restores a comparable ~4:1 legible-but-muted contrast while
+       staying visibly a step below --color-text-secondary. */
+    --color-text-tertiary: #7A7A82; --color-text-contrast: var(--color-core-contrast);
     --color-grey-strong: #F4F4F5; --color-grey-core: #F4F4F5; --color-grey-weak: #212123;
     --color-transparent-weak:   var(--alpha-5);
     --color-transparent-core:   var(--alpha-20);
@@ -373,7 +378,8 @@
   --color-fill-secondary: #333338; --color-fill-tertiary: #494951;
   --color-outline: #494951;
   --color-text-primary: #FAFAFA; --color-text-secondary: #A1A1AA;
-  --color-text-tertiary: #494951; --color-text-contrast: var(--color-core-contrast);
+  /* See @media (prefers-color-scheme: dark) block above — same contrast fix. */
+  --color-text-tertiary: #7A7A82; --color-text-contrast: var(--color-core-contrast);
   --color-grey-strong: #F4F4F5; --color-grey-core: #F4F4F5; --color-grey-weak: #212123;
   --color-transparent-weak:   var(--alpha-5);
   --color-transparent-core:   var(--alpha-20);
