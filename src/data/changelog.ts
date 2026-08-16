@@ -26,6 +26,25 @@ export interface ChangelogEntry {
  */
 export const CHANGELOG: readonly ChangelogEntry[] = [
   {
+    title: 'Calendar rebuilt: range picking, media grid, cursor image preview',
+    type: 'Feature',
+    date: '2026-08-17',
+    changes: [
+      'CalendarPicker replaced by Calendar, built on a new headless useCalendar hook: view state with day \u2192 month \u2192 year drill-down, a fixed six-row grid, single and range selection, min/max bounds, and full keyboard navigation. The old name stays exported as a deprecated alias, so nothing consuming it breaks',
+      'Range mode: the first click sets the start, hovering previews the band, the second completes it and corrects the order if you picked backwards. The fields render DATE > DATE side by side as an unconditional flex row \u2014 the layout used to be a grid whose column track the range modifier had to rewrite, which meant a single missing rule stacked the fields vertically. A layout that only works when every rule lands isn\u2019t a layout',
+      'New MediaCalendar \u2014 a photo-journal grid built on Calendar\u2019s renderDay slot, so keyboard navigation and selection semantics are identical to the picker. Days with an entry are circular thumbnails, empty days a dashed ring; the number is revealed as the thumbnail fades on hover. Days from the adjacent months render at 20% like every other calendar, with the ring taken to full opacity inside the dimmed cell so the compound lands on exactly 20% rather than 8% \u2014 nested opacity multiplies, and 40% inside 20% would have disappeared',
+      'Cursor gains an image-preview state: data-cursor-preview="/path.jpg" on any element swells the dot into a 7.5rem circular preview of that image, sized by --cursor-preview-size. The difference blend comes off in this state so the photograph reads true rather than inverted',
+      'DateInput rebuilt to compose Input\u2019s behaviour rather than restate it \u2014 same underline treatment at rest, hover, focus and disabled, plus float label, borderless variant and forwardRef. Gravity is anchored to the wrapper rather than the field so the trigger and the field stay aligned under the pull. The trailing button or Down arrow opens the popover, Escape closes it and returns focus, blur parses and validates',
+      'Date parsing (src/lib/date.ts) accepts DD MMM YYYY, DD/MM/YYYY and DD-M-YYYY, and rejects overflow \u2014 31 Feb fails rather than silently rolling into March. The helpers, MONTH_LABELS_SHORT and useCalendar are all exported from the package for consumers building their own calendar surfaces',
+      'Accessibility pass: real role="row" wrappers with columnheader weekday labels, roving tabindex so exactly one cell is tabbable per calendar, Arrow/Home/End/PageUp/PageDown navigation with Shift for years, live-region announcements on month change, day names carrying the full date plus a photo indicator, and errors with role="alert". Abbreviations are visual only \u2014 "Monday, 27 July 2026" is what gets announced',
+      'Added useGravityWithin(containerRef, selector): one delegated listener drives whichever cell the cursor is over, instead of 42 cells each registering their own document listener. Tuned tighter than standalone gravity (0.14 strength, 3px cap) because cells sit shoulder to shoulder and only the one under the cursor should move',
+      'Grid structure corrected so rows are real boxes: .calendar-grid is a flex column and each .calendar-row its own seven-column grid. It was previously one 42-cell grid with display: contents on the ARIA row wrappers, which hung the entire layout on a single declaration \u2014 when the CSS chunk lagged the markup over HMR, the row wrappers became grid items and the weekday header collapsed into column one',
+      'Today is now a solid --accent-red fill rather than a dot in the picker. In the media grid the mark moves to the ring instead \u2014 a red disc on empty days, a red outline around the photograph on filled ones, since a cell fill would sit buried under the thumbnail',
+      'The month label defaults to the short form ("Aug") so the header stops breathing as you page through months; monthLabelFormat="long" restores the full name for editorial contexts. The aria-label and the announcements use the full month either way',
+      'Catalogue: the form-field size chips moved to a shared inputSizes.ts used by both the Input and Calendar pages, and the Cursor page now documents the preview state',
+    ],
+  },
+  {
     title: 'Crawler exclusion, favicon set, footer/nav rebuild, responsive fixes',
     type: 'Improvement',
     date: '2026-08-02',

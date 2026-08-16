@@ -1004,6 +1004,29 @@ html.cursor--chip .cursor {
   align-items: center;
 }
 html.cursor--chip .cursor-label { opacity: 1; }
+/* Image preview — the dot swells into the hovered thumbnail (media calendar).
+   The difference blend has to come off here: it would invert the photograph.
+   The layer is inert until the state is on, so it never affects other cursors. */
+.cursor-preview {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 150ms ease;
+  pointer-events: none;
+}
+html.cursor--preview .cursor {
+  width: var(--cursor-preview-size, 7.5rem);
+  height: var(--cursor-preview-size, 7.5rem);
+  border-radius: var(--radius-full);
+  background: var(--color-fill-secondary);
+  mix-blend-mode: normal;
+}
+html.cursor--preview .cursor-preview { opacity: 1; }
+html.cursor--preview.cursor--active .cursor { transform: translate(-50%,-50%) scale(0.96); }
 /* Press — scale down */
 html.cursor--active .cursor { transform: translate(-50%,-50%) scale(0.8); }
 /* Focus — hide cursor while typing */
@@ -3624,76 +3647,506 @@ html.cursor--focused .cursor { opacity: 0; }
 select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor: none; }
 
 /* ─── CALENDAR ───────────────────────────────────────────────────────────── */
+/* Two sizes only — sm (28px cells) and md (32px, default). Everything scales
+   off --calendar-cell so the media variant can override a single value.
+   Day cells are buttons but opt out of the button cursor rule via
+   data-cursor="dot" (see useCursor): in a 42-cell grid the disappearing
+   cursor reads as a bug, so the dot stays and each cell pulls it with the
+   grid gravity from useGravityWithin. */
 .calendar {
-  display: flex;
+  --calendar-cell: 2rem;
+  display: inline-flex;
   flex-direction: column;
-  gap: var(--space-4);
-  width: 280px;
+  gap: var(--space-3);
   background-color: var(--color-fill-base);
   border: var(--border-sm) solid var(--color-transparent-weak);
-  border-radius: var(--radius-md);
-  padding: var(--space-4);
+  border-radius: var(--radius-xl);
+  padding: var(--space-3);
+  user-select: none;
 }
+.calendar--sm { --calendar-cell: 1.75rem; }
+.calendar--md { --calendar-cell: 2rem; }
+.calendar--disabled { opacity: var(--opacity-40); pointer-events: none; }
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
 .calendar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--space-4);
+  padding-inline: var(--space-1);
 }
-.calendar-nav-btn {
+.calendar-title { display: flex; align-items: baseline; gap: var(--space-2); }
+.calendar-title-btn,
+.calendar-title-static {
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n010);
+  line-height: var(--leading-body-xs);
+}
+.calendar-title-btn { border-radius: var(--radius-md); }
+.calendar-actions { display: flex; align-items: center; gap: var(--space-2); }
+.calendar-today-btn {
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-none);
   opacity: var(--opacity-40);
-  padding: var(--space-1);
+  border-radius: var(--radius-md);
   transition: opacity 150ms ease;
 }
-.calendar-nav-btn:hover { opacity: 1; }
-.calendar-month-label { font-size: 1rem; letter-spacing: var(--tracking-n015); }
-.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
+.calendar-today-btn:hover:not(:disabled) { opacity: 1; }
+.calendar-nav-btn {
+  font-size: 0.875rem;
+  opacity: var(--opacity-40);
+  transition: opacity 150ms ease;
 }
-.calendar-day-header {
+.calendar-nav-btn:hover:not(:disabled) { opacity: 1; }
+.calendar-today-btn:disabled,
+.calendar-nav-btn:disabled { opacity: var(--opacity-20); }
+.calendar-today-btn:disabled::before,
+.calendar-nav-btn:disabled::before { opacity: 0; }
+
+/* ── Day grid ───────────────────────────────────────────────────────────── */
+/* Zero gap so a selected range reads as one continuous band across the row;
+   the caps are rounded on the endpoints only. */
+/* Rows are real boxes, each its own seven-column grid, stacked in a column.
+   The alternative — one grid of 42 cells with display: contents on the ARIA row
+   wrappers — puts the entire layout at the mercy of a single declaration: lose
+   it and the seven row elements become seven grid *items*, so the weekday
+   header stacks into column one and every week runs vertically. A calendar that
+   transposes itself is worse than one that is briefly unstyled. */
+.calendar-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.calendar-row {
+  display: grid;
+  grid-template-columns: repeat(7, var(--calendar-cell));
+  gap: 0;
+}
+.calendar-weekday {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-1);
-  font-size: 0.75rem;
-  letter-spacing: var(--tracking-n010);
+  height: var(--calendar-cell);
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-none);
   opacity: var(--opacity-40);
 }
+.calendar-day-blank { width: var(--calendar-cell); height: var(--calendar-cell); }
+
 .calendar-day {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--calendar-cell);
+  height: var(--calendar-cell);
+  padding: 0;
+  font: inherit;
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-none);
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: none;
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1),
+              background-color 120ms ease,
+              color 120ms ease,
+              opacity 120ms ease;
+}
+.calendar-day-content {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  aspect-ratio: 1;
-  font: inherit;
-  font-size: 0.875rem;
-  letter-spacing: var(--tracking-n010);
-  color: var(--color-text-primary);
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-xs);
-  cursor: none;
-  transition: background-color 100ms ease;
+  height: 100%;
 }
-.calendar-day:hover:not(.calendar-day-disabled):not(.calendar-day-outside) {
+.calendar-day-number { line-height: 1; }
+
+.calendar-day:hover:not(:disabled):not(.calendar-day--selected) {
+  background-color: var(--color-transparent-core);
+}
+.calendar-day:focus-visible { outline: none; }
+.calendar-day:focus-visible::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: var(--radius-md);
+  border: var(--border-md) dashed var(--color-fill-tertiary);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.calendar-day--outside { opacity: var(--opacity-20); }
+.calendar-day--disabled,
+.calendar-day:disabled { opacity: var(--opacity-20); cursor: none; }
+
+/* Range band — 5% fill runs edge to edge, endpoints take the solid fill. */
+.calendar-day--in-range {
   background-color: var(--color-transparent-weak);
+  border-radius: 0;
 }
-.calendar-day-today {
-  font-weight: var(--fw-medium);
-  text-decoration: underline;
-  text-underline-offset: 0.25em;
-}
-.calendar-day-selected {
+.calendar-day--range-start { border-start-start-radius: var(--radius-md); border-end-start-radius: var(--radius-md); }
+.calendar-day--range-end   { border-start-end-radius: var(--radius-md); border-end-end-radius: var(--radius-md); }
+
+.calendar-day--selected {
   background-color: var(--color-text-primary);
   color: var(--color-fill-base);
 }
-.calendar-day-selected:hover { background-color: var(--color-text-primary); }
-.calendar-day-outside { opacity: var(--opacity-20); }
-.calendar-day-disabled { opacity: var(--opacity-20); }
+.calendar-day--selected:hover { background-color: var(--color-text-primary); }
+
+/* Today — the whole tile takes the red. A 4px dot was the only mark in the grid
+   carrying meaning at a size below the type, which made it easy to miss and
+   impossible to read at a glance; the solid fill states it once, plainly.
+   Both reds clear 5:1 against --color-fill-base, so the number stays legible. */
+.calendar-day--today {
+  background-color: var(--accent-red);
+  color: var(--color-fill-base);
+}
+/* The generic hover/in-range fills outrank a single class, so today restates
+   itself: the cell is already at full strength and has nowhere to go on hover. */
+.calendar-day--today:hover:not(:disabled):not(.calendar-day--selected),
+.calendar-day--today.calendar-day--in-range {
+  background-color: var(--accent-red);
+  color: var(--color-fill-base);
+}
+/* Selecting today hands the cell to the selection: it's the state the user just
+   asked for, and the red returns the moment the selection moves elsewhere. */
+.calendar-day--today.calendar-day--selected {
+  background-color: var(--color-text-primary);
+  color: var(--color-fill-base);
+}
+
+/* ── Month / year tiles ─────────────────────────────────────────────────── */
+.calendar-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-1);
+  width: calc(var(--calendar-cell) * 7);
+}
+.calendar-tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(var(--calendar-cell) * 1.5);
+  font: inherit;
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-none);
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: none;
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1),
+              background-color 120ms ease,
+              color 120ms ease,
+              opacity 120ms ease;
+}
+.calendar-tile:hover:not(:disabled):not(.calendar-tile--selected) {
+  background-color: var(--color-transparent-core);
+}
+.calendar-tile:focus-visible { outline: none; }
+.calendar-tile:focus-visible::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: var(--radius-md);
+  border: var(--border-md) dashed var(--color-fill-tertiary);
+  pointer-events: none;
+}
+.calendar-tile--current::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background-color: var(--accent-red);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.calendar-tile--selected {
+  background-color: var(--color-text-primary);
+  color: var(--color-fill-base);
+}
+.calendar-tile--disabled, .calendar-tile:disabled { opacity: var(--opacity-20); }
+
+/* ── Typed date fields ──────────────────────────────────────────────────── */
+/* Sit under the grid, separated by the 10% divider. Range mode splits into two
+   equal fields with an arrow between them — no captions needed, since the
+   direction of travel says which is which. Fields are the underline input at
+   the small step (0.875rem) so they read as a secondary route to the same
+   value, not a second control. */
+/* A row, always — one field or three children, the axis never changes. This was
+   a grid whose column track the range modifier had to rewrite, which meant a
+   single missing rule (a stale CSS chunk is enough) stacked the two fields on
+   top of each other. Flex needs no such override: the fields flex, the chevron
+   doesn't, and the worst a missing modifier can now cost is a few px of
+   padding. */
+.calendar-fields {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: calc(var(--calendar-cell) * 7);
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-2);
+  padding-inline: var(--space-2);
+  border-top: var(--border-sm) solid color-mix(in srgb, var(--color-text-primary) 10%, transparent);
+}
+/* The range row gives up its inline padding: at the md cell size the seven
+   columns are only 224px wide, and the padding plus gaps left each field ~85px
+   — narrower than the DD MMM YYYY placeholder, which then clipped. Dropping it
+   buys ~12px a side, and the underlines end up flush with the outer edge of the
+   grid, which is where they should have been. */
+.calendar-fields--range { padding-inline: 0; }
+.calendar-fields-arrow {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Matches the nav chevrons' rest weight, so it reads as chrome. */
+  font-size: 0.875rem;
+  opacity: var(--opacity-40);
+}
+
+/* flex-basis 0 rather than auto: two fields of identical content-width would
+   still drift apart on `auto` once one held a longer value. */
+.calendar-field { flex: 1 1 0; display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.calendar-field-label {
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-none);
+  line-height: var(--leading-body-xs);
+  opacity: var(--opacity-40);
+}
+.calendar-field-input {
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-none);
+  padding-block: var(--space-2);
+}
+.calendar-field-input:disabled { opacity: var(--opacity-40); }
+/* Announced by role="alert" and shown inline. Sized below the field label so a
+   two-field range row can carry it without forcing the popover wider. */
+.calendar-field-error {
+  font-size: 0.75rem;
+  letter-spacing: var(--tracking-none);
+  line-height: var(--leading-body-xs);
+  color: var(--color-status-error);
+  margin: 0;
+}
+
+/* ── Media variant — circular thumbnails, one per day ───────────────────── */
+/* Fluid: cells fill the container rather than sitting on the fixed 28/32px
+   scale, since this grid is a page-level element (the "today" photo journal)
+   rather than a picker. */
+.calendar--media {
+  display: flex;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  gap: var(--space-4);
+}
+/* Fluid columns: minmax(0, 1fr) rather than 1fr so a thumbnail can never push a
+   column past its share. Gaps run in both axes — between the weeks (on the
+   grid) and between the days (on each row). */
+.calendar--media .calendar-grid { gap: var(--space-2); }
+.calendar--media .calendar-row {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+/* The media grid is a page-level element, not a picker sitting in a form, so
+   the chrome steps up one rung of the type scale: title to body-md, controls
+   and weekday labels to body-xs. Hierarchy still comes from opacity. */
+.calendar--media .calendar-title-btn,
+.calendar--media .calendar-title-static {
+  font-size: 1.25rem;
+  letter-spacing: var(--tracking-n015);
+  line-height: var(--leading-body-md);
+}
+.calendar--media .calendar-today-btn,
+.calendar--media .calendar-nav-btn {
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n005);
+}
+.calendar--media .calendar-weekday {
+  height: auto;
+  padding-block: var(--space-2);
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n005);
+}
+.calendar--media .calendar-tiles { width: 100%; gap: var(--space-2); }
+.calendar--media .calendar-day,
+.calendar--media .calendar-day-blank {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+}
+.calendar--media .calendar-day:hover:not(:disabled):not(.calendar-day--selected) {
+  background-color: transparent;
+}
+.calendar--media .calendar-day--selected { background-color: transparent; color: var(--color-text-primary); }
+.calendar--media .calendar-day--selected .calendar-media {
+  outline: var(--border-md) solid var(--color-text-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-full);
+}
+.calendar--media .calendar-day:focus-visible::before { border-radius: var(--radius-full); }
+/* Today in the photo grid. A filled day would bury a red cell fill under its
+   thumbnail, so the mark moves to the ring: red disc when the day is empty,
+   red outline around the photo when it isn't. Selection still outranks it —
+   one outline per element, and the selection is the more recent statement. */
+.calendar--media .calendar-day--today,
+.calendar--media .calendar-day--today:hover:not(:disabled) {
+  background-color: transparent;
+  color: var(--color-text-primary);
+}
+.calendar--media .calendar-day--today .calendar-media {
+  background-color: var(--accent-red);
+  color: var(--color-fill-base);
+}
+.calendar--media .calendar-day--today .calendar-media-ring { opacity: 0; }
+.calendar--media .calendar-day--today .calendar-media--filled {
+  background-color: transparent;
+  color: var(--color-text-primary);
+  outline: var(--border-md) solid var(--accent-red);
+  outline-offset: 2px;
+  border-radius: var(--radius-full);
+}
+.calendar--media .calendar-day--today.calendar-day--selected .calendar-media {
+  outline-color: var(--color-text-primary);
+}
+
+.calendar-media {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-full);
+}
+.calendar-media-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-full);
+  opacity: 1;
+  transition: opacity 150ms ease;
+}
+/* Hover fill — every day takes it, filled or not, so the grid answers the
+   pointer the way any other control does: the standard fill springing out from
+   the centre on the same curve as .btn, circular to sit inside the ring.
+   On a filled day it sits beneath the thumbnail and is revealed as that
+   thumbnail fades, so image → disc + date is one movement rather than two.
+   Lives on the media span rather than the cell so it never contends with the
+   focus ring, which owns the cell's ::before. */
+.calendar-media::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  /* The system's hover fill, same token the picker's day cells and every .btn
+     take — 20%, not the 10% this used to carry. At 10% on the dark surface the
+     disc read as a rendering artefact rather than a response. */
+  background-color: var(--color-transparent-core);
+  transform: scale(0.8);
+  opacity: 0;
+  transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 150ms ease;
+  pointer-events: none;
+}
+.calendar-day:hover:not(:disabled) .calendar-media::before,
+.calendar-day:focus-visible:not(:disabled) .calendar-media::before {
+  transform: scale(1);
+  opacity: 1;
+}
+.calendar-day:active:not(:disabled) .calendar-media::before {
+  transform: scale(0.95);
+  opacity: 1;
+}
+
+.calendar-media-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  border: var(--border-sm) dashed var(--color-fill-tertiary);
+  opacity: var(--opacity-40);
+}
+/* Outside days carry 20% on the cell, as in the picker. In the picker that
+   lands on a plain number; here it would multiply with the ring's own 40% and
+   leave it at 8% — below the system's floor, i.e. gone. Taking the ring to full
+   opacity inside a dimmed cell makes the compound land on exactly 20%. */
+.calendar--media .calendar-day--outside .calendar-media-ring { opacity: 1; }
+/* Empty days show their number at rest; filled days reveal it on hover as
+   the thumbnail fades out. */
+.calendar-media-number {
+  position: relative;
+  z-index: 1;
+  line-height: 1;
+  opacity: 1;
+  transition: opacity 150ms ease;
+}
+.calendar-media--filled .calendar-media-number { opacity: 0; }
+.calendar-day:hover .calendar-media--filled .calendar-media-image,
+.calendar-day:focus-visible .calendar-media--filled .calendar-media-image { opacity: 0; }
+.calendar-day:hover .calendar-media--filled .calendar-media-number,
+.calendar-day:focus-visible .calendar-media--filled .calendar-media-number { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .calendar-day, .calendar-tile { transition: background-color 120ms ease, color 120ms ease; transform: none; }
+  .calendar-media-image, .calendar-media-number { transition: none; }
+  /* No spring: the fill just appears at full size. */
+  .calendar-media::before { transition: opacity 120ms ease; transform: none; }
+  .calendar-day:hover:not(:disabled) .calendar-media::before,
+  .calendar-day:focus-visible:not(:disabled) .calendar-media::before,
+  .calendar-day:active:not(:disabled) .calendar-media::before { transform: none; }
+}
 
 /* ─── DATE INPUT ─────────────────────────────────────────────────────────── */
-.date-input { position: relative; width: 100%; }
+/* The wrapper, not the field, is the type anchor: it pins the 1rem that .input
+   would otherwise set on itself, and the field and trigger both read back off
+   it in em. One `style={{ fontSize }}` on the component therefore scales the
+   text, the icon and the gutter reserved for it, exactly as passing the same
+   style to <Input> scales a plain text field.
+   Gravity also lives here rather than on the field — see DateInput.tsx. */
+.date-input {
+  position: relative;
+  width: 100%;
+  font-size: 1rem;
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.date-input .input { font-size: inherit; }
+.date-input-field { padding-inline-end: 2em; }
+.date-input-trigger {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: 0;
+  transform: translateY(-50%);
+  font-size: 1em;
+  opacity: var(--opacity-40);
+  transition: opacity 150ms ease;
+}
+/* In float mode the wrapper is taller by the reserved label space (1.5rem), so
+   centring on the wrapper would drop the icon below the text. Re-centre on the
+   field alone: 1.5rem + (H − 1.5rem) / 2 collapses to 50% + 0.75rem. */
+.date-input--float .date-input-trigger { inset-block-start: calc(50% + 0.75rem); }
+.date-input-trigger:hover:not(:disabled) { opacity: 1; }
+.date-input-trigger:disabled { opacity: var(--opacity-20); }
 .date-input-popover {
   position: absolute;
   z-index: 997;

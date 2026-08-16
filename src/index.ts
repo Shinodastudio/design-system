@@ -48,11 +48,38 @@ export { RouteAttribute } from './providers/RouteAttribute';
 // Hooks
 export { useCursor } from './hooks/useCursor';
 export type { CursorRef } from './hooks/useCursor';
-export { useGravity } from './hooks/useGravity';
+export { useGravity, useGravityWithin } from './hooks/useGravity';
 export { useTheme } from './hooks/useTheme';
 export { useScrollBend } from './hooks/useScrollBend';
 export type { UseScrollBendOptions } from './hooks/useScrollBend';
+export { useToday } from './hooks/useToday';
+export { useCalendar } from './hooks/useCalendar';
+export type {
+  UseCalendarOptions,
+  UseCalendarResult,
+  CalendarDay,
+  CalendarView,
+  CalendarMonthCell,
+  CalendarYearCell,
+} from './hooks/useCalendar';
 
 // Lib
 export { cn } from './lib/cn';
 export * from './lib/tokens';
+export {
+  startOfDay,
+  isSameDay,
+  isSameMonth,
+  addDays,
+  addMonths,
+  addYears,
+  isBeforeDay,
+  isAfterDay,
+  isWithinDays,
+  clampDate,
+  toDateKey,
+  fromDateKey,
+  formatDateShort,
+  parseDateInput,
+  MONTH_LABELS_SHORT,
+} from './lib/date';

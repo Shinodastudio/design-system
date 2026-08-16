@@ -20,32 +20,12 @@ import type { SearchOption } from '@/components/search/SearchDropdown';
 import { ComponentSection } from '@/components/catalogue/ComponentSection';
 import { ComponentFrame } from '@/components/catalogue/ComponentFrame';
 import { CatalogueIntro } from '@/components/catalogue/CatalogueIntro';
-
-const INPUT_SIZES = [
-  'heading-xl', 'heading-lg', 'heading-md', 'heading-sm', 'heading-xs', 'heading-2xs',
-  'body-xl', 'body-lg', 'body-md', 'body-sm', 'body-xs', 'body-2xs',
-] as const;
-type InputSize = typeof INPUT_SIZES[number];
-
-const INPUT_FONT: Record<InputSize, string> = {
-  'heading-xl':  '2.5rem',
-  'heading-lg':  '2rem',
-  'heading-md':  '1.5rem',
-  'heading-sm':  '1.25rem',
-  'heading-xs':  '1rem',
-  'heading-2xs': '0.75rem',
-  'body-xl':     '1.5rem',
-  'body-lg':     '1.375rem',
-  'body-md':     '1.25rem',
-  'body-sm':     '1.125rem',
-  'body-xs':     '1rem',
-  'body-2xs':    '0.875rem',
-};
-
-const SELECT_FONT: Record<InputSize, string> = {
-  ...INPUT_FONT,
-  'heading-2xs': '0.875rem',
-};
+import {
+  INPUT_SIZES,
+  INPUT_FONT,
+  SELECT_FONT,
+  type InputSize,
+} from '@/components/catalogue/inputSizes';
 
 const SEARCH_SIZES = ['default'] as const;
 

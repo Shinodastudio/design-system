@@ -29,7 +29,7 @@ const COMPONENTS = [
   { label: 'Overlay',     href: '/components/overlay',    description: 'Tooltip, Dialog, Sheet, Popover, DropdownMenu.' },
   { label: 'Controls',    href: '/components/controls',   description: 'Switch, Accordion, Command palette.' },
   { label: 'Data',        href: '/components/data',       description: 'Read-only and inline-editable data tables.' },
-  { label: 'Calendar',    href: '/components/calendar',   description: 'Inline calendar picker and date text input.' },
+  { label: 'Calendar',    href: '/components/calendar',   description: 'Calendar, range picking, media grid, and date input.' },
   { label: 'Card',        href: '/components/card',       description: 'Square tiles with hover-revealed actions and timestamp meta.' },
 { label: 'Content',     href: '/components/content',    description: 'ContentCard and CodeSnippet for structured copy.' },
 { label: 'Upload',      href: '/components/upload',     description: 'File dropzone, file chips, and download tiles.' },
