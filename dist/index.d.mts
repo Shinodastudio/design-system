@@ -671,14 +671,13 @@ interface IconProps extends Omit<React.SVGAttributes<SVGSVGElement>, 'dangerousl
 declare function Icon({ name, size, className, title, ...props }: IconProps): React.ReactElement | null;
 
 /**
- * Top navigation bar.
+ * Top navigation — reduced to a single affordance (shinoda.studio parity).
  *
- * Layout:
- * - Top-left:  single "Shinoda Design System" brand link → /
- * - Top-right: SearchButton (opens Command palette) + ThemeToggle
- *
- * All section navigation now happens through the Command palette
- * (opened by the search icon or Cmd/Ctrl+K).
+ * The brand wordmark and theme toggle are both gone: the toggle now lives
+ * only in the footer, and every route (Home included) is reachable through
+ * the Command palette. What remains is the search icon alone, top-right, at
+ * heading-md, over the progressive blur strip that keeps scrolling content
+ * legible beneath it.
  */
 declare function Nav(): React.ReactElement;
 
@@ -755,6 +754,9 @@ declare function CommandPaletteHost(): React.ReactElement;
  * vertical list, ≤767, and the desktop footer bar's page-name lookup).
  */
 declare const NAV_ITEMS: readonly [{
+    readonly label: "Home";
+    readonly href: "/";
+}, {
     readonly label: "Colour";
     readonly href: "/colour";
 }, {
@@ -854,16 +856,19 @@ interface StickyColProps {
 declare function StickyCol({ children, className, narrow, style }: StickyColProps): React.ReactElement;
 
 /**
- * Site footer — one <footer> landmark, two responsive layouts (Figma 3932:13432):
+ * Site footer — one layout at every width (Figma 3932:13432).
  *
- *   .footer-bar  Persistent bar, ≥768px only. Current page name on the left;
- *                "Made by Shinoda · {year} · Changelog" + theme toggle on the
- *                right. Changelog opens a modal (<ChangelogDialog>).
+ * A full-width <Divider> opens the block, with --padding-section-sm above and
+ * below the row beneath it, holding the footer clear of page content the way
+ * shinoda.studio does. All type is heading-md at 40% opacity, lifting to 100%
+ * on hover.
  *
- *   .footer-nav  Mobile-only (≤767px) vertical list of NAV_ITEMS — the sole
- *                navigation surface at that breakpoint, since <Nav> hides
- *                entirely there (all other nav happens through the Command
- *                palette).
+ * Clickable breadcrumb trail on the left, always opening with "Design System"
+ * → "/"; "Made by Shinoda · {year} · Changelog" + theme toggle on the right.
+ * Changelog opens a modal (<ChangelogDialog>). Below 768px the two halves
+ * stack and the breadcrumb wraps, but nothing is added or removed — <Nav>'s
+ * search icon is present at every width, so the Command palette is the sole
+ * navigation surface on both sides of the breakpoint.
  */
 declare function Footer(): React.ReactElement;
 
@@ -1491,27 +1496,222 @@ interface EditableTableProps {
 }
 declare function EditableTable({ columns, data, onCellChange, stickyHeader, className, }: EditableTableProps): React.ReactElement;
 
-interface CalendarPickerProps {
+type CalendarMode = 'single' | 'range';
+type CalendarView = 'day' | 'month' | 'year';
+type WeekStart = 0 | 1;
+interface DateRange {
+    readonly from: Date | null;
+    readonly to: Date | null;
+}
+interface CalendarDay {
+    readonly date: Date;
+    readonly key: string;
+    /** Belongs to a month either side of the one in view. */
+    readonly isOutside: boolean;
+    readonly isToday: boolean;
+    readonly isSelected: boolean;
+    readonly isRangeStart: boolean;
+    readonly isRangeEnd: boolean;
+    readonly isInRange: boolean;
+    readonly isDisabled: boolean;
+    readonly isFocused: boolean;
+}
+interface CalendarMonthCell {
+    readonly month: number;
+    readonly label: string;
+    readonly isCurrent: boolean;
+    readonly isSelected: boolean;
+    readonly isDisabled: boolean;
+}
+interface CalendarYearCell {
+    readonly year: number;
+    readonly isCurrent: boolean;
+    readonly isSelected: boolean;
+    readonly isDisabled: boolean;
+}
+interface UseCalendarOptions {
+    readonly mode: CalendarMode;
+    readonly selected: Date | null;
+    readonly range: DateRange | null;
+    readonly month: Date | null;
+    readonly defaultMonth: Date | null;
+    readonly minDate: Date | null;
+    readonly maxDate: Date | null;
+    readonly weekStartsOn: WeekStart;
+    readonly disabled: boolean;
+    readonly onMonthChange?: (month: Date) => void;
+    readonly onSelectDate: (date: Date) => void;
+}
+interface UseCalendarResult {
+    readonly view: CalendarView;
+    readonly setView: (view: CalendarView) => void;
+    readonly viewDate: Date;
+    readonly viewYear: number;
+    readonly viewMonth: number;
+    readonly weekdays: readonly WeekdayLabel[];
+    readonly days: readonly CalendarDay[];
+    readonly months: readonly CalendarMonthCell[];
+    readonly years: readonly CalendarYearCell[];
+    readonly yearRangeStart: number;
+    /** Today at local midnight, reconciled after hydration and across midnight. */
+    readonly today: Date;
+    readonly focusedDate: Date;
+    readonly focusViaKeyboard: boolean;
+    readonly hoveredDate: Date | null;
+    readonly setHoveredDate: (date: Date | null) => void;
+    readonly canGoPrevious: boolean;
+    readonly canGoNext: boolean;
+    readonly goPrevious: () => void;
+    readonly goNext: () => void;
+    readonly goToToday: () => void;
+    readonly goToMonth: (month: number) => void;
+    readonly goToYear: (year: number) => void;
+    /** Brings a date into view without selecting it (used by the date fields). */
+    readonly goToDate: (date: Date) => void;
+    /**
+     * Selects a date. `keepFocusMode` defaults to true, which preserves whichever
+     * focus mode is current — a click keeps focus where it is, an Enter on a cell
+     * keeps focus in the grid. Pass false when the selection came from outside the
+     * grid (a typed date, say) so the grid doesn't pull DOM focus off the field.
+     */
+    readonly selectDate: (date: Date, keepFocusMode?: boolean) => void;
+    readonly isDateDisabled: (date: Date) => boolean;
+    readonly handleGridKeyDown: (event: React.KeyboardEvent<HTMLElement>) => void;
+}
+interface WeekdayLabel {
+    readonly short: string;
+    readonly long: string;
+    readonly index: number;
+}
+declare function useCalendar(options: UseCalendarOptions): UseCalendarResult;
+
+type CalendarSize = 'sm' | 'md';
+type MonthLabelFormat = 'short' | 'long';
+/** Everything a custom day renderer needs; MediaCalendar builds on this. */
+interface CalendarDayContext {
+    readonly day: CalendarDay;
+    readonly dayNumber: number;
+    readonly dateKey: string;
+}
+interface CalendarBaseProps {
+    readonly size?: CalendarSize;
+    readonly minDate?: Date | null;
+    readonly maxDate?: Date | null;
+    readonly disabled?: boolean;
+    readonly weekStartsOn?: WeekStart;
+    /** Controlled month in view. Pair with onMonthChange. */
+    readonly month?: Date | null;
+    readonly defaultMonth?: Date | null;
+    readonly onMonthChange?: (month: Date) => void;
+    readonly showOutsideDays?: boolean;
+    readonly showTodayButton?: boolean;
+    readonly showWeekdays?: boolean;
+    /**
+     * Month name in the header. Short by default — the header is a control strip,
+     * not a title, and "September 2026" pushes the Today button and nav arrows
+     * around as the months change width. The accessible name stays the full month
+     * either way, so nothing is lost to assistive tech.
+     */
+    readonly monthLabelFormat?: MonthLabelFormat;
+    /**
+     * Typable `DD MMM YYYY` field(s) beneath the grid — one in single mode, a
+     * From/To pair in range mode. Off for custom day renderers (the media grid
+     * is a display surface, not a picker) and inside DateInput, where the
+     * trigger field already does the job.
+     */
+    readonly showDateFields?: boolean;
+    /** Replaces the day number with custom cell content (image, dot, badge…). */
+    readonly renderDay?: (context: CalendarDayContext) => React.ReactNode;
+    /**
+     * Extends a cell's accessible name. Custom cell content is decorative to
+     * assistive tech — the button is named by the date alone — so a renderer that
+     * conveys extra meaning visually (a thumbnail, a badge) has to say so here or
+     * it says nothing at all.
+     */
+    readonly getDayLabel?: (context: CalendarDayContext, defaultLabel: string) => string;
+    readonly className?: string;
+    readonly id?: string;
+    readonly 'aria-label'?: string;
+}
+interface CalendarSingleProps extends CalendarBaseProps {
+    readonly mode?: 'single';
     readonly value?: Date | null;
     readonly onChange?: (date: Date) => void;
-    readonly minDate?: Date;
-    readonly maxDate?: Date;
+}
+interface CalendarRangeProps extends CalendarBaseProps {
+    readonly mode: 'range';
+    readonly value?: DateRange | null;
+    readonly onChange?: (range: DateRange) => void;
+}
+type CalendarProps = CalendarSingleProps | CalendarRangeProps;
+declare function Calendar(props: CalendarProps): React.ReactElement;
+
+interface MediaCalendarEntry {
+    readonly src: string;
+    readonly alt?: string;
+}
+interface MediaCalendarProps {
+    /** Keyed by local `YYYY-MM-DD`. Days without an entry render an empty ring. */
+    readonly entries: Readonly<Record<string, MediaCalendarEntry>>;
+    readonly value?: Date | null;
+    readonly onChange?: (date: Date, entry: MediaCalendarEntry | null) => void;
+    readonly month?: Date | null;
+    readonly defaultMonth?: Date | null;
+    readonly onMonthChange?: (month: Date) => void;
+    readonly minDate?: Date | null;
+    readonly maxDate?: Date | null;
+    readonly weekStartsOn?: WeekStart;
+    /**
+     * Leading/trailing days from the adjacent months, dimmed to 20%. On by
+     * default, as in the picker — a photo grid with holes at either end reads as
+     * missing data rather than as the edge of the month.
+     */
+    readonly showOutsideDays?: boolean;
+    readonly showTodayButton?: boolean;
+    /** Defaults to Calendar's abbreviation; pass `long` for an editorial header. */
+    readonly monthLabelFormat?: MonthLabelFormat;
     readonly disabled?: boolean;
     readonly className?: string;
+    readonly 'aria-label'?: string;
 }
-declare function CalendarPicker({ value, onChange, minDate, maxDate, disabled, className, }: CalendarPickerProps): React.ReactElement;
+/**
+ * Photo-grid calendar: each day is a circular thumbnail when an entry exists
+ * and a dashed ring when it doesn't. Hovering a filled day fades the image out
+ * to reveal the day number; empty days show their number at rest.
+ *
+ * Built on Calendar's renderDay slot, so keyboard navigation, range/selection
+ * semantics and month/year drill-down are identical to the picker.
+ */
+declare function MediaCalendar({ entries, value, onChange, month, defaultMonth, onMonthChange, minDate, maxDate, weekStartsOn, showOutsideDays, showTodayButton, monthLabelFormat, disabled, className, 'aria-label': ariaLabel, }: MediaCalendarProps): React.ReactElement;
 
-interface DateInputProps {
+type NativeFieldProps = Omit<React.ComponentPropsWithoutRef<'input'>, 'value' | 'defaultValue' | 'onChange' | 'type' | 'role'>;
+interface DateInputProps extends NativeFieldProps {
     readonly value?: Date | null;
     readonly onChange?: (date: Date | null) => void;
-    readonly placeholder?: string;
     readonly hasError?: boolean;
-    readonly disabled?: boolean;
-    readonly minDate?: Date;
-    readonly maxDate?: Date;
-    readonly className?: string;
+    /**
+     * Float-label variant, identical to Input: the string starts inside the
+     * field as placeholder text and floats above on focus or when filled.
+     */
+    readonly floatLabel?: string;
+    /** Strips the bottom underline for use inside an already-bounded surface. */
+    readonly borderless?: boolean;
+    readonly minDate?: Date | null;
+    readonly maxDate?: Date | null;
+    readonly weekStartsOn?: WeekStart;
+    readonly calendarSize?: CalendarSize;
 }
-declare function DateInput({ value, onChange, placeholder, hasError, disabled, minDate, maxDate, className, }: DateInputProps): React.ReactElement;
+/**
+ * Text field in DD MMM YYYY format with a popover Calendar. The field owns the
+ * value; the calendar is a secondary way in. Down arrow (or the trailing
+ * button) opens the popover and moves focus into the grid; Escape closes it and
+ * returns focus to the field.
+ *
+ * Sizing follows the same rule as Input: the control scales off its own
+ * font-size, so `style={{ fontSize: '1.5rem' }}` on the component takes the
+ * text, the trailing icon and the reserved gutter with it.
+ */
+declare const DateInput: react.ForwardRefExoticComponent<DateInputProps & react.RefAttributes<HTMLInputElement>>;
 
 interface SearchOption {
     readonly value: string;
@@ -1602,10 +1802,25 @@ declare function RouteAttribute(): null;
 interface CursorRef {
     readonly el: HTMLDivElement | null;
     readonly label: HTMLSpanElement | null;
+    /** Layer that carries the hovered element's image in the preview state. */
+    readonly preview: HTMLDivElement | null;
 }
 declare function useCursor(cursorRef: React.RefObject<CursorRef>): void;
 
 declare function useGravity(ref: React.RefObject<HTMLElement | null>): void;
+/**
+ * Gravity for a set of sibling cells sharing one container — a calendar grid,
+ * for instance. A single delegated listener drives whichever cell the cursor
+ * is over, instead of every cell registering its own document listener.
+ *
+ * Returns a ref callback rather than taking a ref object: the container is
+ * often a node that comes and goes (the calendar swaps day grid for month
+ * tiles for year tiles), and an effect reading `ref.current` binds once to
+ * whichever node happened to be mounted first, then never rebinds. React 19
+ * runs the cleanup returned here on every detach, so the listeners follow the
+ * element instead of the first render.
+ */
+declare function useGravityWithin(selector: string): (node: HTMLElement | null) => void;
 
 type Theme = 'light' | 'dark';
 declare function useTheme(): readonly [Theme, () => void];
@@ -1632,6 +1847,55 @@ interface UseScrollBendOptions {
  */
 declare function useScrollBend(containerRef: React.RefObject<HTMLDivElement | null>, canvasRef: React.RefObject<HTMLCanvasElement | null>, mediaRef: React.RefObject<HTMLImageElement | HTMLVideoElement | null>, options?: UseScrollBendOptions): void;
 
+/**
+ * Today, at local midnight, re-read when the day turns.
+ *
+ * A component that reads `new Date()` during render keeps whatever value it saw
+ * on its first render for as long as it lives, so a calendar left open
+ * overnight goes on insisting it is yesterday. Subscribing instead means the
+ * marker moves at midnight, and every calendar on the page moves together off
+ * one timer.
+ */
+declare function useToday(): Date;
+
 declare function cn(...inputs: readonly ClassValue[]): string;
 
-export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, type AlertVariant, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, BackToTop, Badge, type BadgeVariant, type BodyVariant, Button, ButtonGroup, COMPONENT_CATEGORIES, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandDialog, CommandEmpty, CommandGroup, CommandHeader, CommandInput, CommandItem, CommandList, CommandPalette, CommandPaletteHost, type ComponentCategory, ConfirmDialog, type ConfirmDialogIntent, ContentCard, Cursor, type CursorRef, DateInput, Dialog, DialogCard, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogPanel, DialogTitle, DialogTitleRow, DialogTrigger, type DialogVariant, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, type DropdownMenuItemVariant, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, type EditableColumn, EditableTable, FONT_WEIGHT_TOKENS, FileChip, type FileChipProps, FileDropzone, type FileDropzoneProps, Footer, Grid, GridTile, GridTileAction, HEADING_VARIANTS, type HeadingVariant, ICONS, ICONS_BY_ID, Icon, type IconProps, type IconRecord, type IconSize, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, type LinkSize, MainWrapper, NAV_ITEMS, Nav, type NavItem, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, type OpacityLevel, PADDING_TOKENS, PageWrapper, PlainLink, Popover, PopoverContent, PopoverTrigger, Progress, type ProgressSize, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, Scrim, type ScrimBlur, ScrollBendMedia, type ScrollBendMediaProps, SearchButton, SearchDropdown, type SearchOption, SectionTile, Select, type SemanticColor, Sheet, SheetContent, SheetFooter, SheetHeader, type SheetSide, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, type SubheadingVariant, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, type TooltipSide, type TypeVariant, type UseScrollBendOptions, cn, componentLabel, formatFileSize, useCursor, useGravity, useScrollBend, useTheme, useThemeContext };
+/**
+ * Date helpers shared by the calendar components. All operations are
+ * local-time and day-granular — the calendar never reasons about hours.
+ */
+declare function startOfDay(date: Date): Date;
+declare function isSameDay(a: Date, b: Date): boolean;
+declare function isSameMonth(a: Date, b: Date): boolean;
+declare function addDays(date: Date, amount: number): Date;
+declare function addMonths(date: Date, amount: number): Date;
+declare function addYears(date: Date, amount: number): Date;
+declare function isBeforeDay(a: Date, b: Date): boolean;
+declare function isAfterDay(a: Date, b: Date): boolean;
+declare function isWithinDays(date: Date, from: Date, to: Date): boolean;
+declare function clampDate(date: Date, min: Date | null, max: Date | null): Date;
+/** Stable local `YYYY-MM-DD` key — safe for lookup maps (no UTC shift). */
+declare function toDateKey(date: Date): string;
+/** Month labels shared by the date fields, the tiles and the text parser. */
+declare const MONTH_LABELS_SHORT: readonly ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+/** The one text format the calendar reads and writes: `DD MMM YYYY`. */
+declare function formatDateShort(date: Date): string;
+/**
+ * Parses typed input against three explicit grammars: `DD MMM YYYY` (canonical),
+ * day-first numeric (`24/07/2026`, `24-7-2026`, `24.07.2026`) since the DS is
+ * en-GB, and ISO `YYYY-MM-DD` so a date key round-trips. Null = unusable.
+ *
+ * Deliberately no fall-through to `new Date(string)`. The native parser is
+ * implementation-defined for anything but ISO, reads a bare `YYYY-MM-DD` as UTC
+ * midnight — which lands on the previous day for every user west of the meridian
+ * — and rolls overflow forward, so `2026-02-31` would come back as 2 March. A
+ * parser that quietly returns the wrong day is worse than one that returns null.
+ */
+declare function parseDateInput(raw: string): Date | null;
+/**
+ * Parses a `YYYY-MM-DD` key back to a local date. Returns null if malformed or
+ * if the date doesn't exist, so the round-trip with toDateKey is total.
+ */
+declare function fromDateKey(key: string): Date | null;
+
+export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, type AlertVariant, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, BackToTop, Badge, type BadgeVariant, type BodyVariant, Button, ButtonGroup, COMPONENT_CATEGORIES, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, Calendar, type CalendarDay, type CalendarDayContext, type CalendarMode, type CalendarMonthCell, Calendar as CalendarPicker, type CalendarProps, type CalendarSize, type CalendarView, type CalendarYearCell, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandDialog, CommandEmpty, CommandGroup, CommandHeader, CommandInput, CommandItem, CommandList, CommandPalette, CommandPaletteHost, type ComponentCategory, ConfirmDialog, type ConfirmDialogIntent, ContentCard, Cursor, type CursorRef, DateInput, type DateInputProps, type DateRange, Dialog, DialogCard, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogPanel, DialogTitle, DialogTitleRow, DialogTrigger, type DialogVariant, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, type DropdownMenuItemVariant, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, type EditableColumn, EditableTable, FONT_WEIGHT_TOKENS, FileChip, type FileChipProps, FileDropzone, type FileDropzoneProps, Footer, Grid, GridTile, GridTileAction, HEADING_VARIANTS, type HeadingVariant, ICONS, ICONS_BY_ID, Icon, type IconProps, type IconRecord, type IconSize, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, type LinkSize, MONTH_LABELS_SHORT, MainWrapper, MediaCalendar, type MediaCalendarEntry, type MediaCalendarProps, type MonthLabelFormat, NAV_ITEMS, Nav, type NavItem, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, type OpacityLevel, PADDING_TOKENS, PageWrapper, PlainLink, Popover, PopoverContent, PopoverTrigger, Progress, type ProgressSize, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, Scrim, type ScrimBlur, ScrollBendMedia, type ScrollBendMediaProps, SearchButton, SearchDropdown, type SearchOption, SectionTile, Select, type SemanticColor, Sheet, SheetContent, SheetFooter, SheetHeader, type SheetSide, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, type SubheadingVariant, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, type TooltipSide, type TypeVariant, type UseCalendarOptions, type UseCalendarResult, type UseScrollBendOptions, type WeekStart, addDays, addMonths, addYears, clampDate, cn, componentLabel, formatDateShort, formatFileSize, fromDateKey, isAfterDay, isBeforeDay, isSameDay, isSameMonth, isWithinDays, parseDateInput, startOfDay, toDateKey, useCalendar, useCursor, useGravity, useGravityWithin, useScrollBend, useTheme, useThemeContext, useToday };

@@ -14,7 +14,7 @@ export default function CursorPage(): React.ReactElement {
         <StickyCol>
           <CatalogueIntro
             title="Cursor"
-            description="Single inverted dot. 1.25em. mix-blend-mode: difference. Lerp 0.22. Morphs to I-beam / button footprint / expand chip."
+            description="Single inverted dot. 1.25em. mix-blend-mode: difference. Lerp 0.22. Morphs to I-beam / button footprint / expand chip / image preview."
           />
         </StickyCol>
         <div>
@@ -42,9 +42,18 @@ export default function CursorPage(): React.ReactElement {
               >
                 <Text variant="body-md" opacity={40} as="p">Hover — chip</Text>
               </div>
+              <div
+                style={{ padding: 'var(--space-8)', backgroundColor: 'var(--color-fill-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                data-cursor-preview="/home/gallery-colour-light.jpg"
+              >
+                <Text variant="body-md" opacity={40} as="p">Hover — image preview</Text>
+              </div>
             </div>
             <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-6)' }}>
               Chip label: 12px GT America regular, sentence case, <code>--tracking-n005</code>. Never uppercase. The chip stands at <code>2em</code> tall with <code>0.75em</code> horizontal padding so the label can breathe.
+            </Text>
+            <Text variant="body-md" opacity={40} as="p" style={{ marginTop: 'var(--space-4)' }}>
+              <code>data-cursor-preview=&quot;/path.jpg&quot;</code> swells the dot into a <code>7.5rem</code> circular preview of that image — override with <code>--cursor-preview-size</code>. The difference blend comes off in this state so the photograph reads true. Used by MediaCalendar, where the thumbnail fades out as the cursor picks it up.
             </Text>
           </div>
           <Divider />

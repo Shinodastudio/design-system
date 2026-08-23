@@ -11,6 +11,8 @@ const TEXT_TAGS = new Set([
 export interface CursorRef {
   readonly el: HTMLDivElement | null;
   readonly label: HTMLSpanElement | null;
+  /** Layer that carries the hovered element's image in the preview state. */
+  readonly preview: HTMLDivElement | null;
 }
 
 export function useCursor(cursorRef: React.RefObject<CursorRef>): void {
@@ -61,11 +63,14 @@ export function useCursor(cursorRef: React.RefObject<CursorRef>): void {
 
     function clearContext() {
       hiddenByContext.current = false;
-      html.classList.remove('cursor--text', 'cursor--chip', 'cursor--active');
+      html.classList.remove('cursor--text', 'cursor--chip', 'cursor--preview', 'cursor--active');
       cursorRef.current?.el?.style.removeProperty('--cursor-btn-w');
       cursorRef.current?.el?.style.removeProperty('--cursor-btn-h');
       const label = cursorRef.current?.label;
       if (label) label.textContent = '';
+      // Drop the property rather than blanking it: an empty url() re-requests
+      // the current document.
+      cursorRef.current?.preview?.style.removeProperty('background-image');
     }
 
     function setContext(el: Element | null) {
@@ -74,6 +79,27 @@ export function useCursor(cursorRef: React.RefObject<CursorRef>): void {
 
       const tag  = el.tagName.toLowerCase();
       const role = el.getAttribute('role');
+
+      // Image preview — the cursor swells into the hovered thumbnail. Checked
+      // first: the elements that want it (media calendar cells) are buttons
+      // carrying data-cursor="dot", both of which return early below.
+      const previewHost = (el as HTMLElement).closest<HTMLElement>('[data-cursor-preview]');
+      const previewSrc = previewHost?.dataset['cursorPreview'] ?? '';
+      // A quote would break out of the url() literal, so those sources are
+      // simply not eligible for the preview.
+      if (previewSrc !== '' && !previewSrc.includes('"')) {
+        html.classList.add('cursor--preview');
+        const preview = cursorRef.current?.preview;
+        if (preview) preview.style.backgroundImage = `url("${previewSrc}")`;
+        return;
+      }
+
+      // Explicit opt-in to the plain dot, checked before the button rule below.
+      // Dense grids of small buttons — calendar day cells, month/year tiles —
+      // would otherwise flicker the cursor out of existence on every hover;
+      // there the dot plus per-cell gravity reads far better than 42 separate
+      // button footprints.
+      if ((el as HTMLElement).closest('[data-cursor="dot"]') != null) return;
 
       // Buttons and slider controls: hide custom cursor. Also honour an explicit
       // data-cursor="btn" on the element or a nearest ancestor — used by controls

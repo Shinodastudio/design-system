@@ -2,7 +2,7 @@
  * AUTO-GENERATED — do not edit by hand.
  * Source: /src/app/components/<slug>/page.tsx (<ComponentSection name="..."> usages)
  * Run `bun run search-index:generate` to refresh.
- * 48 sections across 10 pages.
+ * 50 sections across 10 pages.
  */
 
 export interface SearchIndexEntry {
@@ -20,8 +20,10 @@ export const SEARCH_INDEX: readonly SearchIndexEntry[] = [
   { label: "Link button (asChild)", pageLabel: "Button", pageHref: "/components/button", anchorId: "link-button-aschild", href: "/components/button#link-button-aschild" },
   { label: "Icon only", pageLabel: "Button", pageHref: "/components/button", anchorId: "icon-only", href: "/components/button#icon-only" },
   { label: "ButtonGroup", pageLabel: "Button", pageHref: "/components/button", anchorId: "buttongroup", href: "/components/button#buttongroup" },
-  { label: "CalendarPicker", pageLabel: "Calendar", pageHref: "/components/calendar", anchorId: "calendarpicker", href: "/components/calendar#calendarpicker" },
-  { label: "CalendarPicker with bounds", pageLabel: "Calendar", pageHref: "/components/calendar", anchorId: "calendarpicker-with-bounds", href: "/components/calendar#calendarpicker-with-bounds" },
+  { label: "Calendar", pageLabel: "Calendar", pageHref: "/components/calendar", anchorId: "calendar", href: "/components/calendar#calendar" },
+  { label: "Calendar — range", pageLabel: "Calendar", pageHref: "/components/calendar", anchorId: "calendar-range", href: "/components/calendar#calendar-range" },
+  { label: "Calendar — bounds", pageLabel: "Calendar", pageHref: "/components/calendar", anchorId: "calendar-bounds", href: "/components/calendar#calendar-bounds" },
+  { label: "MediaCalendar", pageLabel: "Calendar", pageHref: "/components/calendar", anchorId: "mediacalendar", href: "/components/calendar#mediacalendar" },
   { label: "DateInput", pageLabel: "Calendar", pageHref: "/components/calendar", anchorId: "dateinput", href: "/components/calendar#dateinput" },
   { label: "DateInput — error state", pageLabel: "Calendar", pageHref: "/components/calendar", anchorId: "dateinput-error-state", href: "/components/calendar#dateinput-error-state" },
   { label: "GridTile", pageLabel: "Card", pageHref: "/components/card", anchorId: "gridtile", href: "/components/card#gridtile" },

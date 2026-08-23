@@ -1,7 +1,7 @@
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
-import { createContext, forwardRef, useRef, useId, useCallback, useState, useLayoutEffect, useEffect, useContext, cloneElement, Fragment as Fragment$1 } from 'react';
+import { createContext, forwardRef, useRef, useId, useCallback, useState, useEffect, useLayoutEffect, useMemo, useContext, cloneElement, useSyncExternalStore, Fragment as Fragment$1 } from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import ReactDOM, { createPortal } from 'react-dom';
 import NextLink from 'next/link';
@@ -103,6 +103,54 @@ function useGravity(ref) {
     document.addEventListener("mousemove", onMove);
     return () => document.removeEventListener("mousemove", onMove);
   }, [ref]);
+}
+var CELL_GRAVITY_STRENGTH = 0.14;
+var CELL_GRAVITY_MAX = 3;
+function clampCellGravity(v) {
+  return Math.max(-CELL_GRAVITY_MAX, Math.min(CELL_GRAVITY_MAX, v));
+}
+function useGravityWithin(selector) {
+  return useCallback((container) => {
+    if (container == null) return;
+    let active = null;
+    function reset(el) {
+      if (el == null) return;
+      el.style.setProperty("--gravity-x", "0px");
+      el.style.setProperty("--gravity-y", "0px");
+    }
+    function onMove(e) {
+      var _a;
+      const target = e.target;
+      const cell = (_a = target == null ? void 0 : target.closest(selector)) != null ? _a : null;
+      if (cell !== active) {
+        reset(active);
+        active = cell;
+      }
+      if (cell == null) return;
+      const rect = cell.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      cell.style.setProperty(
+        "--gravity-x",
+        `${clampCellGravity((e.clientX - cx) * CELL_GRAVITY_STRENGTH)}px`
+      );
+      cell.style.setProperty(
+        "--gravity-y",
+        `${clampCellGravity((e.clientY - cy) * CELL_GRAVITY_STRENGTH)}px`
+      );
+    }
+    function onLeave() {
+      reset(active);
+      active = null;
+    }
+    container.addEventListener("mousemove", onMove);
+    container.addEventListener("mouseleave", onLeave);
+    return () => {
+      container.removeEventListener("mousemove", onMove);
+      container.removeEventListener("mouseleave", onLeave);
+      reset(active);
+    };
+  }, [selector]);
 }
 
 // src/components/primitives/Button.constants.ts
@@ -3184,36 +3232,46 @@ function useCursor(cursorRef) {
       if (!hiddenByContext.current) (_b2 = (_a2 = cursorRef.current) == null ? void 0 : _a2.el) == null ? void 0 : _b2.classList.remove("is-hidden");
     }
     function clearContext() {
-      var _a2, _b2, _c, _d, _e;
+      var _a2, _b2, _c, _d, _e, _f, _g;
       hiddenByContext.current = false;
-      html.classList.remove("cursor--text", "cursor--chip", "cursor--active");
+      html.classList.remove("cursor--text", "cursor--chip", "cursor--preview", "cursor--active");
       (_b2 = (_a2 = cursorRef.current) == null ? void 0 : _a2.el) == null ? void 0 : _b2.style.removeProperty("--cursor-btn-w");
       (_d = (_c = cursorRef.current) == null ? void 0 : _c.el) == null ? void 0 : _d.style.removeProperty("--cursor-btn-h");
       const label = (_e = cursorRef.current) == null ? void 0 : _e.label;
       if (label) label.textContent = "";
+      (_g = (_f = cursorRef.current) == null ? void 0 : _f.preview) == null ? void 0 : _g.style.removeProperty("background-image");
     }
     function setContext(el) {
-      var _a2, _b2, _c, _d, _e, _f, _g, _h, _i;
+      var _a2, _b2, _c, _d, _e, _f, _g, _h, _i, _j, _k;
       clearContext();
       if (!el || el === document.body || el === html) return;
       const tag = el.tagName.toLowerCase();
       const role = el.getAttribute("role");
-      const btnAncestor = el.closest('[data-cursor="btn"]');
-      if (tag === "button" || role === "button" || role === "slider" || el.classList.contains("btn") || btnAncestor) {
-        hiddenByContext.current = true;
-        (_b2 = (_a2 = cursorRef.current) == null ? void 0 : _a2.el) == null ? void 0 : _b2.classList.add("is-hidden");
+      const previewHost = el.closest("[data-cursor-preview]");
+      const previewSrc = (_a2 = previewHost == null ? void 0 : previewHost.dataset["cursorPreview"]) != null ? _a2 : "";
+      if (previewSrc !== "" && !previewSrc.includes('"')) {
+        html.classList.add("cursor--preview");
+        const preview = (_b2 = cursorRef.current) == null ? void 0 : _b2.preview;
+        if (preview) preview.style.backgroundImage = `url("${previewSrc}")`;
         return;
       }
-      if (tag === "a" || el.classList.contains("link")) {
+      if (el.closest('[data-cursor="dot"]') != null) return;
+      const btnAncestor = el.closest('[data-cursor="btn"]');
+      if (tag === "button" || role === "button" || role === "slider" || el.classList.contains("btn") || btnAncestor) {
         hiddenByContext.current = true;
         (_d = (_c = cursorRef.current) == null ? void 0 : _c.el) == null ? void 0 : _d.classList.add("is-hidden");
         return;
       }
-      const inputType = (_e = el.type) != null ? _e : "";
+      if (tag === "a" || el.classList.contains("link")) {
+        hiddenByContext.current = true;
+        (_f = (_e = cursorRef.current) == null ? void 0 : _e.el) == null ? void 0 : _f.classList.add("is-hidden");
+        return;
+      }
+      const inputType = (_g = el.type) != null ? _g : "";
       const isTextInput = tag === "input" && inputType !== "checkbox" && inputType !== "radio" || tag === "textarea" || tag === "select";
       if (isTextInput) {
         hiddenByContext.current = true;
-        (_g = (_f = cursorRef.current) == null ? void 0 : _f.el) == null ? void 0 : _g.classList.add("is-hidden");
+        (_i = (_h = cursorRef.current) == null ? void 0 : _h.el) == null ? void 0 : _i.classList.add("is-hidden");
         return;
       }
       if (el.dataset["cursor"] === "none") {
@@ -3221,8 +3279,8 @@ function useCursor(cursorRef) {
       }
       if (tag === "img" || tag === "figure" || el.dataset["cursor"] === "expand") {
         html.classList.add("cursor--chip");
-        const label = (_h = cursorRef.current) == null ? void 0 : _h.label;
-        if (label) label.textContent = (_i = el.dataset["cursorLabel"]) != null ? _i : "expand";
+        const label = (_j = cursorRef.current) == null ? void 0 : _j.label;
+        if (label) label.textContent = (_k = el.dataset["cursorLabel"]) != null ? _k : "expand";
         return;
       }
       if (TEXT_TAGS.has(tag) || el.isContentEditable) {
@@ -3290,6 +3348,7 @@ function subscribeDialogStack(listener) {
 function Cursor() {
   const elRef = useRef(null);
   const labelRef = useRef(null);
+  const previewRef = useRef(null);
   const [dialogHost, setDialogHost] = useState(null);
   const cursorRef = useRef({
     get el() {
@@ -3297,11 +3356,17 @@ function Cursor() {
     },
     get label() {
       return labelRef.current;
+    },
+    get preview() {
+      return previewRef.current;
     }
   });
   useCursor(cursorRef);
   useEffect(() => subscribeDialogStack(setDialogHost), []);
-  const cursor = /* @__PURE__ */ jsx("div", { ref: elRef, className: "cursor is-hidden", "aria-hidden": "true", children: /* @__PURE__ */ jsx("span", { ref: labelRef, className: "cursor-label" }) });
+  const cursor = /* @__PURE__ */ jsxs("div", { ref: elRef, className: "cursor is-hidden", "aria-hidden": "true", children: [
+    /* @__PURE__ */ jsx("div", { ref: previewRef, className: "cursor-preview" }),
+    /* @__PURE__ */ jsx("span", { ref: labelRef, className: "cursor-label" })
+  ] });
   return dialogHost != null ? createPortal(cursor, dialogHost) : cursor;
 }
 function resolveTheme() {
@@ -3621,6 +3686,10 @@ function CommandItem({
 
 // src/components/nav/navItems.ts
 var NAV_ITEMS = [
+  // Home leads the list because the nav wordmark that used to link to "/" has
+  // been removed — the palette and the mobile footer list are now the only
+  // routes back to the homepage.
+  { label: "Home", href: "/" },
   { label: "Colour", href: "/colour" },
   { label: "Type", href: "/type" },
   { label: "Icons", href: "/icons" },
@@ -3644,17 +3713,22 @@ var COMPONENT_CATEGORIES = [
 function componentLabel(slug) {
   return slug.charAt(0).toUpperCase() + slug.slice(1);
 }
+var BREADCRUMB_ROOT = { label: "Design System", href: "/" };
 function getBreadcrumbSegments(pathname) {
   var _a, _b;
-  if (pathname === "/") return ["Home"];
+  if (pathname === "/") return [BREADCRUMB_ROOT];
   const navMatch = NAV_ITEMS.find((item) => item.href === pathname);
-  if (navMatch != null) return [navMatch.label];
+  if (navMatch != null) return [BREADCRUMB_ROOT, { label: navMatch.label, href: navMatch.href }];
   if (pathname.startsWith("/components/")) {
     const slug = (_a = pathname.split("/")[2]) != null ? _a : "";
-    return ["Components", componentLabel(slug)];
+    return [
+      BREADCRUMB_ROOT,
+      { label: "Components", href: "/components" },
+      { label: componentLabel(slug), href: `/components/${slug}` }
+    ];
   }
   const lastSegment = (_b = pathname.split("/").filter(Boolean).pop()) != null ? _b : "";
-  return [componentLabel(lastSegment)];
+  return [BREADCRUMB_ROOT, { label: componentLabel(lastSegment), href: pathname }];
 }
 
 // src/components/nav/data/searchIndex.generated.ts
@@ -3665,8 +3739,10 @@ var SEARCH_INDEX = [
   { label: "Link button (asChild)", pageLabel: "Button", pageHref: "/components/button", anchorId: "link-button-aschild", href: "/components/button#link-button-aschild" },
   { label: "Icon only", pageLabel: "Button", pageHref: "/components/button", anchorId: "icon-only", href: "/components/button#icon-only" },
   { label: "ButtonGroup", pageLabel: "Button", pageHref: "/components/button", anchorId: "buttongroup", href: "/components/button#buttongroup" },
-  { label: "CalendarPicker", pageLabel: "Calendar", pageHref: "/components/calendar", anchorId: "calendarpicker", href: "/components/calendar#calendarpicker" },
-  { label: "CalendarPicker with bounds", pageLabel: "Calendar", pageHref: "/components/calendar", anchorId: "calendarpicker-with-bounds", href: "/components/calendar#calendarpicker-with-bounds" },
+  { label: "Calendar", pageLabel: "Calendar", pageHref: "/components/calendar", anchorId: "calendar", href: "/components/calendar#calendar" },
+  { label: "Calendar \u2014 range", pageLabel: "Calendar", pageHref: "/components/calendar", anchorId: "calendar-range", href: "/components/calendar#calendar-range" },
+  { label: "Calendar \u2014 bounds", pageLabel: "Calendar", pageHref: "/components/calendar", anchorId: "calendar-bounds", href: "/components/calendar#calendar-bounds" },
+  { label: "MediaCalendar", pageLabel: "Calendar", pageHref: "/components/calendar", anchorId: "mediacalendar", href: "/components/calendar#mediacalendar" },
   { label: "DateInput", pageLabel: "Calendar", pageHref: "/components/calendar", anchorId: "dateinput", href: "/components/calendar#dateinput" },
   { label: "DateInput \u2014 error state", pageLabel: "Calendar", pageHref: "/components/calendar", anchorId: "dateinput-error-state", href: "/components/calendar#dateinput-error-state" },
   { label: "GridTile", pageLabel: "Card", pageHref: "/components/card", anchorId: "gridtile", href: "/components/card#gridtile" },
@@ -3875,30 +3951,12 @@ function ClientShell({ children }) {
     /* @__PURE__ */ jsx(CommandPaletteHost, {})
   ] }) });
 }
-function SunIcon() {
-  return /* @__PURE__ */ jsx("svg", { width: "18", height: "18", viewBox: "0 0 32 32", fill: "none", xmlns: "http://www.w3.org/2000/svg", "aria-hidden": "true", children: /* @__PURE__ */ jsx("path", { d: "M15 5V2C15 1.73478 15.1054 1.48043 15.2929 1.29289C15.4804 1.10536 15.7348 1 16 1C16.2652 1 16.5196 1.10536 16.7071 1.29289C16.8946 1.48043 17 1.73478 17 2V5C17 5.26522 16.8946 5.51957 16.7071 5.70711C16.5196 5.89464 16.2652 6 16 6C15.7348 6 15.4804 5.89464 15.2929 5.70711C15.1054 5.51957 15 5.26522 15 5ZM16 8C14.4177 8 12.871 8.46919 11.5554 9.34824C10.2398 10.2273 9.21447 11.4767 8.60896 12.9385C8.00346 14.4003 7.84504 16.0089 8.15372 17.5607C8.4624 19.1126 9.22433 20.538 10.3431 21.6569C11.462 22.7757 12.8874 23.5376 14.4393 23.8463C15.9911 24.155 17.5997 23.9965 19.0615 23.391C20.5233 22.7855 21.7727 21.7602 22.6518 20.4446C23.5308 19.129 24 17.5823 24 16C23.9977 13.879 23.1541 11.8455 21.6543 10.3457C20.1545 8.84591 18.121 8.00232 16 8ZM7.2925 8.7075C7.48014 8.89514 7.73464 9.00056 8 9.00056C8.26536 9.00056 8.51986 8.89514 8.7075 8.7075C8.89514 8.51986 9.00056 8.26536 9.00056 8C9.00056 7.73464 8.89514 7.48014 8.7075 7.2925L6.7075 5.2925C6.51986 5.10486 6.26536 4.99944 6 4.99944C5.73464 4.99944 5.48014 5.10486 5.2925 5.2925C5.10486 5.48014 4.99944 5.73464 4.99944 6C4.99944 6.26536 5.10486 6.51986 5.2925 6.7075L7.2925 8.7075ZM7.2925 23.2925L5.2925 25.2925C5.10486 25.4801 4.99944 25.7346 4.99944 26C4.99944 26.2654 5.10486 26.5199 5.2925 26.7075C5.48014 26.8951 5.73464 27.0006 6 27.0006C6.26536 27.0006 6.51986 26.8951 6.7075 26.7075L8.7075 24.7075C8.80041 24.6146 8.87411 24.5043 8.92439 24.3829C8.97468 24.2615 9.00056 24.1314 9.00056 24C9.00056 23.8686 8.97468 23.7385 8.92439 23.6171C8.87411 23.4957 8.80041 23.3854 8.7075 23.2925C8.61459 23.1996 8.50429 23.1259 8.3829 23.0756C8.2615 23.0253 8.13139 22.9994 8 22.9994C7.86861 22.9994 7.7385 23.0253 7.6171 23.0756C7.49571 23.1259 7.38541 23.1996 7.2925 23.2925ZM24 9C24.1314 9.0001 24.2615 8.97432 24.3829 8.92414C24.5042 8.87395 24.6146 8.80033 24.7075 8.7075L26.7075 6.7075C26.8951 6.51986 27.0006 6.26536 27.0006 6C27.0006 5.73464 26.8951 5.48014 26.7075 5.2925C26.5199 5.10486 26.2654 4.99944 26 4.99944C25.7346 4.99944 25.4801 5.10486 25.2925 5.2925L23.2925 7.2925C23.1525 7.43236 23.0571 7.61061 23.0185 7.80469C22.9798 7.99878 22.9996 8.19997 23.0754 8.38279C23.1511 8.56561 23.2794 8.72185 23.444 8.83172C23.6086 8.94159 23.8021 9.00016 24 9ZM24.7075 23.2925C24.5199 23.1049 24.2654 22.9994 24 22.9994C23.7346 22.9994 23.4801 23.1049 23.2925 23.2925C23.1049 23.4801 22.9994 23.7346 22.9994 24C22.9994 24.2654 23.1049 24.5199 23.2925 24.7075L25.2925 26.7075C25.3854 26.8004 25.4957 26.8741 25.6171 26.9244C25.7385 26.9747 25.8686 27.0006 26 27.0006C26.1314 27.0006 26.2615 26.9747 26.3829 26.9244C26.5043 26.8741 26.6146 26.8004 26.7075 26.7075C26.8004 26.6146 26.8741 26.5043 26.9244 26.3829C26.9747 26.2615 27.0006 26.1314 27.0006 26C27.0006 25.8686 26.9747 25.7385 26.9244 25.6171C26.8741 25.4957 26.8004 25.3854 26.7075 25.2925L24.7075 23.2925ZM6 16C6 15.7348 5.89464 15.4804 5.70711 15.2929C5.51957 15.1054 5.26522 15 5 15H2C1.73478 15 1.48043 15.1054 1.29289 15.2929C1.10536 15.4804 1 15.7348 1 16C1 16.2652 1.10536 16.5196 1.29289 16.7071C1.48043 16.8946 1.73478 17 2 17H5C5.26522 17 5.51957 16.8946 5.70711 16.7071C5.89464 16.5196 6 16.2652 6 16ZM16 26C15.7348 26 15.4804 26.1054 15.2929 26.2929C15.1054 26.4804 15 26.7348 15 27V30C15 30.2652 15.1054 30.5196 15.2929 30.7071C15.4804 30.8946 15.7348 31 16 31C16.2652 31 16.5196 30.8946 16.7071 30.7071C16.8946 30.5196 17 30.2652 17 30V27C17 26.7348 16.8946 26.4804 16.7071 26.2929C16.5196 26.1054 16.2652 26 16 26ZM30 15H27C26.7348 15 26.4804 15.1054 26.2929 15.2929C26.1054 15.4804 26 15.7348 26 16C26 16.2652 26.1054 16.5196 26.2929 16.7071C26.4804 16.8946 26.7348 17 27 17H30C30.2652 17 30.5196 16.8946 30.7071 16.7071C30.8946 16.5196 31 16.2652 31 16C31 15.7348 30.8946 15.4804 30.7071 15.2929C30.5196 15.1054 30.2652 15 30 15Z", fill: "currentColor" }) });
-}
-function MoonIcon() {
-  return /* @__PURE__ */ jsx("svg", { width: "18", height: "18", viewBox: "0 0 32 32", fill: "none", xmlns: "http://www.w3.org/2000/svg", "aria-hidden": "true", children: /* @__PURE__ */ jsx("path", { d: "M29.4426 18.7762C28.635 21.4124 27.0166 23.7267 24.8176 25.3899C22.8869 26.843 20.5895 27.7292 18.1831 27.9491C15.7767 28.169 13.3567 27.7139 11.1947 26.6348C9.03261 25.5557 7.2141 23.8954 5.94324 21.8402C4.67238 19.785 3.99948 17.4163 4.00006 14.9999C3.99137 12.1795 4.90826 9.43408 6.61006 7.18491C8.27323 4.9859 10.5876 3.36746 13.2238 2.55991C13.3976 2.50641 13.5826 2.50128 13.759 2.54509C13.9355 2.58889 14.0966 2.67997 14.2252 2.80852C14.3537 2.93707 14.4448 3.09823 14.4886 3.27467C14.5324 3.45111 14.5273 3.63616 14.4738 3.80991C13.8974 5.71669 13.849 7.74415 14.334 9.67624C14.8189 11.6083 15.8189 13.3727 17.2275 14.7812C18.6361 16.1898 20.4004 17.1898 22.3325 17.6748C24.2646 18.1597 26.292 18.1114 28.1988 17.5349C28.3726 17.4814 28.5576 17.4763 28.734 17.5201C28.9105 17.5639 29.0716 17.655 29.2002 17.7835C29.3287 17.9121 29.4198 18.0732 29.4636 18.2497C29.5074 18.4261 29.5023 18.6112 29.4488 18.7849L29.4426 18.7762Z", fill: "currentColor" }) });
-}
-function ThemeToggle() {
-  const { theme, toggleTheme } = useThemeContext();
-  return /* @__PURE__ */ jsx(
-    Button,
-    {
-      className: "btn-icon op-40",
-      onClick: toggleTheme,
-      "aria-label": theme === "dark" ? "Switch to light mode" : "Switch to dark mode",
-      style: { "--hover-opacity": "1" },
-      children: theme === "dark" ? /* @__PURE__ */ jsx(SunIcon, {}) : /* @__PURE__ */ jsx(MoonIcon, {})
-    }
-  );
-}
 function SearchButton() {
   const { openCommand } = useCommandState();
   return /* @__PURE__ */ jsx(
     Button,
     {
+      size: "heading-md",
       className: "btn-icon op-40",
       onClick: openCommand,
       "aria-label": "Open command palette",
@@ -3920,13 +3978,7 @@ function NavProgressiveBlur() {
 }
 function Nav() {
   return /* @__PURE__ */ jsxs("header", { className: "nav", children: [
-    /* @__PURE__ */ jsxs("div", { className: "nav-inner", children: [
-      /* @__PURE__ */ jsx(Button, { asChild: true, size: "heading-2xs", className: "nav-brand", children: /* @__PURE__ */ jsx(NextLink, { href: "/", children: "Shinoda Design System" }) }),
-      /* @__PURE__ */ jsxs("nav", { "aria-label": "Primary", className: "nav-actions", children: [
-        /* @__PURE__ */ jsx(SearchButton, {}),
-        /* @__PURE__ */ jsx(ThemeToggle, {})
-      ] })
-    ] }),
+    /* @__PURE__ */ jsx("div", { className: "nav-inner", children: /* @__PURE__ */ jsx("nav", { "aria-label": "Primary", className: "nav-actions", children: /* @__PURE__ */ jsx(SearchButton, {}) }) }),
     /* @__PURE__ */ jsx(NavProgressiveBlur, {})
   ] });
 }
@@ -3951,6 +4003,25 @@ function NavLinks({ items }) {
       )
     }
   ) }, item.href)) });
+}
+function SunIcon() {
+  return /* @__PURE__ */ jsx("svg", { width: "18", height: "18", viewBox: "0 0 32 32", fill: "none", xmlns: "http://www.w3.org/2000/svg", "aria-hidden": "true", children: /* @__PURE__ */ jsx("path", { d: "M15 5V2C15 1.73478 15.1054 1.48043 15.2929 1.29289C15.4804 1.10536 15.7348 1 16 1C16.2652 1 16.5196 1.10536 16.7071 1.29289C16.8946 1.48043 17 1.73478 17 2V5C17 5.26522 16.8946 5.51957 16.7071 5.70711C16.5196 5.89464 16.2652 6 16 6C15.7348 6 15.4804 5.89464 15.2929 5.70711C15.1054 5.51957 15 5.26522 15 5ZM16 8C14.4177 8 12.871 8.46919 11.5554 9.34824C10.2398 10.2273 9.21447 11.4767 8.60896 12.9385C8.00346 14.4003 7.84504 16.0089 8.15372 17.5607C8.4624 19.1126 9.22433 20.538 10.3431 21.6569C11.462 22.7757 12.8874 23.5376 14.4393 23.8463C15.9911 24.155 17.5997 23.9965 19.0615 23.391C20.5233 22.7855 21.7727 21.7602 22.6518 20.4446C23.5308 19.129 24 17.5823 24 16C23.9977 13.879 23.1541 11.8455 21.6543 10.3457C20.1545 8.84591 18.121 8.00232 16 8ZM7.2925 8.7075C7.48014 8.89514 7.73464 9.00056 8 9.00056C8.26536 9.00056 8.51986 8.89514 8.7075 8.7075C8.89514 8.51986 9.00056 8.26536 9.00056 8C9.00056 7.73464 8.89514 7.48014 8.7075 7.2925L6.7075 5.2925C6.51986 5.10486 6.26536 4.99944 6 4.99944C5.73464 4.99944 5.48014 5.10486 5.2925 5.2925C5.10486 5.48014 4.99944 5.73464 4.99944 6C4.99944 6.26536 5.10486 6.51986 5.2925 6.7075L7.2925 8.7075ZM7.2925 23.2925L5.2925 25.2925C5.10486 25.4801 4.99944 25.7346 4.99944 26C4.99944 26.2654 5.10486 26.5199 5.2925 26.7075C5.48014 26.8951 5.73464 27.0006 6 27.0006C6.26536 27.0006 6.51986 26.8951 6.7075 26.7075L8.7075 24.7075C8.80041 24.6146 8.87411 24.5043 8.92439 24.3829C8.97468 24.2615 9.00056 24.1314 9.00056 24C9.00056 23.8686 8.97468 23.7385 8.92439 23.6171C8.87411 23.4957 8.80041 23.3854 8.7075 23.2925C8.61459 23.1996 8.50429 23.1259 8.3829 23.0756C8.2615 23.0253 8.13139 22.9994 8 22.9994C7.86861 22.9994 7.7385 23.0253 7.6171 23.0756C7.49571 23.1259 7.38541 23.1996 7.2925 23.2925ZM24 9C24.1314 9.0001 24.2615 8.97432 24.3829 8.92414C24.5042 8.87395 24.6146 8.80033 24.7075 8.7075L26.7075 6.7075C26.8951 6.51986 27.0006 6.26536 27.0006 6C27.0006 5.73464 26.8951 5.48014 26.7075 5.2925C26.5199 5.10486 26.2654 4.99944 26 4.99944C25.7346 4.99944 25.4801 5.10486 25.2925 5.2925L23.2925 7.2925C23.1525 7.43236 23.0571 7.61061 23.0185 7.80469C22.9798 7.99878 22.9996 8.19997 23.0754 8.38279C23.1511 8.56561 23.2794 8.72185 23.444 8.83172C23.6086 8.94159 23.8021 9.00016 24 9ZM24.7075 23.2925C24.5199 23.1049 24.2654 22.9994 24 22.9994C23.7346 22.9994 23.4801 23.1049 23.2925 23.2925C23.1049 23.4801 22.9994 23.7346 22.9994 24C22.9994 24.2654 23.1049 24.5199 23.2925 24.7075L25.2925 26.7075C25.3854 26.8004 25.4957 26.8741 25.6171 26.9244C25.7385 26.9747 25.8686 27.0006 26 27.0006C26.1314 27.0006 26.2615 26.9747 26.3829 26.9244C26.5043 26.8741 26.6146 26.8004 26.7075 26.7075C26.8004 26.6146 26.8741 26.5043 26.9244 26.3829C26.9747 26.2615 27.0006 26.1314 27.0006 26C27.0006 25.8686 26.9747 25.7385 26.9244 25.6171C26.8741 25.4957 26.8004 25.3854 26.7075 25.2925L24.7075 23.2925ZM6 16C6 15.7348 5.89464 15.4804 5.70711 15.2929C5.51957 15.1054 5.26522 15 5 15H2C1.73478 15 1.48043 15.1054 1.29289 15.2929C1.10536 15.4804 1 15.7348 1 16C1 16.2652 1.10536 16.5196 1.29289 16.7071C1.48043 16.8946 1.73478 17 2 17H5C5.26522 17 5.51957 16.8946 5.70711 16.7071C5.89464 16.5196 6 16.2652 6 16ZM16 26C15.7348 26 15.4804 26.1054 15.2929 26.2929C15.1054 26.4804 15 26.7348 15 27V30C15 30.2652 15.1054 30.5196 15.2929 30.7071C15.4804 30.8946 15.7348 31 16 31C16.2652 31 16.5196 30.8946 16.7071 30.7071C16.8946 30.5196 17 30.2652 17 30V27C17 26.7348 16.8946 26.4804 16.7071 26.2929C16.5196 26.1054 16.2652 26 16 26ZM30 15H27C26.7348 15 26.4804 15.1054 26.2929 15.2929C26.1054 15.4804 26 15.7348 26 16C26 16.2652 26.1054 16.5196 26.2929 16.7071C26.4804 16.8946 26.7348 17 27 17H30C30.2652 17 30.5196 16.8946 30.7071 16.7071C30.8946 16.5196 31 16.2652 31 16C31 15.7348 30.8946 15.4804 30.7071 15.2929C30.5196 15.1054 30.2652 15 30 15Z", fill: "currentColor" }) });
+}
+function MoonIcon() {
+  return /* @__PURE__ */ jsx("svg", { width: "18", height: "18", viewBox: "0 0 32 32", fill: "none", xmlns: "http://www.w3.org/2000/svg", "aria-hidden": "true", children: /* @__PURE__ */ jsx("path", { d: "M29.4426 18.7762C28.635 21.4124 27.0166 23.7267 24.8176 25.3899C22.8869 26.843 20.5895 27.7292 18.1831 27.9491C15.7767 28.169 13.3567 27.7139 11.1947 26.6348C9.03261 25.5557 7.2141 23.8954 5.94324 21.8402C4.67238 19.785 3.99948 17.4163 4.00006 14.9999C3.99137 12.1795 4.90826 9.43408 6.61006 7.18491C8.27323 4.9859 10.5876 3.36746 13.2238 2.55991C13.3976 2.50641 13.5826 2.50128 13.759 2.54509C13.9355 2.58889 14.0966 2.67997 14.2252 2.80852C14.3537 2.93707 14.4448 3.09823 14.4886 3.27467C14.5324 3.45111 14.5273 3.63616 14.4738 3.80991C13.8974 5.71669 13.849 7.74415 14.334 9.67624C14.8189 11.6083 15.8189 13.3727 17.2275 14.7812C18.6361 16.1898 20.4004 17.1898 22.3325 17.6748C24.2646 18.1597 26.292 18.1114 28.1988 17.5349C28.3726 17.4814 28.5576 17.4763 28.734 17.5201C28.9105 17.5639 29.0716 17.655 29.2002 17.7835C29.3287 17.9121 29.4198 18.0732 29.4636 18.2497C29.5074 18.4261 29.5023 18.6112 29.4488 18.7849L29.4426 18.7762Z", fill: "currentColor" }) });
+}
+function ThemeToggle() {
+  const { theme, toggleTheme } = useThemeContext();
+  return /* @__PURE__ */ jsx(
+    Button,
+    {
+      className: "btn-icon op-40",
+      onClick: toggleTheme,
+      "aria-label": theme === "dark" ? "Switch to light mode" : "Switch to dark mode",
+      style: { "--hover-opacity": "1" },
+      children: theme === "dark" ? /* @__PURE__ */ jsx(SunIcon, {}) : /* @__PURE__ */ jsx(MoonIcon, {})
+    }
+  );
 }
 function PageWrapper({ children, className }) {
   return /* @__PURE__ */ jsx("div", { className: cn("page-wrapper", className), children });
@@ -4155,6 +4226,40 @@ function Badge({
 // src/data/changelog.ts
 var CHANGELOG = [
   {
+    title: "Calendar rebuilt: range picking, media grid, cursor image preview",
+    type: "Feature",
+    date: "2026-08-17",
+    changes: [
+      "CalendarPicker replaced by Calendar, built on a new headless useCalendar hook: view state with day \u2192 month \u2192 year drill-down, a fixed six-row grid, single and range selection, min/max bounds, and full keyboard navigation. The old name stays exported as a deprecated alias, so nothing consuming it breaks",
+      "Range mode: the first click sets the start, hovering previews the band, the second completes it and corrects the order if you picked backwards. The fields render DATE > DATE side by side as an unconditional flex row \u2014 the layout used to be a grid whose column track the range modifier had to rewrite, which meant a single missing rule stacked the fields vertically. A layout that only works when every rule lands isn\u2019t a layout",
+      "New MediaCalendar \u2014 a photo-journal grid built on Calendar\u2019s renderDay slot, so keyboard navigation and selection semantics are identical to the picker. Days with an entry are circular thumbnails, empty days a dashed ring; the number is revealed as the thumbnail fades on hover. Days from the adjacent months render at 20% like every other calendar, with the ring taken to full opacity inside the dimmed cell so the compound lands on exactly 20% rather than 8% \u2014 nested opacity multiplies, and 40% inside 20% would have disappeared",
+      'Cursor gains an image-preview state: data-cursor-preview="/path.jpg" on any element swells the dot into a 7.5rem circular preview of that image, sized by --cursor-preview-size. The difference blend comes off in this state so the photograph reads true rather than inverted',
+      "DateInput rebuilt to compose Input\u2019s behaviour rather than restate it \u2014 same underline treatment at rest, hover, focus and disabled, plus float label, borderless variant and forwardRef. Gravity is anchored to the wrapper rather than the field so the trigger and the field stay aligned under the pull. The trailing button or Down arrow opens the popover, Escape closes it and returns focus, blur parses and validates",
+      "Date parsing (src/lib/date.ts) accepts DD MMM YYYY, DD/MM/YYYY and DD-M-YYYY, and rejects overflow \u2014 31 Feb fails rather than silently rolling into March. The helpers, MONTH_LABELS_SHORT and useCalendar are all exported from the package for consumers building their own calendar surfaces",
+      'Accessibility pass: real role="row" wrappers with columnheader weekday labels, roving tabindex so exactly one cell is tabbable per calendar, Arrow/Home/End/PageUp/PageDown navigation with Shift for years, live-region announcements on month change, day names carrying the full date plus a photo indicator, and errors with role="alert". Abbreviations are visual only \u2014 "Monday, 27 July 2026" is what gets announced',
+      "Added useGravityWithin(containerRef, selector): one delegated listener drives whichever cell the cursor is over, instead of 42 cells each registering their own document listener. Tuned tighter than standalone gravity (0.14 strength, 3px cap) because cells sit shoulder to shoulder and only the one under the cursor should move",
+      "Grid structure corrected so rows are real boxes: .calendar-grid is a flex column and each .calendar-row its own seven-column grid. It was previously one 42-cell grid with display: contents on the ARIA row wrappers, which hung the entire layout on a single declaration \u2014 when the CSS chunk lagged the markup over HMR, the row wrappers became grid items and the weekday header collapsed into column one",
+      "Today is now a solid --accent-red fill rather than a dot in the picker. In the media grid the mark moves to the ring instead \u2014 a red disc on empty days, a red outline around the photograph on filled ones, since a cell fill would sit buried under the thumbnail",
+      'The month label defaults to the short form ("Aug") so the header stops breathing as you page through months; monthLabelFormat="long" restores the full name for editorial contexts. The aria-label and the announcements use the full month either way',
+      "Catalogue: the form-field size chips moved to a shared inputSizes.ts used by both the Input and Calendar pages, and the Cursor page now documents the preview state"
+    ]
+  },
+  {
+    title: "Crawler exclusion, favicon set, footer/nav rebuild, responsive fixes",
+    type: "Improvement",
+    date: "2026-08-02",
+    changes: [
+      'Search engines and AI scrapers now excluded at three layers: a blanket Disallow in src/app/robots.ts, `robots`/`referrer` metadata in the root layout, and an X-Robots-Tag HTTP header applied to every route in next.config.ts \u2014 the header matters because <meta name="robots"> only reaches crawlers that parse HTML, while the header reaches anything that issues a request, assets included. Referrer-Policy: no-referrer and X-Content-Type-Options: nosniff ride along',
+      "Added a favicon set \u2014 multi-resolution favicon.ico plus icon.png and apple-icon.png in src/app/",
+      "Footer rebuilt to shinoda.studio parity: divider above, --padding-section-sm clearance top and bottom, everything at heading-md, 40% opacity lifting to 100% on hover. Opacity is applied per leaf rather than on containers \u2014 nested opacity compounds silently (40% on 40% is 16%), which would land off the system scale",
+      'Breadcrumb is now a clickable trail rather than static text: getBreadcrumbSegments() returns { label, href } pairs, always opening with "Design System" \u2192 /, with aria-current="page" on the final crumb',
+      "Nav stripped back to a single search icon at heading-md \u2014 wordmark and theme toggle removed (the breadcrumb is the home route now, the toggle lives in the footer). The nav is no longer hidden below 767px: a nine-item link strip needed collapsing, one icon does not, so search now sits in the same top-right slot at every width",
+      "One footer at every breakpoint instead of a separate mobile list. The vertical NAV_ITEMS list is gone \u2014 the command palette does that job. Stack-to-row switches at 992px rather than 768: the row technically fits at tablet, but the attribution wrapped mid-phrase. Above that the breadcrumb is the half that gives, pinned by flex-shrink: 0 on the meta cluster, because a breadcrumb breaking at a slash is a legible seam and a sentence breaking at a middot is not",
+      "Fixed the changelog drawer occasionally opening offset upward by exactly the scroll distance: position: fixed was only reaching the <dialog> through the UA stylesheet\u2019s dialog:modal rule, which depends on top-layer promotion having landed in style resolution \u2014 the same frame showModal() is called in the mount effect. .dialog now states position/inset/height itself. The drawer\u2019s 100vw/100vh also became 100%: vw includes the scrollbar gutter, and vh resolves to the large viewport",
+      "Mobile two-column pages: .grid-2col gains a --padding-section-lg row gap when stacked (the horizontal gutter was doing that work implicitly, so stacked columns ran straight into each other), and .col-sticky\u2019s 8em right padding now zeroes out \u2014 it was eating 192px of a 342px line"
+    ]
+  },
+  {
     title: "Content peel effect, homepage gallery cleanup, dialog dark-mode contrast fixes",
     type: "Fix",
     date: "2026-07-26",
@@ -4340,14 +4445,23 @@ function Footer() {
   const breadcrumb = getBreadcrumbSegments(pathname != null ? pathname : "/");
   const year = (/* @__PURE__ */ new Date()).getFullYear();
   return /* @__PURE__ */ jsxs("footer", { className: "site-footer", children: [
+    /* @__PURE__ */ jsx(Divider, {}),
     /* @__PURE__ */ jsxs("div", { className: "footer-bar", children: [
-      /* @__PURE__ */ jsx("div", { className: "footer-bar-page body-xs", children: breadcrumb.map((segment, index) => /* @__PURE__ */ jsxs(Fragment$1, { children: [
-        index > 0 && /* @__PURE__ */ jsx("span", { className: "footer-bar-slash", "aria-hidden": "true", children: "/" }),
-        /* @__PURE__ */ jsx("span", { children: segment })
-      ] }, segment)) }),
+      /* @__PURE__ */ jsx("nav", { className: "footer-bar-page heading-md", "aria-label": "Breadcrumb", children: breadcrumb.map((segment, index) => /* @__PURE__ */ jsxs(Fragment$1, { children: [
+        index > 0 && /* @__PURE__ */ jsx("span", { className: "footer-bar-crumb-slash", "aria-hidden": "true", children: "/" }),
+        /* @__PURE__ */ jsx(
+          NextLink,
+          {
+            href: segment.href,
+            className: "footer-bar-crumb",
+            "aria-current": index === breadcrumb.length - 1 ? "page" : void 0,
+            children: segment.label
+          }
+        )
+      ] }, segment.href)) }),
       /* @__PURE__ */ jsxs("div", { className: "footer-bar-right", children: [
-        /* @__PURE__ */ jsxs("div", { className: "footer-bar-meta body-xs", children: [
-          /* @__PURE__ */ jsxs("span", { className: "op-80", children: [
+        /* @__PURE__ */ jsxs("div", { className: "footer-bar-meta heading-md", children: [
+          /* @__PURE__ */ jsxs("span", { className: "footer-bar-made", children: [
             "Made by ",
             /* @__PURE__ */ jsx(PlainLink, { href: STUDIO_URL, external: true, children: "Shinoda" })
           ] }),
@@ -4356,10 +4470,9 @@ function Footer() {
           /* @__PURE__ */ jsx("span", { className: "footer-bar-dot", "aria-hidden": "true" }),
           /* @__PURE__ */ jsx(ChangelogDialog, { children: /* @__PURE__ */ jsx("button", { type: "button", className: "footer-bar-changelog footer-bar-meta-dim", children: "Changelog" }) })
         ] }),
-        /* @__PURE__ */ jsx(ThemeToggle, {})
+        /* @__PURE__ */ jsx("span", { className: "footer-bar-toggle", children: /* @__PURE__ */ jsx(ThemeToggle, {}) })
       ] })
-    ] }),
-    /* @__PURE__ */ jsx("ul", { className: "footer-nav", children: NAV_ITEMS.map((item) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(NextLink, { href: item.href, className: "footer-nav-link body-md op-40", children: item.label }) }, item.href)) })
+    ] })
   ] });
 }
 function BackToTop({
@@ -5671,7 +5784,156 @@ function EditableTable({
     }) }, rowIndex)) })
   ] });
 }
-var DAYS_OF_WEEK = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+
+// src/lib/date.ts
+function startOfDay(date) {
+  const copy = new Date(date);
+  copy.setHours(0, 0, 0, 0);
+  return copy;
+}
+function isSameDay(a, b) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+function isSameMonth(a, b) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
+}
+function addDays(date, amount) {
+  const copy = startOfDay(date);
+  copy.setDate(copy.getDate() + amount);
+  return copy;
+}
+function addMonths(date, amount) {
+  const copy = startOfDay(date);
+  const targetDay = copy.getDate();
+  copy.setDate(1);
+  copy.setMonth(copy.getMonth() + amount);
+  const daysInTarget = new Date(copy.getFullYear(), copy.getMonth() + 1, 0).getDate();
+  copy.setDate(Math.min(targetDay, daysInTarget));
+  return copy;
+}
+function addYears(date, amount) {
+  return addMonths(date, amount * 12);
+}
+function isBeforeDay(a, b) {
+  return startOfDay(a).getTime() < startOfDay(b).getTime();
+}
+function isAfterDay(a, b) {
+  return startOfDay(a).getTime() > startOfDay(b).getTime();
+}
+function isWithinDays(date, from, to) {
+  const time = startOfDay(date).getTime();
+  return time >= startOfDay(from).getTime() && time <= startOfDay(to).getTime();
+}
+function clampDate(date, min, max) {
+  if (min != null && isBeforeDay(date, min)) return startOfDay(min);
+  if (max != null && isAfterDay(date, max)) return startOfDay(max);
+  return startOfDay(date);
+}
+function toDateKey(date) {
+  const year = String(date.getFullYear()).padStart(4, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+var MONTH_LABELS_SHORT = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec"
+];
+function formatDateShort(date) {
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = MONTH_LABELS_SHORT[date.getMonth()];
+  return `${day} ${month} ${date.getFullYear()}`;
+}
+function parseDateInput(raw) {
+  const trimmed = raw.trim();
+  if (trimmed === "") return null;
+  const named = trimmed.match(/^(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{4})$/);
+  if (named != null) {
+    const [, dayStr, monthStr, yearStr] = named;
+    const prefix = (monthStr != null ? monthStr : "").slice(0, 3).toLowerCase();
+    const monthIndex = MONTH_LABELS_SHORT.findIndex((m) => m.toLowerCase() === prefix);
+    if (monthIndex !== -1) {
+      return buildDate(Number(yearStr), monthIndex, Number(dayStr));
+    }
+    return null;
+  }
+  const numeric = trimmed.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$/);
+  if (numeric != null) {
+    const [, dayStr, monthStr, yearStr] = numeric;
+    return buildDate(Number(yearStr), Number(monthStr) - 1, Number(dayStr));
+  }
+  const iso = trimmed.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (iso != null) {
+    const [, yearStr, monthStr, dayStr] = iso;
+    return buildDate(Number(yearStr), Number(monthStr) - 1, Number(dayStr));
+  }
+  return null;
+}
+function buildDate(year, monthIndex, day) {
+  if (!Number.isInteger(year) || year < 1 || year > 9999) return null;
+  if (monthIndex < 0 || monthIndex > 11 || day < 1 || day > 31) return null;
+  const date = new Date(year, monthIndex, day);
+  if (year < 100) date.setFullYear(year);
+  if (isNaN(date.getTime())) return null;
+  if (date.getMonth() !== monthIndex || date.getDate() !== day) return null;
+  return startOfDay(date);
+}
+function fromDateKey(key) {
+  const match = key.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (match == null) return null;
+  const [, year, month, day] = match;
+  return buildDate(Number(year), Number(month) - 1, Number(day));
+}
+var MIDNIGHT_SETTLE_MS = 1e3;
+var listeners2 = /* @__PURE__ */ new Set();
+var snapshot = null;
+var rolloverTimer = null;
+function computeToday() {
+  return startOfDay(/* @__PURE__ */ new Date()).getTime();
+}
+function scheduleRollover() {
+  if (rolloverTimer != null) window.clearTimeout(rolloverTimer);
+  const nextMidnight = addDays(new Date(snapshot != null ? snapshot : computeToday()), 1).getTime();
+  rolloverTimer = window.setTimeout(() => {
+    snapshot = computeToday();
+    scheduleRollover();
+    listeners2.forEach((listener) => listener());
+  }, nextMidnight - Date.now() + MIDNIGHT_SETTLE_MS);
+}
+function subscribe(listener) {
+  listeners2.add(listener);
+  if (listeners2.size === 1) {
+    snapshot = computeToday();
+    scheduleRollover();
+  }
+  return () => {
+    listeners2.delete(listener);
+    if (listeners2.size === 0 && rolloverTimer != null) {
+      window.clearTimeout(rolloverTimer);
+      rolloverTimer = null;
+    }
+  };
+}
+function getSnapshot() {
+  snapshot != null ? snapshot : snapshot = computeToday();
+  return snapshot;
+}
+function useToday() {
+  const timestamp = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+  return useMemo(() => new Date(timestamp), [timestamp]);
+}
+
+// src/hooks/useCalendar.ts
 var MONTH_NAMES = [
   "January",
   "February",
@@ -5686,280 +5948,1170 @@ var MONTH_NAMES = [
   "November",
   "December"
 ];
-function isSameDay(a, b) {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+var MONTH_NAMES_SHORT = MONTH_LABELS_SHORT;
+var WEEKDAY_NAMES = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday"
+];
+var WEEKDAY_INITIALS = ["S", "M", "T", "W", "T", "F", "S"];
+var WEEKS_IN_GRID = 6;
+var DAYS_IN_WEEK = 7;
+var YEARS_PER_PAGE = 12;
+function buildWeekdays(weekStartsOn) {
+  return Array.from({ length: DAYS_IN_WEEK }, (_, offset) => {
+    var _a, _b;
+    const index = (weekStartsOn + offset) % DAYS_IN_WEEK;
+    return {
+      index,
+      short: (_a = WEEKDAY_INITIALS[index]) != null ? _a : "",
+      long: (_b = WEEKDAY_NAMES[index]) != null ? _b : ""
+    };
+  });
 }
-function startOfDay(d) {
-  const copy = new Date(d);
-  copy.setHours(0, 0, 0, 0);
-  return copy;
-}
-function getMonthGrid(year, month) {
-  const firstDay = new Date(year, month, 1);
-  let dayOfWeek = firstDay.getDay();
-  dayOfWeek = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const cells = Array.from({ length: dayOfWeek }).fill(null);
-  for (let d = 1; d <= daysInMonth; d++) {
-    cells.push(new Date(year, month, d));
-  }
-  while (cells.length % 7 !== 0) cells.push(null);
-  return cells;
-}
-function CalendarPicker({
-  value,
-  onChange,
-  minDate,
-  maxDate,
-  disabled = false,
-  className
-}) {
-  const today = startOfDay(/* @__PURE__ */ new Date());
-  const [viewYear, setViewYear] = useState(
-    value != null ? value.getFullYear() : today.getFullYear()
+function buildMonthGrid(year, month, weekStartsOn) {
+  const firstOfMonth = new Date(year, month, 1);
+  const leading = (firstOfMonth.getDay() - weekStartsOn + DAYS_IN_WEEK) % DAYS_IN_WEEK;
+  const gridStart = addDays(firstOfMonth, -leading);
+  return Array.from(
+    { length: WEEKS_IN_GRID * DAYS_IN_WEEK },
+    (_, index) => addDays(gridStart, index)
   );
-  const [viewMonth, setViewMonth] = useState(
-    value != null ? value.getMonth() : today.getMonth()
+}
+function useCalendar(options) {
+  const {
+    mode,
+    selected,
+    range,
+    month,
+    defaultMonth,
+    minDate,
+    maxDate,
+    weekStartsOn,
+    disabled,
+    onMonthChange,
+    onSelectDate
+  } = options;
+  const today = useToday();
+  const anchorDate = useMemo(() => {
+    if (month != null) return startOfDay(month);
+    if (defaultMonth != null) return startOfDay(defaultMonth);
+    if (mode === "range" && (range == null ? void 0 : range.from) != null) return startOfDay(range.from);
+    if (selected != null) return startOfDay(selected);
+    return today;
+  }, [month, defaultMonth, mode, range, selected, today]);
+  const [internalViewDate, setInternalViewDate] = useState(anchorDate);
+  const [view, setView] = useState("day");
+  const [focus, setFocus] = useState({ date: anchorDate, viaKeyboard: false });
+  const [hoveredDate, setHoveredDate] = useState(null);
+  const viewDate = month != null ? startOfDay(month) : internalViewDate;
+  const viewYear = viewDate.getFullYear();
+  const viewMonth = viewDate.getMonth();
+  const setViewDate = useCallback(
+    (next) => {
+      const normalised = startOfDay(next);
+      if (month == null) setInternalViewDate(normalised);
+      onMonthChange == null ? void 0 : onMonthChange(normalised);
+    },
+    [month, onMonthChange]
   );
-  const prevMonth = useCallback(() => {
-    setViewMonth((m) => {
-      if (m === 0) {
-        setViewYear((y) => y - 1);
-        return 11;
+  const isDateDisabled = useCallback(
+    (date) => {
+      if (disabled) return true;
+      if (minDate != null && isBeforeDay(date, minDate)) return true;
+      if (maxDate != null && isAfterDay(date, maxDate)) return true;
+      return false;
+    },
+    [disabled, minDate, maxDate]
+  );
+  const moveFocusTo = useCallback(
+    (next, viaKeyboard) => {
+      const clamped = clampDate(next, minDate, maxDate);
+      setFocus({ date: clamped, viaKeyboard });
+      if (!isSameMonth(clamped, viewDate)) {
+        setViewDate(new Date(clamped.getFullYear(), clamped.getMonth(), 1));
       }
-      return m - 1;
-    });
-  }, []);
-  const nextMonth = useCallback(() => {
-    setViewMonth((m) => {
-      if (m === 11) {
-        setViewYear((y) => y + 1);
-        return 0;
+    },
+    [minDate, maxDate, viewDate, setViewDate]
+  );
+  const yearRangeStart = useMemo(
+    () => Math.floor(viewYear / YEARS_PER_PAGE) * YEARS_PER_PAGE,
+    [viewYear]
+  );
+  const goPrevious = useCallback(() => {
+    if (view === "day") setViewDate(addMonths(viewDate, -1));
+    else if (view === "month") setViewDate(addYears(viewDate, -1));
+    else setViewDate(addYears(viewDate, -YEARS_PER_PAGE));
+  }, [view, viewDate, setViewDate]);
+  const goNext = useCallback(() => {
+    if (view === "day") setViewDate(addMonths(viewDate, 1));
+    else if (view === "month") setViewDate(addYears(viewDate, 1));
+    else setViewDate(addYears(viewDate, YEARS_PER_PAGE));
+  }, [view, viewDate, setViewDate]);
+  const goToToday = useCallback(() => {
+    setView("day");
+    setViewDate(today);
+    setFocus({ date: today, viaKeyboard: true });
+  }, [today, setViewDate]);
+  const goToMonth = useCallback(
+    (nextMonth) => {
+      setViewDate(new Date(viewYear, nextMonth, 1));
+      setView("day");
+    },
+    [viewYear, setViewDate]
+  );
+  const goToYear = useCallback(
+    (nextYear) => {
+      setViewDate(new Date(nextYear, viewMonth, 1));
+      setView("month");
+    },
+    [viewMonth, setViewDate]
+  );
+  const goToDate = useCallback(
+    (date) => {
+      setView("day");
+      moveFocusTo(date, false);
+    },
+    [moveFocusTo]
+  );
+  const canGoPrevious = useMemo(() => {
+    if (disabled) return false;
+    if (minDate == null) return true;
+    if (view === "day") {
+      const lastDayOfPrevious = new Date(viewYear, viewMonth, 0);
+      return !isBeforeDay(lastDayOfPrevious, minDate);
+    }
+    if (view === "month") return viewYear - 1 >= minDate.getFullYear();
+    return yearRangeStart - 1 >= minDate.getFullYear();
+  }, [disabled, minDate, view, viewYear, viewMonth, yearRangeStart]);
+  const canGoNext = useMemo(() => {
+    if (disabled) return false;
+    if (maxDate == null) return true;
+    if (view === "day") {
+      const firstDayOfNext = new Date(viewYear, viewMonth + 1, 1);
+      return !isAfterDay(firstDayOfNext, maxDate);
+    }
+    if (view === "month") return viewYear + 1 <= maxDate.getFullYear();
+    return yearRangeStart + YEARS_PER_PAGE <= maxDate.getFullYear();
+  }, [disabled, maxDate, view, viewYear, viewMonth, yearRangeStart]);
+  const selectDate = useCallback(
+    (date, keepFocusMode = true) => {
+      if (isDateDisabled(date)) return;
+      const normalised = startOfDay(date);
+      setFocus((current) => ({
+        date: normalised,
+        viaKeyboard: keepFocusMode ? current.viaKeyboard : false
+      }));
+      if (!isSameMonth(normalised, viewDate)) {
+        setViewDate(new Date(normalised.getFullYear(), normalised.getMonth(), 1));
       }
-      return m + 1;
+      onSelectDate(normalised);
+    },
+    [isDateDisabled, onSelectDate, viewDate, setViewDate]
+  );
+  const weekdays = useMemo(() => buildWeekdays(weekStartsOn), [weekStartsOn]);
+  const days = useMemo(() => {
+    var _a, _b;
+    const grid = buildMonthGrid(viewYear, viewMonth, weekStartsOn);
+    const rangeFrom = (_a = range == null ? void 0 : range.from) != null ? _a : null;
+    const rangeTo = (_b = range == null ? void 0 : range.to) != null ? _b : null;
+    const previewTo = mode === "range" && rangeFrom != null && rangeTo == null ? hoveredDate : rangeTo;
+    return grid.map((date) => {
+      const isRangeStart = mode === "range" && rangeFrom != null && isSameDay(date, rangeFrom);
+      const isRangeEnd = mode === "range" && previewTo != null && isSameDay(date, previewTo);
+      let isInRange = false;
+      if (mode === "range" && rangeFrom != null && previewTo != null) {
+        const [start, end] = isBeforeDay(previewTo, rangeFrom) ? [previewTo, rangeFrom] : [rangeFrom, previewTo];
+        isInRange = isWithinDays(date, start, end);
+      }
+      return {
+        date,
+        key: date.toISOString(),
+        isOutside: date.getMonth() !== viewMonth,
+        isToday: isSameDay(date, today),
+        isSelected: mode === "single" ? selected != null && isSameDay(date, selected) : isRangeStart || isRangeEnd,
+        isRangeStart,
+        isRangeEnd,
+        isInRange,
+        isDisabled: isDateDisabled(date),
+        isFocused: isSameDay(date, focus.date)
+      };
     });
-  }, []);
-  const cells = getMonthGrid(viewYear, viewMonth);
-  const isDisabledDate = (d) => {
-    if (disabled) return true;
-    if (minDate != null && startOfDay(d) < startOfDay(minDate)) return true;
-    if (maxDate != null && startOfDay(d) > startOfDay(maxDate)) return true;
-    return false;
+  }, [
+    viewYear,
+    viewMonth,
+    weekStartsOn,
+    mode,
+    range,
+    hoveredDate,
+    selected,
+    today,
+    isDateDisabled,
+    focus.date
+  ]);
+  const months = useMemo(() => {
+    var _a;
+    const selectedDate = mode === "range" ? (_a = range == null ? void 0 : range.from) != null ? _a : null : selected;
+    return MONTH_NAMES_SHORT.map((label, index) => {
+      const lastDay = new Date(viewYear, index + 1, 0);
+      const firstDay = new Date(viewYear, index, 1);
+      const outOfBounds = minDate != null && isBeforeDay(lastDay, minDate) || maxDate != null && isAfterDay(firstDay, maxDate);
+      return {
+        month: index,
+        label,
+        isCurrent: today.getFullYear() === viewYear && today.getMonth() === index,
+        isSelected: selectedDate != null && selectedDate.getFullYear() === viewYear && selectedDate.getMonth() === index,
+        isDisabled: disabled || outOfBounds
+      };
+    });
+  }, [mode, range, selected, viewYear, today, minDate, maxDate, disabled]);
+  const years = useMemo(() => {
+    var _a;
+    const selectedDate = mode === "range" ? (_a = range == null ? void 0 : range.from) != null ? _a : null : selected;
+    return Array.from({ length: YEARS_PER_PAGE }, (_, offset) => {
+      const year = yearRangeStart + offset;
+      const outOfBounds = minDate != null && year < minDate.getFullYear() || maxDate != null && year > maxDate.getFullYear();
+      return {
+        year,
+        isCurrent: today.getFullYear() === year,
+        isSelected: selectedDate != null && selectedDate.getFullYear() === year,
+        isDisabled: disabled || outOfBounds
+      };
+    });
+  }, [mode, range, selected, yearRangeStart, today, minDate, maxDate, disabled]);
+  const handleGridKeyDown = useCallback(
+    (event) => {
+      if (disabled) return;
+      const current = focus.date;
+      let next = null;
+      switch (event.key) {
+        case "ArrowLeft":
+          next = addDays(current, -1);
+          break;
+        case "ArrowRight":
+          next = addDays(current, 1);
+          break;
+        case "ArrowUp":
+          next = addDays(current, -DAYS_IN_WEEK);
+          break;
+        case "ArrowDown":
+          next = addDays(current, DAYS_IN_WEEK);
+          break;
+        case "Home":
+          next = addDays(current, -((current.getDay() - weekStartsOn + DAYS_IN_WEEK) % DAYS_IN_WEEK));
+          break;
+        case "End":
+          next = addDays(
+            current,
+            DAYS_IN_WEEK - 1 - (current.getDay() - weekStartsOn + DAYS_IN_WEEK) % DAYS_IN_WEEK
+          );
+          break;
+        case "PageUp":
+          next = event.shiftKey ? addYears(current, -1) : addMonths(current, -1);
+          break;
+        case "PageDown":
+          next = event.shiftKey ? addYears(current, 1) : addMonths(current, 1);
+          break;
+        case "Enter":
+        case " ":
+          event.preventDefault();
+          selectDate(current);
+          return;
+        default:
+          return;
+      }
+      event.preventDefault();
+      moveFocusTo(next, true);
+    },
+    [disabled, focus.date, weekStartsOn, moveFocusTo, selectDate]
+  );
+  return {
+    view,
+    setView,
+    viewDate,
+    viewYear,
+    viewMonth,
+    weekdays,
+    days,
+    months,
+    years,
+    yearRangeStart,
+    today,
+    focusedDate: focus.date,
+    focusViaKeyboard: focus.viaKeyboard,
+    hoveredDate,
+    setHoveredDate,
+    canGoPrevious,
+    canGoNext,
+    goPrevious,
+    goNext,
+    goToToday,
+    goToMonth,
+    goToYear,
+    goToDate,
+    selectDate,
+    isDateDisabled,
+    handleGridKeyDown
   };
-  return /* @__PURE__ */ jsxs("div", { className: cn("calendar", className), children: [
-    /* @__PURE__ */ jsxs("div", { className: "calendar-header", children: [
-      /* @__PURE__ */ jsx(
-        "button",
-        {
-          type: "button",
-          className: "calendar-nav-btn btn",
-          onClick: prevMonth,
-          "aria-label": "Previous month",
-          disabled,
-          children: /* @__PURE__ */ jsx("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true", children: /* @__PURE__ */ jsx("path", { d: "M10 12L6 8L10 4", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round" }) })
+}
+var SIZE_CLASS4 = {
+  sm: "calendar--sm",
+  md: "calendar--md"
+};
+function isRangeProps(props) {
+  return props.mode === "range";
+}
+function Calendar(props) {
+  var _a, _b, _c, _d, _e, _f;
+  const {
+    size = "md",
+    minDate = null,
+    maxDate = null,
+    disabled = false,
+    weekStartsOn = 1,
+    month = null,
+    defaultMonth = null,
+    onMonthChange,
+    showOutsideDays = true,
+    showTodayButton = true,
+    showWeekdays = true,
+    monthLabelFormat = "short",
+    showDateFields = true,
+    renderDay,
+    getDayLabel,
+    className,
+    id,
+    "aria-label": ariaLabel = "Calendar"
+  } = props;
+  const mode = isRangeProps(props) ? "range" : "single";
+  const selected = isRangeProps(props) ? null : (_a = props.value) != null ? _a : null;
+  const range = isRangeProps(props) ? (_b = props.value) != null ? _b : null : null;
+  const gridRef = useGravityWithin(".calendar-day, .calendar-tile");
+  const dayRefs = useRef(/* @__PURE__ */ new Map());
+  const handleSelectDate = useCallback(
+    (date) => {
+      var _a2, _b2, _c2, _d2;
+      if (isRangeProps(props)) {
+        const current = (_a2 = props.value) != null ? _a2 : null;
+        if ((current == null ? void 0 : current.from) == null || current.to != null) {
+          (_b2 = props.onChange) == null ? void 0 : _b2.call(props, { from: date, to: null });
+          return;
         }
-      ),
-      /* @__PURE__ */ jsxs("span", { className: "calendar-month-label", children: [
-        MONTH_NAMES[viewMonth],
-        " ",
-        viewYear
-      ] }),
-      /* @__PURE__ */ jsx(
-        "button",
-        {
-          type: "button",
-          className: "calendar-nav-btn btn",
-          onClick: nextMonth,
-          "aria-label": "Next month",
-          disabled,
-          children: /* @__PURE__ */ jsx("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true", children: /* @__PURE__ */ jsx("path", { d: "M6 4L10 8L6 12", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round" }) })
-        }
-      )
-    ] }),
-    /* @__PURE__ */ jsxs("div", { className: "calendar-grid", role: "grid", "aria-label": `${MONTH_NAMES[viewMonth]} ${viewYear}`, children: [
-      DAYS_OF_WEEK.map((day) => /* @__PURE__ */ jsx("div", { className: "calendar-day-header", role: "columnheader", "aria-label": day, children: day }, day)),
-      cells.map((date, idx) => {
-        if (date == null) {
-          return /* @__PURE__ */ jsx("div", { className: "calendar-day calendar-day-outside", "aria-hidden": "true" }, `empty-${idx}`);
-        }
-        const isToday = isSameDay(date, today);
-        const isSelected = value != null && isSameDay(date, value);
-        const isOtherMonth = date.getMonth() !== viewMonth;
-        const isDateDisabled = isDisabledDate(date);
-        return /* @__PURE__ */ jsx(
+        (_c2 = props.onChange) == null ? void 0 : _c2.call(
+          props,
+          isBeforeDay(date, current.from) ? { from: date, to: current.from } : { from: current.from, to: date }
+        );
+        return;
+      }
+      (_d2 = props.onChange) == null ? void 0 : _d2.call(props, date);
+    },
+    [props]
+  );
+  const calendar = useCalendar({
+    mode,
+    selected,
+    range,
+    month,
+    defaultMonth,
+    minDate,
+    maxDate,
+    weekStartsOn,
+    disabled,
+    onMonthChange,
+    onSelectDate: handleSelectDate
+  });
+  const {
+    view,
+    setView,
+    viewDate,
+    viewYear,
+    viewMonth,
+    weekdays,
+    days,
+    months,
+    years,
+    yearRangeStart,
+    today,
+    focusedDate,
+    focusViaKeyboard,
+    setHoveredDate,
+    canGoPrevious,
+    canGoNext,
+    goPrevious,
+    goNext,
+    goToToday,
+    goToMonth,
+    goToYear,
+    goToDate,
+    selectDate,
+    isDateDisabled,
+    handleGridKeyDown
+  } = calendar;
+  const commitSingle = useCallback(
+    (date) => {
+      if (date == null || isDateDisabled(date)) return false;
+      selectDate(date, false);
+      return true;
+    },
+    [isDateDisabled, selectDate]
+  );
+  const commitRangeFrom = useCallback(
+    (date) => {
+      var _a2, _b2, _c2, _d2, _e2;
+      if (!isRangeProps(props)) return false;
+      const current = (_a2 = props.value) != null ? _a2 : null;
+      if (date == null) {
+        (_c2 = props.onChange) == null ? void 0 : _c2.call(props, { from: null, to: (_b2 = current == null ? void 0 : current.to) != null ? _b2 : null });
+        return true;
+      }
+      if (isDateDisabled(date)) return false;
+      const to = (_d2 = current == null ? void 0 : current.to) != null ? _d2 : null;
+      (_e2 = props.onChange) == null ? void 0 : _e2.call(props, to != null && isBeforeDay(to, date) ? { from: date, to: null } : { from: date, to });
+      goToDate(date);
+      return true;
+    },
+    [props, isDateDisabled, goToDate]
+  );
+  const commitRangeTo = useCallback(
+    (date) => {
+      var _a2, _b2, _c2, _d2, _e2;
+      if (!isRangeProps(props)) return false;
+      const current = (_a2 = props.value) != null ? _a2 : null;
+      if (date == null) {
+        (_c2 = props.onChange) == null ? void 0 : _c2.call(props, { from: (_b2 = current == null ? void 0 : current.from) != null ? _b2 : null, to: null });
+        return true;
+      }
+      if (isDateDisabled(date)) return false;
+      const from = (_d2 = current == null ? void 0 : current.from) != null ? _d2 : null;
+      (_e2 = props.onChange) == null ? void 0 : _e2.call(
+        props,
+        from != null && isBeforeDay(date, from) ? { from: date, to: from } : { from, to: date }
+      );
+      goToDate(date);
+      return true;
+    },
+    [props, isDateDisabled, goToDate]
+  );
+  const showFields = showDateFields && renderDay == null;
+  useEffect(() => {
+    var _a2;
+    if (view !== "day" || !focusViaKeyboard) return;
+    (_a2 = dayRefs.current.get(toDateKey(focusedDate))) == null ? void 0 : _a2.focus();
+  }, [view, focusViaKeyboard, focusedDate]);
+  const tabbableKey = useMemo(() => {
+    var _a2, _b2, _c2, _d2;
+    const rendered = days.filter((day) => showOutsideDays || !day.isOutside);
+    const focusedCell = rendered.find((day) => day.isFocused);
+    if (focusedCell != null) return focusedCell.key;
+    return (_d2 = (_c2 = (_a2 = rendered.find((day) => !day.isDisabled)) == null ? void 0 : _a2.key) != null ? _c2 : (_b2 = rendered[0]) == null ? void 0 : _b2.key) != null ? _d2 : null;
+  }, [days, showOutsideDays]);
+  const weeks = useMemo(() => {
+    const chunks = [];
+    for (let index = 0; index < days.length; index += DAYS_IN_WEEK) {
+      chunks.push(days.slice(index, index + DAYS_IN_WEEK));
+    }
+    return chunks;
+  }, [days]);
+  const monthName = (_c = MONTH_NAMES[viewMonth]) != null ? _c : "";
+  const monthLabel = monthLabelFormat === "short" ? (_d = MONTH_NAMES_SHORT[viewMonth]) != null ? _d : monthName : monthName;
+  const isTodayInView = view === "day" && isSameMonth(viewDate, today) && isSameDay(focusedDate, today);
+  const navLabels = {
+    day: ["Previous month", "Next month"],
+    month: ["Previous year", "Next year"],
+    year: [`Previous ${YEARS_PER_PAGE} years`, `Next ${YEARS_PER_PAGE} years`]
+  };
+  const [previousLabel, nextLabel] = navLabels[view];
+  const yearRangeLabel = `${yearRangeStart} to ${yearRangeStart + YEARS_PER_PAGE - 1}`;
+  const viewLabel = view === "day" ? `${monthName} ${viewYear}` : view === "month" ? `Months of ${viewYear}` : `Years ${yearRangeLabel}`;
+  const [announcement, setAnnouncement] = useState("");
+  const announcedLabel = useRef(viewLabel);
+  useEffect(() => {
+    if (announcedLabel.current === viewLabel) return;
+    announcedLabel.current = viewLabel;
+    setAnnouncement(viewLabel);
+  }, [viewLabel]);
+  return /* @__PURE__ */ jsxs(
+    "div",
+    {
+      className: cn("calendar", SIZE_CLASS4[size], disabled && "calendar--disabled", className),
+      id,
+      role: "group",
+      "aria-label": ariaLabel,
+      "aria-disabled": disabled || void 0,
+      children: [
+        /* @__PURE__ */ jsx("div", { className: "sr-only", role: "status", children: announcement }),
+        /* @__PURE__ */ jsxs("div", { className: "calendar-header", children: [
+          /* @__PURE__ */ jsxs("div", { className: "calendar-title", children: [
+            view === "day" && /* @__PURE__ */ jsxs(Fragment, { children: [
+              /* @__PURE__ */ jsx(
+                "button",
+                {
+                  type: "button",
+                  className: "btn calendar-title-btn",
+                  onClick: () => setView("month"),
+                  disabled,
+                  "aria-label": `${monthName} \u2014 choose month`,
+                  children: monthLabel
+                }
+              ),
+              /* @__PURE__ */ jsx(
+                "button",
+                {
+                  type: "button",
+                  className: "btn calendar-title-btn",
+                  onClick: () => setView("year"),
+                  disabled,
+                  "aria-label": `${viewYear} \u2014 choose year`,
+                  children: viewYear
+                }
+              )
+            ] }),
+            view === "month" && /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "button",
+                className: "btn calendar-title-btn",
+                onClick: () => setView("year"),
+                disabled,
+                "aria-label": `${viewYear} \u2014 choose year`,
+                children: viewYear
+              }
+            ),
+            view === "year" && /* @__PURE__ */ jsxs("span", { className: "calendar-title-static", children: [
+              /* @__PURE__ */ jsxs("span", { "aria-hidden": "true", children: [
+                yearRangeStart,
+                "\u2013",
+                yearRangeStart + YEARS_PER_PAGE - 1
+              ] }),
+              /* @__PURE__ */ jsx("span", { className: "sr-only", children: `Years ${yearRangeLabel}` })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxs("div", { className: "calendar-actions", children: [
+            showTodayButton && /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "button",
+                className: "btn calendar-today-btn",
+                onClick: goToToday,
+                disabled: disabled || isTodayInView,
+                children: "Today"
+              }
+            ),
+            /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "button",
+                className: "btn btn-icon calendar-nav-btn",
+                onClick: goPrevious,
+                disabled: !canGoPrevious,
+                "aria-label": previousLabel,
+                children: /* @__PURE__ */ jsx(Icon, { name: "arrows-button-left", size: "em" })
+              }
+            ),
+            /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "button",
+                className: "btn btn-icon calendar-nav-btn",
+                onClick: goNext,
+                disabled: !canGoNext,
+                "aria-label": nextLabel,
+                children: /* @__PURE__ */ jsx(Icon, { name: "arrows-button-right", size: "em" })
+              }
+            )
+          ] })
+        ] }),
+        view === "day" && /* @__PURE__ */ jsxs(
+          "div",
+          {
+            ref: gridRef,
+            className: "calendar-grid",
+            role: "grid",
+            "aria-label": `${monthName} ${viewYear}`,
+            onKeyDown: handleGridKeyDown,
+            onMouseLeave: () => setHoveredDate(null),
+            children: [
+              showWeekdays && /* @__PURE__ */ jsx("div", { className: "calendar-row", role: "row", children: weekdays.map((weekday) => (
+                // Named by the full weekday rather than an <abbr title>, whose
+                // tooltip is mouse-only and whose expansion is announced
+                // inconsistently across screen readers.
+                /* @__PURE__ */ jsx(
+                  "div",
+                  {
+                    className: "calendar-weekday",
+                    role: "columnheader",
+                    "aria-label": weekday.long,
+                    children: /* @__PURE__ */ jsx("span", { "aria-hidden": "true", children: weekday.short })
+                  },
+                  weekday.index
+                )
+              )) }),
+              weeks.map((week, weekIndex) => {
+                var _a2, _b2;
+                return /* @__PURE__ */ jsx("div", { className: "calendar-row", role: "row", children: week.map((day) => {
+                  if (day.isOutside && !showOutsideDays) {
+                    return /* @__PURE__ */ jsx("div", { className: "calendar-day-blank", role: "gridcell" }, day.key);
+                  }
+                  const dateKey = toDateKey(day.date);
+                  const dayNumber = day.date.getDate();
+                  const defaultLabel = day.date.toLocaleDateString("en-GB", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric"
+                  });
+                  return /* @__PURE__ */ jsx(
+                    "button",
+                    {
+                      type: "button",
+                      role: "gridcell",
+                      "data-cursor": "dot",
+                      "data-date": dateKey,
+                      ref: (node) => {
+                        if (node != null) dayRefs.current.set(dateKey, node);
+                        else dayRefs.current.delete(dateKey);
+                      },
+                      className: cn(
+                        "calendar-day",
+                        day.isOutside && "calendar-day--outside",
+                        day.isToday && "calendar-day--today",
+                        day.isSelected && "calendar-day--selected",
+                        day.isInRange && "calendar-day--in-range",
+                        day.isRangeStart && "calendar-day--range-start",
+                        day.isRangeEnd && "calendar-day--range-end",
+                        day.isDisabled && "calendar-day--disabled",
+                        renderDay != null && "calendar-day--custom"
+                      ),
+                      tabIndex: day.key === tabbableKey ? 0 : -1,
+                      "aria-selected": day.isSelected || day.isInRange ? true : void 0,
+                      "aria-current": day.isToday ? "date" : void 0,
+                      "aria-label": getDayLabel != null ? getDayLabel({ day, dayNumber, dateKey }, defaultLabel) : defaultLabel,
+                      disabled: day.isDisabled,
+                      onClick: () => selectDate(day.date),
+                      onMouseEnter: () => setHoveredDate(day.date),
+                      onFocus: () => setHoveredDate(day.date),
+                      children: /* @__PURE__ */ jsx("span", { className: "calendar-day-content", "aria-hidden": "true", children: renderDay != null ? renderDay({ day, dayNumber, dateKey }) : /* @__PURE__ */ jsx("span", { className: "calendar-day-number", children: dayNumber }) })
+                    },
+                    day.key
+                  );
+                }) }, (_b2 = (_a2 = week[0]) == null ? void 0 : _a2.key) != null ? _b2 : weekIndex);
+              })
+            ]
+          }
+        ),
+        view === "month" && /* @__PURE__ */ jsx("div", { ref: gridRef, className: "calendar-tiles", role: "group", "aria-label": `Months of ${viewYear}`, children: months.map((monthCell) => /* @__PURE__ */ jsx(
           "button",
           {
             type: "button",
-            role: "gridcell",
+            "data-cursor": "dot",
             className: cn(
-              "calendar-day",
-              isToday && "calendar-day-today",
-              isSelected && "calendar-day-selected",
-              isOtherMonth && "calendar-day-outside",
-              isDateDisabled && "calendar-day-disabled"
+              "calendar-tile",
+              monthCell.isCurrent && "calendar-tile--current",
+              monthCell.isSelected && "calendar-tile--selected",
+              monthCell.isDisabled && "calendar-tile--disabled"
             ),
-            "aria-selected": isSelected,
-            "aria-label": date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
-            disabled: isDateDisabled,
-            onClick: () => {
-              if (!isDateDisabled) onChange == null ? void 0 : onChange(date);
-            },
-            children: date.getDate()
+            "aria-current": monthCell.isSelected ? true : void 0,
+            "aria-label": MONTH_NAMES[monthCell.month],
+            disabled: monthCell.isDisabled,
+            onClick: () => goToMonth(monthCell.month),
+            children: /* @__PURE__ */ jsx("span", { "aria-hidden": "true", children: monthCell.label })
           },
-          date.toISOString()
-        );
-      })
-    ] })
-  ] });
-}
-var MONTH_SHORT = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec"
-];
-function formatDate(d) {
-  const day = String(d.getDate()).padStart(2, "0");
-  const month = MONTH_SHORT[d.getMonth()];
-  const year = d.getFullYear();
-  return `${day} ${month} ${year}`;
-}
-function parseDate(raw) {
-  const trimmed = raw.trim();
-  const match = trimmed.match(/^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})$/);
-  if (match != null) {
-    const [, dayStr, monthStr, yearStr] = match;
-    const monthIdx = MONTH_SHORT.findIndex(
-      (m) => m.toLowerCase() === (monthStr != null ? monthStr : "").toLowerCase()
-    );
-    if (monthIdx !== -1) {
-      const d2 = new Date(Number(yearStr), monthIdx, Number(dayStr));
-      if (!isNaN(d2.getTime())) return d2;
+          monthCell.month
+        )) }),
+        view === "year" && /* @__PURE__ */ jsx(
+          "div",
+          {
+            ref: gridRef,
+            className: "calendar-tiles",
+            role: "group",
+            "aria-label": `Years ${yearRangeLabel}`,
+            children: years.map((yearCell) => /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "button",
+                "data-cursor": "dot",
+                className: cn(
+                  "calendar-tile",
+                  yearCell.isCurrent && "calendar-tile--current",
+                  yearCell.isSelected && "calendar-tile--selected",
+                  yearCell.isDisabled && "calendar-tile--disabled"
+                ),
+                "aria-current": yearCell.isSelected ? true : void 0,
+                disabled: yearCell.isDisabled,
+                onClick: () => goToYear(yearCell.year),
+                children: yearCell.year
+              },
+              yearCell.year
+            ))
+          }
+        ),
+        showFields && /* @__PURE__ */ jsx("div", { className: cn("calendar-fields", mode === "range" && "calendar-fields--range"), children: mode === "range" ? /* @__PURE__ */ jsxs(Fragment, { children: [
+          /* @__PURE__ */ jsx(
+            CalendarDateField,
+            {
+              label: "From",
+              hideLabel: true,
+              value: (_e = range == null ? void 0 : range.from) != null ? _e : null,
+              disabled,
+              onCommit: commitRangeFrom
+            }
+          ),
+          /* @__PURE__ */ jsx("span", { className: "calendar-fields-arrow", "aria-hidden": "true", children: /* @__PURE__ */ jsx(Icon, { name: "arrows-button-right", size: "em" }) }),
+          /* @__PURE__ */ jsx(
+            CalendarDateField,
+            {
+              label: "To",
+              hideLabel: true,
+              value: (_f = range == null ? void 0 : range.to) != null ? _f : null,
+              disabled,
+              onCommit: commitRangeTo
+            }
+          )
+        ] }) : /* @__PURE__ */ jsx(
+          CalendarDateField,
+          {
+            label: "Date",
+            hideLabel: true,
+            value: selected,
+            disabled,
+            onCommit: commitSingle
+          }
+        ) })
+      ]
     }
-  }
-  const d = new Date(trimmed);
-  if (!isNaN(d.getTime())) return d;
-  return null;
-}
-function DateInput({
-  value,
-  onChange,
-  placeholder = "DD MMM YYYY",
-  hasError = false,
-  disabled = false,
-  minDate,
-  maxDate,
-  className
-}) {
-  const [inputText, setInputText] = useState(value != null ? formatDate(value) : "");
-  const [popoverOpen, setPopoverOpen] = useState(false);
-  const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0 });
-  const wrapperRef = useRef(null);
-  const popoverRef = useRef(null);
-  useEffect(() => {
-    setInputText(value != null ? formatDate(value) : "");
-  }, [value]);
-  const openPopover = useCallback(() => {
-    if (disabled) return;
-    const wrapper = wrapperRef.current;
-    if (wrapper == null) return;
-    const rect = wrapper.getBoundingClientRect();
-    setPopoverPos({
-      top: rect.bottom + window.scrollY + 4,
-      left: rect.left + window.scrollX
-    });
-    setPopoverOpen(true);
-  }, [disabled]);
-  const closePopover = useCallback(() => setPopoverOpen(false), []);
-  const handleDateSelect = useCallback(
-    (date) => {
-      onChange == null ? void 0 : onChange(date);
-      setInputText(formatDate(date));
-      closePopover();
-    },
-    [onChange, closePopover]
   );
-  const handleBlur = useCallback(
-    (e) => {
-      const raw = e.target.value;
-      if (raw === "") {
-        onChange == null ? void 0 : onChange(null);
+}
+var DATE_PLACEHOLDER = "DD MMM YYYY";
+var DATE_EXAMPLE = "24 Jul 2026";
+function CalendarDateField({
+  label,
+  hideLabel = false,
+  value,
+  disabled,
+  onCommit
+}) {
+  const [draft, setDraft] = useState(null);
+  const [isInvalid, setIsInvalid] = useState(false);
+  const baseId = useId();
+  const fieldId = `${baseId}-input`;
+  const hintId = `${baseId}-hint`;
+  const errorId = `${baseId}-error`;
+  const text = draft != null ? draft : value != null ? formatDateShort(value) : "";
+  const commit = useCallback(
+    (raw) => {
+      const trimmed = raw.trim();
+      if (trimmed === "") {
+        if (value != null) onCommit(null);
+        setDraft(null);
+        setIsInvalid(false);
         return;
       }
-      const parsed = parseDate(raw);
-      if (parsed != null) {
-        onChange == null ? void 0 : onChange(parsed);
-        setInputText(formatDate(parsed));
-      } else {
-        setInputText(value != null ? formatDate(value) : "");
+      const parsed = parseDateInput(trimmed);
+      if (parsed == null || !onCommit(parsed)) {
+        setIsInvalid(true);
+        return;
       }
+      setDraft(null);
+      setIsInvalid(false);
     },
-    [onChange, value]
+    [onCommit, value]
   );
-  useEffect(() => {
-    if (!popoverOpen) return;
-    const handleClick = (e) => {
-      const target = e.target;
-      if (popoverRef.current != null && !popoverRef.current.contains(target) && wrapperRef.current != null && !wrapperRef.current.contains(target)) {
-        closePopover();
-      }
-    };
-    const handleKey = (e) => {
-      if (e.key === "Escape") closePopover();
-    };
-    document.addEventListener("mousedown", handleClick);
-    document.addEventListener("keydown", handleKey);
-    return () => {
-      document.removeEventListener("mousedown", handleClick);
-      document.removeEventListener("keydown", handleKey);
-    };
-  }, [popoverOpen, closePopover]);
-  return /* @__PURE__ */ jsxs("div", { ref: wrapperRef, className: cn("date-input", className), children: [
+  const revert = useCallback(() => {
+    setDraft(null);
+    setIsInvalid(false);
+  }, []);
+  return /* @__PURE__ */ jsxs("div", { className: "calendar-field", children: [
+    /* @__PURE__ */ jsx("label", { className: cn("calendar-field-label", hideLabel && "sr-only"), htmlFor: fieldId, children: label }),
     /* @__PURE__ */ jsx(
       "input",
       {
+        id: fieldId,
         type: "text",
-        className: cn("input", hasError && "is-error"),
-        placeholder,
-        value: inputText,
+        className: cn("input", "calendar-field-input", isInvalid && "is-error"),
+        value: text,
+        placeholder: DATE_PLACEHOLDER,
         disabled,
-        onChange: (e) => setInputText(e.target.value),
-        onFocus: openPopover,
-        onBlur: handleBlur,
-        autoComplete: "off"
+        autoComplete: "off",
+        spellCheck: false,
+        "aria-invalid": isInvalid,
+        "aria-describedby": cn(hintId, isInvalid && errorId),
+        onChange: (event) => {
+          setDraft(event.target.value);
+          setIsInvalid(false);
+        },
+        onKeyDown: (event) => {
+          event.stopPropagation();
+          if (event.key === "Enter") {
+            event.preventDefault();
+            commit(event.currentTarget.value);
+          } else if (event.key === "Escape") {
+            event.preventDefault();
+            revert();
+          }
+        },
+        onBlur: (event) => commit(event.target.value)
       }
     ),
-    popoverOpen && typeof document !== "undefined" && ReactDOM.createPortal(
-      /* @__PURE__ */ jsx(
-        "div",
-        {
-          ref: popoverRef,
-          className: "date-input-popover",
-          style: { top: popoverPos.top, left: popoverPos.left },
-          children: /* @__PURE__ */ jsx(
-            CalendarPicker,
-            {
-              value,
-              onChange: handleDateSelect,
-              minDate,
-              maxDate,
-              disabled
-            }
-          )
-        }
-      ),
-      document.body
-    )
+    /* @__PURE__ */ jsx("span", { id: hintId, className: "sr-only", children: `Format: day, short month, year. For example, ${DATE_EXAMPLE}.` }),
+    isInvalid && /* @__PURE__ */ jsx("p", { id: errorId, className: "calendar-field-error", role: "alert", children: "Invalid date" })
   ] });
 }
+function MediaCalendar({
+  entries,
+  value = null,
+  onChange,
+  month = null,
+  defaultMonth = null,
+  onMonthChange,
+  minDate = null,
+  maxDate = null,
+  weekStartsOn = 1,
+  showOutsideDays = true,
+  showTodayButton = true,
+  monthLabelFormat,
+  disabled = false,
+  className,
+  "aria-label": ariaLabel = "Photo calendar"
+}) {
+  const renderDay = useCallback(
+    ({ dayNumber, dateKey }) => {
+      var _a, _b;
+      const entry = (_a = entries[dateKey]) != null ? _a : null;
+      return /* @__PURE__ */ jsxs(
+        "span",
+        {
+          className: cn("calendar-media", entry != null && "calendar-media--filled"),
+          "data-cursor-preview": entry == null ? void 0 : entry.src,
+          children: [
+            entry != null ? /* @__PURE__ */ jsx(
+              "img",
+              {
+                className: "calendar-media-image",
+                src: entry.src,
+                alt: (_b = entry.alt) != null ? _b : "",
+                loading: "lazy",
+                draggable: false
+              }
+            ) : /* @__PURE__ */ jsx("span", { className: "calendar-media-ring", "aria-hidden": "true" }),
+            /* @__PURE__ */ jsx("span", { className: "calendar-media-number body-xs", children: dayNumber })
+          ]
+        }
+      );
+    },
+    [entries]
+  );
+  const getDayLabel = useCallback(
+    ({ dateKey }, defaultLabel) => {
+      var _a, _b, _c;
+      const entry = (_a = entries[dateKey]) != null ? _a : null;
+      if (entry == null) return defaultLabel;
+      const alt = (_c = (_b = entry.alt) == null ? void 0 : _b.trim()) != null ? _c : "";
+      return alt !== "" ? `${defaultLabel}, photo: ${alt}` : `${defaultLabel}, has photo`;
+    },
+    [entries]
+  );
+  const handleChange = useCallback(
+    (date) => {
+      var _a;
+      onChange == null ? void 0 : onChange(date, (_a = entries[toDateKey(date)]) != null ? _a : null);
+    },
+    [entries, onChange]
+  );
+  return /* @__PURE__ */ jsx(
+    Calendar,
+    {
+      className: cn("calendar--media", className),
+      value,
+      onChange: handleChange,
+      month,
+      defaultMonth,
+      onMonthChange,
+      minDate,
+      maxDate,
+      weekStartsOn,
+      showOutsideDays,
+      showTodayButton,
+      monthLabelFormat,
+      disabled,
+      renderDay,
+      getDayLabel,
+      "aria-label": ariaLabel
+    }
+  );
+}
+var POPOVER_ESTIMATED_HEIGHT = 380;
+var POPOVER_OFFSET = 4;
+var POPOVER_VIEWPORT_MARGIN = 8;
+var DateInput = forwardRef(function DateInput2(_a, ref) {
+  var _b = _a, {
+    value = null,
+    onChange,
+    placeholder = "DD MMM YYYY",
+    hasError = false,
+    floatLabel,
+    borderless = false,
+    disabled = false,
+    minDate = null,
+    maxDate = null,
+    weekStartsOn = 1,
+    calendarSize = "sm",
+    className,
+    style,
+    id,
+    onKeyDown: onKeyDownProp,
+    onBlur: onBlurProp
+  } = _b, fieldProps = __objRest(_b, [
+    "value",
+    "onChange",
+    "placeholder",
+    "hasError",
+    "floatLabel",
+    "borderless",
+    "disabled",
+    "minDate",
+    "maxDate",
+    "weekStartsOn",
+    "calendarSize",
+    "className",
+    "style",
+    "id",
+    "onKeyDown",
+    "onBlur"
+  ]);
+  const [draft, setDraft] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const wrapperRef = useRef(null);
+  const inputRef = useRef(null);
+  const popoverRef = useRef(null);
+  const shouldFocusGrid = useRef(false);
+  const generatedId = useId();
+  const fieldId = id != null ? id : generatedId;
+  const popoverId = `${fieldId}-calendar`;
+  useGravity(wrapperRef);
+  const mergedRef = useCallback(
+    (node) => {
+      inputRef.current = node;
+      if (typeof ref === "function") ref(node);
+      else if (ref != null) ref.current = node;
+    },
+    [ref]
+  );
+  const inputText = draft != null ? draft : value != null ? formatDateShort(value) : "";
+  const updatePosition = useCallback(() => {
+    var _a2, _b2;
+    const wrapper = wrapperRef.current;
+    if (wrapper == null) return;
+    const rect = wrapper.getBoundingClientRect();
+    const popover = popoverRef.current;
+    const height = (_a2 = popover == null ? void 0 : popover.offsetHeight) != null ? _a2 : POPOVER_ESTIMATED_HEIGHT;
+    const width = (_b2 = popover == null ? void 0 : popover.offsetWidth) != null ? _b2 : 0;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const flipAbove = spaceBelow < height && rect.top > height;
+    const maxLeft = window.innerWidth - width - POPOVER_VIEWPORT_MARGIN;
+    const left = Math.max(POPOVER_VIEWPORT_MARGIN, Math.min(rect.left, maxLeft));
+    setPosition({
+      top: flipAbove ? rect.top + window.scrollY - height - POPOVER_OFFSET : rect.bottom + window.scrollY + POPOVER_OFFSET,
+      left: left + window.scrollX
+    });
+  }, []);
+  const open = useCallback(
+    (focusGrid) => {
+      if (disabled) return;
+      shouldFocusGrid.current = focusGrid;
+      updatePosition();
+      setIsOpen(true);
+    },
+    [disabled, updatePosition]
+  );
+  const close = useCallback((returnFocus) => {
+    var _a2;
+    setIsOpen(false);
+    shouldFocusGrid.current = false;
+    if (returnFocus) (_a2 = inputRef.current) == null ? void 0 : _a2.focus();
+  }, []);
+  const commitText = useCallback(
+    (raw) => {
+      setDraft(null);
+      if (raw.trim() === "") {
+        onChange == null ? void 0 : onChange(null);
+        return;
+      }
+      const parsed = parseDateInput(raw);
+      if (parsed != null) onChange == null ? void 0 : onChange(parsed);
+    },
+    [onChange]
+  );
+  const handleDateSelect = useCallback(
+    (date) => {
+      setDraft(null);
+      onChange == null ? void 0 : onChange(date);
+      close(true);
+    },
+    [onChange, close]
+  );
+  const handleKeyDown = useCallback(
+    (event) => {
+      onKeyDownProp == null ? void 0 : onKeyDownProp(event);
+      if (event.defaultPrevented) return;
+      if (event.key === "ArrowDown" && !isOpen) {
+        event.preventDefault();
+        open(true);
+        return;
+      }
+      if (event.key === "Escape" && isOpen) {
+        event.preventDefault();
+        close(true);
+        return;
+      }
+      if (event.key === "Enter") {
+        event.preventDefault();
+        commitText(event.currentTarget.value);
+        close(false);
+      }
+    },
+    [isOpen, open, close, commitText, onKeyDownProp]
+  );
+  const handleBlur = useCallback(
+    (event) => {
+      commitText(event.target.value);
+      onBlurProp == null ? void 0 : onBlurProp(event);
+    },
+    [commitText, onBlurProp]
+  );
+  useEffect(() => {
+    if (!isOpen) return;
+    updatePosition();
+  }, [isOpen, updatePosition]);
+  useEffect(() => {
+    var _a2;
+    if (!isOpen || !shouldFocusGrid.current) return;
+    const focusable = (_a2 = popoverRef.current) == null ? void 0 : _a2.querySelector('.calendar-day[tabindex="0"]');
+    focusable == null ? void 0 : focusable.focus();
+    shouldFocusGrid.current = false;
+  }, [isOpen]);
+  useEffect(() => {
+    if (!isOpen) return;
+    const handlePointerDown = (event) => {
+      var _a2, _b2;
+      const target = event.target;
+      if (((_a2 = popoverRef.current) == null ? void 0 : _a2.contains(target)) === true || ((_b2 = wrapperRef.current) == null ? void 0 : _b2.contains(target)) === true) {
+        return;
+      }
+      close(false);
+    };
+    const handleKey = (event) => {
+      if (event.key === "Escape") close(true);
+    };
+    const handleFocusIn = (event) => {
+      var _a2, _b2;
+      const target = event.target;
+      if (target == null) return;
+      if (((_a2 = popoverRef.current) == null ? void 0 : _a2.contains(target)) === true) return;
+      if (((_b2 = wrapperRef.current) == null ? void 0 : _b2.contains(target)) === true) return;
+      close(false);
+    };
+    const handleReflow = () => updatePosition();
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKey);
+    document.addEventListener("focusin", handleFocusIn);
+    window.addEventListener("scroll", handleReflow, true);
+    window.addEventListener("resize", handleReflow);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKey);
+      document.removeEventListener("focusin", handleFocusIn);
+      window.removeEventListener("scroll", handleReflow, true);
+      window.removeEventListener("resize", handleReflow);
+    };
+  }, [isOpen, close, updatePosition]);
+  const field = /* @__PURE__ */ jsx(
+    "input",
+    __spreadProps(__spreadValues({}, fieldProps), {
+      ref: mergedRef,
+      id: fieldId,
+      type: "text",
+      role: "combobox",
+      className: cn(
+        "input",
+        "date-input-field",
+        floatLabel != null && "input--float",
+        borderless && "input--borderless",
+        hasError && "is-error"
+      ),
+      placeholder: floatLabel != null ? " " : placeholder,
+      value: inputText,
+      disabled,
+      "aria-invalid": hasError,
+      "aria-haspopup": "dialog",
+      "aria-expanded": isOpen,
+      "aria-controls": isOpen ? popoverId : void 0,
+      onChange: (event) => setDraft(event.target.value),
+      onKeyDown: handleKeyDown,
+      onBlur: handleBlur,
+      autoComplete: "off"
+    })
+  );
+  return /* @__PURE__ */ jsxs(
+    "div",
+    {
+      ref: wrapperRef,
+      className: cn("date-input", floatLabel != null && "date-input--float", className),
+      style,
+      children: [
+        floatLabel != null ? /* @__PURE__ */ jsxs("div", { className: "input-float-field", children: [
+          field,
+          /* @__PURE__ */ jsx("label", { htmlFor: fieldId, className: "input-float-label", children: floatLabel })
+        ] }) : field,
+        /* @__PURE__ */ jsx(
+          "button",
+          {
+            type: "button",
+            className: "btn btn-icon date-input-trigger",
+            disabled,
+            "aria-label": isOpen ? "Close calendar" : "Open calendar",
+            "aria-haspopup": "dialog",
+            "aria-expanded": isOpen,
+            onClick: () => isOpen ? close(true) : open(true),
+            children: /* @__PURE__ */ jsx(Icon, { name: "calendar-date", size: "em" })
+          }
+        ),
+        isOpen && typeof document !== "undefined" && ReactDOM.createPortal(
+          /* @__PURE__ */ jsx(
+            "div",
+            {
+              ref: popoverRef,
+              id: popoverId,
+              role: "dialog",
+              "aria-modal": "false",
+              "aria-label": "Choose date",
+              className: "date-input-popover",
+              style: { top: position.top, left: position.left },
+              children: /* @__PURE__ */ jsx(
+                Calendar,
+                {
+                  size: calendarSize,
+                  value,
+                  onChange: handleDateSelect,
+                  minDate,
+                  maxDate,
+                  weekStartsOn,
+                  disabled,
+                  showDateFields: false
+                }
+              )
+            }
+          ),
+          document.body
+        )
+      ]
+    }
+  );
+});
 function SearchDropdown({
   options,
   value,
@@ -6460,6 +7612,6 @@ var FONT_WEIGHT_TOKENS = [
   { name: "--fw-black", value: "900" }
 ];
 
-export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, BackToTop, Badge, Button, ButtonGroup, COMPONENT_CATEGORIES, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandDialog, CommandEmpty, CommandGroup, CommandHeader, CommandInput, CommandItem, CommandList, CommandPalette, CommandPaletteHost, ConfirmDialog, ContentCard, Cursor, DateInput, Dialog, DialogCard, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogPanel, DialogTitle, DialogTitleRow, DialogTrigger, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EditableTable, FONT_WEIGHT_TOKENS, FileChip, FileDropzone, Footer, Grid, GridTile, GridTileAction, HEADING_VARIANTS, ICONS, ICONS_BY_ID, Icon, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, MainWrapper, NAV_ITEMS, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, PADDING_TOKENS, PageWrapper, PlainLink, Popover, PopoverContent, PopoverTrigger, Progress, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, Scrim, ScrollBendMedia, SearchButton, SearchDropdown, SectionTile, Select, Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, cn, componentLabel, formatFileSize, useCursor, useGravity, useScrollBend, useTheme, useThemeContext };
+export { ACCENT_TOKENS, ALL_TYPE_VARIANTS, ALPHA_TOKENS, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, BLUR_TOKENS, BODY_VARIANTS, BORDER_TOKENS, BREAKPOINT_TOKENS, BackToTop, Badge, Button, ButtonGroup, COMPONENT_CATEGORIES, CONTAINER_MAXWIDTH_TOKEN, CONTAINER_TOKENS, Calendar, Calendar as CalendarPicker, Checkbox, Choice, ChoiceLabel, ClientShell, CodeSnippet, CollapsibleCode, Command, CommandDialog, CommandEmpty, CommandGroup, CommandHeader, CommandInput, CommandItem, CommandList, CommandPalette, CommandPaletteHost, ConfirmDialog, ContentCard, Cursor, DateInput, Dialog, DialogCard, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogPanel, DialogTitle, DialogTitleRow, DialogTrigger, Divider, DownloadTile, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EditableTable, FONT_WEIGHT_TOKENS, FileChip, FileDropzone, Footer, Grid, GridTile, GridTileAction, HEADING_VARIANTS, ICONS, ICONS_BY_ID, Icon, Input, InputError, InputField, InputHelp, InputLabel, LEADING_TOKENS, LINK_SIZES, MONTH_LABELS_SHORT, MainWrapper, MediaCalendar, NAV_ITEMS, Nav, NavLinks, NavProgressiveBlur, OPACITY_LEVELS, PADDING_TOKENS, PageWrapper, PlainLink, Popover, PopoverContent, PopoverTrigger, Progress, RADIUS_TOKENS, Radio, RichText, RouteAttribute, SEMANTIC_COLORS, SPACING_TOKENS, SUBHEADING_VARIANTS, Scrim, ScrollBendMedia, SearchButton, SearchDropdown, SectionTile, Select, Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger, ShinodaLink, Skeleton, Slider, StickyCol, Switch, TRACKING_TOKENS, Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow, Tabs, TabsList, TabsPanel, TabsTrigger, Text, Textarea, ThemeToggle, Tooltip, TooltipRoot, addDays, addMonths, addYears, clampDate, cn, componentLabel, formatDateShort, formatFileSize, fromDateKey, isAfterDay, isBeforeDay, isSameDay, isSameMonth, isWithinDays, parseDateInput, startOfDay, toDateKey, useCalendar, useCursor, useGravity, useGravityWithin, useScrollBend, useTheme, useThemeContext, useToday };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

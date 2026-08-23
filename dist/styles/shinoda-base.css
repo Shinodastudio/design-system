@@ -226,8 +226,21 @@ hr { border: none; height: 1px; background: var(--color-text-primary); opacity: 
 /* Collapse to single column at Webflow's mobile-landscape cutoff (767) to
    match the design canvas — keeps two columns at tablet (1024 canvas, ≤991). */
 @media (max-width: 767px) {
-  .grid-2col { grid-template-columns: 1fr; }
-  .col-sticky { position: static; max-width: none; }
+  .grid-2col {
+    grid-template-columns: 1fr;
+    /* Stacked, the two halves need vertical separation doing the work the
+       column gutter did horizontally — otherwise the left column's copy runs
+       straight into the right column's content and reads as one block. */
+    row-gap: var(--padding-section-lg);
+  }
+  .col-sticky {
+    position: static;
+    max-width: none;
+    /* The 8em right gutter is a two-column device: it holds the left column
+       clear of the right one. Stacked, it's just 192px eaten out of a 342px
+       line, breaking the copy into 2–3 words per line. */
+    padding-right: 0;
+  }
 }
 
 /* Dividers — horizontal only, 10% opacity (token --opacity-divider) */
@@ -287,24 +300,9 @@ hr { border: none; height: 1px; background: var(--color-text-primary); opacity: 
   min-width: 0;
 }
 
-/* Brand link sits flush left. nav-actions cluster (search + theme toggle)
-   is pushed flush right via margin-left:auto. */
-.nav-brand.btn,
-.nav-brand {
-  font-size: 0.875rem;
-  letter-spacing: var(--tracking-n015);
-  opacity: 1;
-}
-/* Wordmark reads as a standalone chip rather than a plain text link, so its
-   hover pill gets more breathing room than the generic .btn 3px inset —
-   8px (--space-2) on all sides, still --radius-sm (8px) to match. Compound
-   selector (.nav-brand.btn) outranks the later, equally-specific .btn::before
-   rule in the cascade — Button renders both classes together on the anchor. */
-.nav-brand.btn::before,
-.nav-brand::before {
-  inset: calc(-1 * var(--space-2));
-  border-radius: var(--radius-sm);
-}
+/* Sole nav affordance — the search icon — pinned flush right. margin-left:auto
+   still does the work with no sibling to push against, so the cluster holds
+   its position if anything is ever added back to the left. */
 .nav-actions {
   display: flex;
   align-items: center;
@@ -424,65 +422,143 @@ hr { border: none; height: 1px; background: var(--color-text-primary); opacity: 
   .nav-links > li { flex-shrink: 0; }
 }
 
-/* Mobile-landscape and below (≤767): hide the nav entirely.
-   Items are rendered by <Footer> instead — see Footer.tsx. */
-@media (max-width: 767px) {
-  .nav { display: none; }
+/* The nav is a single search icon at every width — nothing to collapse, so no
+   mobile-hide rule. It used to disappear ≤767px because the link strip
+   couldn't fit; the footer then carried a vertical NAV_ITEMS list as the sole
+   navigation surface. Both are gone: the search icon (and the Command palette
+   behind it) is now the one navigation affordance on every breakpoint. */
+
+/* ─── SITE FOOTER — one layout at every width (Figma 3932:13432) ─────────────
+   A full-width divider opens the block, then --padding-section-sm above and
+   below the row separates it from page content (shinoda.studio parity).
+   Everything inside is heading-md — the system's primary type style — resting
+   at 40% opacity and lifting to 100% on hover.
+
+   Breadcrumb (left) / attribution + Changelog trigger + theme toggle (right).
+   Below 768px the two halves stack and each wraps internally; the content is
+   identical either side of the breakpoint. */
+.site-footer {
+  width: 100%;
+  max-width: var(--container-5xl);
+  margin-inline: auto;
+  padding-inline: var(--padding-page);
 }
 
-/* ─── SITE FOOTER — two layouts sharing one <footer> landmark (Figma 3932:13432) ──
-   .footer-bar  Persistent bar, ≥768px only: page name (left) / attribution +
-                Changelog trigger + theme toggle (right).
-   .footer-nav  Mobile-only (≤767px) vertical list of NAV_ITEMS — the sole nav
-                surface at that breakpoint, since .nav hides entirely there. */
-.site-footer { width: 100%; }
-
-.footer-bar { display: none; }
-@media (min-width: 768px) {
+/* Mobile-first: a stack. There isn't room for "Design System / Components /
+   Button" and the attribution on one 390px line at heading-md, and dropping
+   the type size to fit would break the footer's single-size rule — so the
+   halves stack and the breadcrumb wraps at its slashes instead. */
+.footer-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-6);
+  width: 100%;
+  padding-block: var(--padding-section-sm);
+  color: var(--color-text-primary);
+}
+/* 992px, not 768: the two halves together run ~750px at heading-md on a deep
+   route, so at tablet widths the row technically fits but the attribution
+   wraps mid-phrase. Stacking until there's real room keeps both halves on
+   one line each. */
+@media (min-width: 992px) {
   .footer-bar {
-    display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-4);
-    width: 100%;
-    max-width: var(--container-5xl);
-    margin-inline: auto;
-    padding-block: var(--space-4);
-    padding-inline: var(--padding-page);
-    color: var(--color-text-primary);
   }
 }
 
 /* Breadcrumb trail — segments joined by "/", 2-unit (--space-2) gap on
-   either side of the slash so "Components", "/", "Buttons" read as three
-   evenly-spaced flex items. */
+   either side of the slash so "Design System", "/", "Components" read as
+   evenly-spaced flex items. Every crumb is a link, so opacity sits on each
+   leaf (never on the row — 40% inside 40% compounds to 16%, off-scale) and
+   lifts to 100% on hover, matching the meta cluster opposite. */
 .footer-bar-page {
   display: flex;
   align-items: center;
+  /* Row gap matches the column gap so a wrapped second line sits on the same
+     rhythm as the space between crumbs. */
   gap: var(--space-2);
-  flex-shrink: 0;
+  /* Wrappable at every width, not just when stacked. In the row layout the
+     meta cluster holds its intrinsic width (it's a phrase, and breaking
+     "Made by Shinoda · 2026 · Changelog" mid-way reads as a mistake), so the
+     breadcrumb is the half that gives — it breaks at a slash, which is a
+     legible seam. Between 992 and ~1050px a deep trail does exactly that;
+     wider than that it never needs to. */
+  flex-wrap: wrap;
 }
-.footer-bar-slash { opacity: var(--opacity-40); }
 
+.footer-bar-crumb,
+.footer-bar-crumb-slash { opacity: var(--opacity-40); }
+
+.footer-bar-crumb {
+  color: inherit;
+  text-decoration: none;
+  cursor: none;
+  transition: opacity 150ms ease;
+}
+.footer-bar-crumb:hover,
+.footer-bar-crumb:focus-visible { opacity: 1; }
+.footer-bar-crumb:focus-visible { outline: none; }
+
+/* Stacked layout: the right-hand half spans the full width so the theme
+   toggle sits hard against the right edge, mirroring its desktop position
+   rather than trailing the attribution. */
 .footer-bar-right {
   display: flex;
-  align-items: center;
+  /* flex-start, not center: the attribution wraps to two lines on a narrow
+     screen, and a vertically centred toggle would then float between them
+     rather than sitting on the "Made by Shinoda" baseline it shares on
+     desktop. */
+  align-items: flex-start;
+  justify-content: space-between;
   gap: var(--space-4);
+  width: 100%;
+}
+@media (min-width: 992px) {
+  .footer-bar-right {
+    align-items: center;
+    width: auto;
+    /* The meta cluster is wrappable, so its min-content width is a fraction of
+       its one-line width — as a shrinkable flex item it would collapse and
+       break mid-phrase long before the row actually ran out of room. */
+    flex-shrink: 0;
+  }
 }
 
-/* Each item sets its own opacity directly (system rule: hierarchy through
-   opacity, not compounding parent opacity) — "Made by Shinoda" at 80%,
-   "{year}"/"Changelog" at 40%, the dot separators at 20%. */
 .footer-bar-meta {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--space-2);
 }
+@media (min-width: 992px) {
+  .footer-bar-meta { flex-wrap: nowrap; }
+}
+
+/* Each leaf sets its own opacity directly (system rule: hierarchy through
+   opacity, never compounded through a parent) — every item rests at 40%,
+   the dot separators at 20%. */
+.footer-bar-made,
 .footer-bar-meta-dim { opacity: var(--opacity-40); }
 
+/* Wraps "Made by Shinoda" so the whole phrase lifts together — hovering the
+   Shinoda link alone would otherwise leave "Made by" behind at 40%. */
+.footer-bar-made { transition: opacity 150ms ease; }
+.footer-bar-made:hover,
+.footer-bar-made:focus-within { opacity: 1; }
+
+/* The shared <ThemeToggle> hardcodes an 18px glyph, which reads undersized
+   against heading-md. .btn is already font-size: 1.5rem, so switching to em
+   lands it at 24px here without disturbing the same toggle up in the nav. */
+.footer-bar-toggle svg { width: 1em; height: 1em; }
+
+/* em-based so the separator scales with the heading-md type it sits beside. */
 .footer-bar-dot {
-  width: 4px;
-  height: 4px;
+  width: 0.25em;
+  height: 0.25em;
   flex-shrink: 0;
   border-radius: 50%;
   background-color: currentColor;
@@ -508,28 +584,6 @@ hr { border: none; height: 1px; background: var(--color-text-primary); opacity: 
   background-color: var(--alpha-10);
 }
 .footer-bar-changelog:focus-visible { outline: none; }
-
-.footer-nav { display: none; }
-@media (max-width: 767px) {
-  .site-footer {
-    display: block;
-    width: 100%;
-    max-width: var(--container-5xl);
-    margin-inline: auto;
-    padding-block: var(--padding-section-md) var(--padding-section-sm);
-    padding-inline: var(--padding-page);
-  }
-  .footer-nav {
-    display: flex;
-    list-style: none;
-    flex-direction: column;
-    gap: var(--space-4);
-    padding: 0;
-    margin: 0;
-  }
-  .footer-nav-link { display: inline-block; }
-  .footer-nav-link:hover { opacity: 1; }
-}
 
 /* ─── BUTTONS — no padding; bg extends 3px outside text bounds (Figma spec) ─
    The outer element is exactly the text's natural bounding box — no extra
@@ -950,6 +1004,29 @@ html.cursor--chip .cursor {
   align-items: center;
 }
 html.cursor--chip .cursor-label { opacity: 1; }
+/* Image preview — the dot swells into the hovered thumbnail (media calendar).
+   The difference blend has to come off here: it would invert the photograph.
+   The layer is inert until the state is on, so it never affects other cursors. */
+.cursor-preview {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 150ms ease;
+  pointer-events: none;
+}
+html.cursor--preview .cursor {
+  width: var(--cursor-preview-size, 7.5rem);
+  height: var(--cursor-preview-size, 7.5rem);
+  border-radius: var(--radius-full);
+  background: var(--color-fill-secondary);
+  mix-blend-mode: normal;
+}
+html.cursor--preview .cursor-preview { opacity: 1; }
+html.cursor--preview.cursor--active .cursor { transform: translate(-50%,-50%) scale(0.96); }
 /* Press — scale down */
 html.cursor--active .cursor { transform: translate(-50%,-50%) scale(0.8); }
 /* Focus — hide cursor while typing */
@@ -2605,6 +2682,19 @@ html.cursor--focused .cursor { opacity: 0; }
   background: transparent;
   max-width: 90vw;
   width: 480px;
+  /* Position asserted here rather than inherited from the UA stylesheet.
+     `position: fixed` only reaches a <dialog> via the UA's `dialog:modal`
+     rule, and that match depends on top-layer promotion having been folded
+     into style resolution. When showModal() runs in the same frame the
+     element is portaled in (which is exactly what DialogContent does),
+     WebKit can lay the first frames out against the plain `dialog { position:
+     absolute }` default — document-relative, so on a scrolled page the modal
+     paints scrolled-off by exactly window.scrollY. Restating fixed/inset/
+     margin (Chromium's UA values for a modal dialog) makes the geometry
+     author-controlled and identical in every engine. */
+  position: fixed;
+  inset: 0;
+  height: fit-content;
   /* Native <dialog> is NOT a normal inheriting box for `color` — Chromium's
      UA stylesheet sets it to CanvasText (effectively black, ignoring our
      data-theme attribute) rather than `inherit`. Without this, any text
@@ -2793,9 +2883,14 @@ html.cursor--focused .cursor { opacity: 0; }
 /* display:flex is scoped to [open] — see .dialog--bare[open] above for why. */
 .dialog.dialog--drawer[open] {
   inset: 0;
-  width: 100vw;
+  /* 100% of the initial containing block, not 100vw/100vh: vw includes the
+     classic scrollbar gutter (horizontal overflow) and vh resolves to the
+     *large* viewport in browsers with retractable toolbars, which pushes the
+     card's bottom edge below the fold. With position:fixed + inset:0 these
+     percentages are the viewport by definition. */
+  width: 100%;
   max-width: none;
-  height: 100vh;
+  height: 100%;
   max-height: none;
   margin: 0;
   padding: var(--space-16) var(--space-16) 0;
@@ -3552,76 +3647,506 @@ html.cursor--focused .cursor { opacity: 0; }
 select.editable-cell-input { appearance: none; -webkit-appearance: none; cursor: none; }
 
 /* ─── CALENDAR ───────────────────────────────────────────────────────────── */
+/* Two sizes only — sm (28px cells) and md (32px, default). Everything scales
+   off --calendar-cell so the media variant can override a single value.
+   Day cells are buttons but opt out of the button cursor rule via
+   data-cursor="dot" (see useCursor): in a 42-cell grid the disappearing
+   cursor reads as a bug, so the dot stays and each cell pulls it with the
+   grid gravity from useGravityWithin. */
 .calendar {
-  display: flex;
+  --calendar-cell: 2rem;
+  display: inline-flex;
   flex-direction: column;
-  gap: var(--space-4);
-  width: 280px;
+  gap: var(--space-3);
   background-color: var(--color-fill-base);
   border: var(--border-sm) solid var(--color-transparent-weak);
-  border-radius: var(--radius-md);
-  padding: var(--space-4);
+  border-radius: var(--radius-xl);
+  padding: var(--space-3);
+  user-select: none;
 }
+.calendar--sm { --calendar-cell: 1.75rem; }
+.calendar--md { --calendar-cell: 2rem; }
+.calendar--disabled { opacity: var(--opacity-40); pointer-events: none; }
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
 .calendar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--space-4);
+  padding-inline: var(--space-1);
 }
-.calendar-nav-btn {
+.calendar-title { display: flex; align-items: baseline; gap: var(--space-2); }
+.calendar-title-btn,
+.calendar-title-static {
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n010);
+  line-height: var(--leading-body-xs);
+}
+.calendar-title-btn { border-radius: var(--radius-md); }
+.calendar-actions { display: flex; align-items: center; gap: var(--space-2); }
+.calendar-today-btn {
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-none);
   opacity: var(--opacity-40);
-  padding: var(--space-1);
+  border-radius: var(--radius-md);
   transition: opacity 150ms ease;
 }
-.calendar-nav-btn:hover { opacity: 1; }
-.calendar-month-label { font-size: 1rem; letter-spacing: var(--tracking-n015); }
-.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
+.calendar-today-btn:hover:not(:disabled) { opacity: 1; }
+.calendar-nav-btn {
+  font-size: 0.875rem;
+  opacity: var(--opacity-40);
+  transition: opacity 150ms ease;
 }
-.calendar-day-header {
+.calendar-nav-btn:hover:not(:disabled) { opacity: 1; }
+.calendar-today-btn:disabled,
+.calendar-nav-btn:disabled { opacity: var(--opacity-20); }
+.calendar-today-btn:disabled::before,
+.calendar-nav-btn:disabled::before { opacity: 0; }
+
+/* ── Day grid ───────────────────────────────────────────────────────────── */
+/* Zero gap so a selected range reads as one continuous band across the row;
+   the caps are rounded on the endpoints only. */
+/* Rows are real boxes, each its own seven-column grid, stacked in a column.
+   The alternative — one grid of 42 cells with display: contents on the ARIA row
+   wrappers — puts the entire layout at the mercy of a single declaration: lose
+   it and the seven row elements become seven grid *items*, so the weekday
+   header stacks into column one and every week runs vertically. A calendar that
+   transposes itself is worse than one that is briefly unstyled. */
+.calendar-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.calendar-row {
+  display: grid;
+  grid-template-columns: repeat(7, var(--calendar-cell));
+  gap: 0;
+}
+.calendar-weekday {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-1);
-  font-size: 0.75rem;
-  letter-spacing: var(--tracking-n010);
+  height: var(--calendar-cell);
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-none);
   opacity: var(--opacity-40);
 }
+.calendar-day-blank { width: var(--calendar-cell); height: var(--calendar-cell); }
+
 .calendar-day {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--calendar-cell);
+  height: var(--calendar-cell);
+  padding: 0;
+  font: inherit;
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-none);
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: none;
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1),
+              background-color 120ms ease,
+              color 120ms ease,
+              opacity 120ms ease;
+}
+.calendar-day-content {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  aspect-ratio: 1;
-  font: inherit;
-  font-size: 0.875rem;
-  letter-spacing: var(--tracking-n010);
-  color: var(--color-text-primary);
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-xs);
-  cursor: none;
-  transition: background-color 100ms ease;
+  height: 100%;
 }
-.calendar-day:hover:not(.calendar-day-disabled):not(.calendar-day-outside) {
+.calendar-day-number { line-height: 1; }
+
+.calendar-day:hover:not(:disabled):not(.calendar-day--selected) {
+  background-color: var(--color-transparent-core);
+}
+.calendar-day:focus-visible { outline: none; }
+.calendar-day:focus-visible::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: var(--radius-md);
+  border: var(--border-md) dashed var(--color-fill-tertiary);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.calendar-day--outside { opacity: var(--opacity-20); }
+.calendar-day--disabled,
+.calendar-day:disabled { opacity: var(--opacity-20); cursor: none; }
+
+/* Range band — 5% fill runs edge to edge, endpoints take the solid fill. */
+.calendar-day--in-range {
   background-color: var(--color-transparent-weak);
+  border-radius: 0;
 }
-.calendar-day-today {
-  font-weight: var(--fw-medium);
-  text-decoration: underline;
-  text-underline-offset: 0.25em;
-}
-.calendar-day-selected {
+.calendar-day--range-start { border-start-start-radius: var(--radius-md); border-end-start-radius: var(--radius-md); }
+.calendar-day--range-end   { border-start-end-radius: var(--radius-md); border-end-end-radius: var(--radius-md); }
+
+.calendar-day--selected {
   background-color: var(--color-text-primary);
   color: var(--color-fill-base);
 }
-.calendar-day-selected:hover { background-color: var(--color-text-primary); }
-.calendar-day-outside { opacity: var(--opacity-20); }
-.calendar-day-disabled { opacity: var(--opacity-20); }
+.calendar-day--selected:hover { background-color: var(--color-text-primary); }
+
+/* Today — the whole tile takes the red. A 4px dot was the only mark in the grid
+   carrying meaning at a size below the type, which made it easy to miss and
+   impossible to read at a glance; the solid fill states it once, plainly.
+   Both reds clear 5:1 against --color-fill-base, so the number stays legible. */
+.calendar-day--today {
+  background-color: var(--accent-red);
+  color: var(--color-fill-base);
+}
+/* The generic hover/in-range fills outrank a single class, so today restates
+   itself: the cell is already at full strength and has nowhere to go on hover. */
+.calendar-day--today:hover:not(:disabled):not(.calendar-day--selected),
+.calendar-day--today.calendar-day--in-range {
+  background-color: var(--accent-red);
+  color: var(--color-fill-base);
+}
+/* Selecting today hands the cell to the selection: it's the state the user just
+   asked for, and the red returns the moment the selection moves elsewhere. */
+.calendar-day--today.calendar-day--selected {
+  background-color: var(--color-text-primary);
+  color: var(--color-fill-base);
+}
+
+/* ── Month / year tiles ─────────────────────────────────────────────────── */
+.calendar-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-1);
+  width: calc(var(--calendar-cell) * 7);
+}
+.calendar-tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(var(--calendar-cell) * 1.5);
+  font: inherit;
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-none);
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: none;
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1),
+              background-color 120ms ease,
+              color 120ms ease,
+              opacity 120ms ease;
+}
+.calendar-tile:hover:not(:disabled):not(.calendar-tile--selected) {
+  background-color: var(--color-transparent-core);
+}
+.calendar-tile:focus-visible { outline: none; }
+.calendar-tile:focus-visible::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: var(--radius-md);
+  border: var(--border-md) dashed var(--color-fill-tertiary);
+  pointer-events: none;
+}
+.calendar-tile--current::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background-color: var(--accent-red);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.calendar-tile--selected {
+  background-color: var(--color-text-primary);
+  color: var(--color-fill-base);
+}
+.calendar-tile--disabled, .calendar-tile:disabled { opacity: var(--opacity-20); }
+
+/* ── Typed date fields ──────────────────────────────────────────────────── */
+/* Sit under the grid, separated by the 10% divider. Range mode splits into two
+   equal fields with an arrow between them — no captions needed, since the
+   direction of travel says which is which. Fields are the underline input at
+   the small step (0.875rem) so they read as a secondary route to the same
+   value, not a second control. */
+/* A row, always — one field or three children, the axis never changes. This was
+   a grid whose column track the range modifier had to rewrite, which meant a
+   single missing rule (a stale CSS chunk is enough) stacked the two fields on
+   top of each other. Flex needs no such override: the fields flex, the chevron
+   doesn't, and the worst a missing modifier can now cost is a few px of
+   padding. */
+.calendar-fields {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: calc(var(--calendar-cell) * 7);
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-2);
+  padding-inline: var(--space-2);
+  border-top: var(--border-sm) solid color-mix(in srgb, var(--color-text-primary) 10%, transparent);
+}
+/* The range row gives up its inline padding: at the md cell size the seven
+   columns are only 224px wide, and the padding plus gaps left each field ~85px
+   — narrower than the DD MMM YYYY placeholder, which then clipped. Dropping it
+   buys ~12px a side, and the underlines end up flush with the outer edge of the
+   grid, which is where they should have been. */
+.calendar-fields--range { padding-inline: 0; }
+.calendar-fields-arrow {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Matches the nav chevrons' rest weight, so it reads as chrome. */
+  font-size: 0.875rem;
+  opacity: var(--opacity-40);
+}
+
+/* flex-basis 0 rather than auto: two fields of identical content-width would
+   still drift apart on `auto` once one held a longer value. */
+.calendar-field { flex: 1 1 0; display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.calendar-field-label {
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-none);
+  line-height: var(--leading-body-xs);
+  opacity: var(--opacity-40);
+}
+.calendar-field-input {
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-none);
+  padding-block: var(--space-2);
+}
+.calendar-field-input:disabled { opacity: var(--opacity-40); }
+/* Announced by role="alert" and shown inline. Sized below the field label so a
+   two-field range row can carry it without forcing the popover wider. */
+.calendar-field-error {
+  font-size: 0.75rem;
+  letter-spacing: var(--tracking-none);
+  line-height: var(--leading-body-xs);
+  color: var(--color-status-error);
+  margin: 0;
+}
+
+/* ── Media variant — circular thumbnails, one per day ───────────────────── */
+/* Fluid: cells fill the container rather than sitting on the fixed 28/32px
+   scale, since this grid is a page-level element (the "today" photo journal)
+   rather than a picker. */
+.calendar--media {
+  display: flex;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  gap: var(--space-4);
+}
+/* Fluid columns: minmax(0, 1fr) rather than 1fr so a thumbnail can never push a
+   column past its share. Gaps run in both axes — between the weeks (on the
+   grid) and between the days (on each row). */
+.calendar--media .calendar-grid { gap: var(--space-2); }
+.calendar--media .calendar-row {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+/* The media grid is a page-level element, not a picker sitting in a form, so
+   the chrome steps up one rung of the type scale: title to body-md, controls
+   and weekday labels to body-xs. Hierarchy still comes from opacity. */
+.calendar--media .calendar-title-btn,
+.calendar--media .calendar-title-static {
+  font-size: 1.25rem;
+  letter-spacing: var(--tracking-n015);
+  line-height: var(--leading-body-md);
+}
+.calendar--media .calendar-today-btn,
+.calendar--media .calendar-nav-btn {
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n005);
+}
+.calendar--media .calendar-weekday {
+  height: auto;
+  padding-block: var(--space-2);
+  font-size: 1rem;
+  letter-spacing: var(--tracking-n005);
+}
+.calendar--media .calendar-tiles { width: 100%; gap: var(--space-2); }
+.calendar--media .calendar-day,
+.calendar--media .calendar-day-blank {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+}
+.calendar--media .calendar-day:hover:not(:disabled):not(.calendar-day--selected) {
+  background-color: transparent;
+}
+.calendar--media .calendar-day--selected { background-color: transparent; color: var(--color-text-primary); }
+.calendar--media .calendar-day--selected .calendar-media {
+  outline: var(--border-md) solid var(--color-text-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-full);
+}
+.calendar--media .calendar-day:focus-visible::before { border-radius: var(--radius-full); }
+/* Today in the photo grid. A filled day would bury a red cell fill under its
+   thumbnail, so the mark moves to the ring: red disc when the day is empty,
+   red outline around the photo when it isn't. Selection still outranks it —
+   one outline per element, and the selection is the more recent statement. */
+.calendar--media .calendar-day--today,
+.calendar--media .calendar-day--today:hover:not(:disabled) {
+  background-color: transparent;
+  color: var(--color-text-primary);
+}
+.calendar--media .calendar-day--today .calendar-media {
+  background-color: var(--accent-red);
+  color: var(--color-fill-base);
+}
+.calendar--media .calendar-day--today .calendar-media-ring { opacity: 0; }
+.calendar--media .calendar-day--today .calendar-media--filled {
+  background-color: transparent;
+  color: var(--color-text-primary);
+  outline: var(--border-md) solid var(--accent-red);
+  outline-offset: 2px;
+  border-radius: var(--radius-full);
+}
+.calendar--media .calendar-day--today.calendar-day--selected .calendar-media {
+  outline-color: var(--color-text-primary);
+}
+
+.calendar-media {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-full);
+}
+.calendar-media-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-full);
+  opacity: 1;
+  transition: opacity 150ms ease;
+}
+/* Hover fill — every day takes it, filled or not, so the grid answers the
+   pointer the way any other control does: the standard fill springing out from
+   the centre on the same curve as .btn, circular to sit inside the ring.
+   On a filled day it sits beneath the thumbnail and is revealed as that
+   thumbnail fades, so image → disc + date is one movement rather than two.
+   Lives on the media span rather than the cell so it never contends with the
+   focus ring, which owns the cell's ::before. */
+.calendar-media::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  /* The system's hover fill, same token the picker's day cells and every .btn
+     take — 20%, not the 10% this used to carry. At 10% on the dark surface the
+     disc read as a rendering artefact rather than a response. */
+  background-color: var(--color-transparent-core);
+  transform: scale(0.8);
+  opacity: 0;
+  transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 150ms ease;
+  pointer-events: none;
+}
+.calendar-day:hover:not(:disabled) .calendar-media::before,
+.calendar-day:focus-visible:not(:disabled) .calendar-media::before {
+  transform: scale(1);
+  opacity: 1;
+}
+.calendar-day:active:not(:disabled) .calendar-media::before {
+  transform: scale(0.95);
+  opacity: 1;
+}
+
+.calendar-media-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  border: var(--border-sm) dashed var(--color-fill-tertiary);
+  opacity: var(--opacity-40);
+}
+/* Outside days carry 20% on the cell, as in the picker. In the picker that
+   lands on a plain number; here it would multiply with the ring's own 40% and
+   leave it at 8% — below the system's floor, i.e. gone. Taking the ring to full
+   opacity inside a dimmed cell makes the compound land on exactly 20%. */
+.calendar--media .calendar-day--outside .calendar-media-ring { opacity: 1; }
+/* Empty days show their number at rest; filled days reveal it on hover as
+   the thumbnail fades out. */
+.calendar-media-number {
+  position: relative;
+  z-index: 1;
+  line-height: 1;
+  opacity: 1;
+  transition: opacity 150ms ease;
+}
+.calendar-media--filled .calendar-media-number { opacity: 0; }
+.calendar-day:hover .calendar-media--filled .calendar-media-image,
+.calendar-day:focus-visible .calendar-media--filled .calendar-media-image { opacity: 0; }
+.calendar-day:hover .calendar-media--filled .calendar-media-number,
+.calendar-day:focus-visible .calendar-media--filled .calendar-media-number { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .calendar-day, .calendar-tile { transition: background-color 120ms ease, color 120ms ease; transform: none; }
+  .calendar-media-image, .calendar-media-number { transition: none; }
+  /* No spring: the fill just appears at full size. */
+  .calendar-media::before { transition: opacity 120ms ease; transform: none; }
+  .calendar-day:hover:not(:disabled) .calendar-media::before,
+  .calendar-day:focus-visible:not(:disabled) .calendar-media::before,
+  .calendar-day:active:not(:disabled) .calendar-media::before { transform: none; }
+}
 
 /* ─── DATE INPUT ─────────────────────────────────────────────────────────── */
-.date-input { position: relative; width: 100%; }
+/* The wrapper, not the field, is the type anchor: it pins the 1rem that .input
+   would otherwise set on itself, and the field and trigger both read back off
+   it in em. One `style={{ fontSize }}` on the component therefore scales the
+   text, the icon and the gutter reserved for it, exactly as passing the same
+   style to <Input> scales a plain text field.
+   Gravity also lives here rather than on the field — see DateInput.tsx. */
+.date-input {
+  position: relative;
+  width: 100%;
+  font-size: 1rem;
+  --gravity-x: 0px; --gravity-y: 0px;
+  transform: translate(var(--gravity-x), var(--gravity-y));
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.date-input .input { font-size: inherit; }
+.date-input-field { padding-inline-end: 2em; }
+.date-input-trigger {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: 0;
+  transform: translateY(-50%);
+  font-size: 1em;
+  opacity: var(--opacity-40);
+  transition: opacity 150ms ease;
+}
+/* In float mode the wrapper is taller by the reserved label space (1.5rem), so
+   centring on the wrapper would drop the icon below the text. Re-centre on the
+   field alone: 1.5rem + (H − 1.5rem) / 2 collapses to 50% + 0.75rem. */
+.date-input--float .date-input-trigger { inset-block-start: calc(50% + 0.75rem); }
+.date-input-trigger:hover:not(:disabled) { opacity: 1; }
+.date-input-trigger:disabled { opacity: var(--opacity-20); }
 .date-input-popover {
   position: absolute;
   z-index: 997;
